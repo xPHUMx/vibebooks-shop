@@ -22,47 +22,48 @@ export default function CatalogPage() {
 
   return (
     <div className="space-y-6 animate-fade">
-      {/* Search Bar matching Stitch */}
-      <div className="relative flex items-center w-full rounded-2xl bg-white/[0.03] backdrop-blur-xl px-4 py-3 specular-border shadow-lg transition-all focus-within:bg-white/[0.06] focus-within:shadow-[0_0_24px_rgba(139,92,246,0.25)]">
+      {/* Minimalist Search Bar */}
+      <div className="relative flex items-center w-full rounded-2xl bg-white/[0.03] backdrop-blur-xl px-4 py-3 border border-white/[0.08] shadow-lg transition-all focus-within:bg-white/[0.06] focus-within:border-secondary/40 focus-within:shadow-[0_0_20px_rgba(76,215,246,0.2)]">
         <span className="material-symbols-outlined text-secondary shrink-0 text-[20px]">
           search
         </span>
         <input
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by title, architecture, topic..."
-          className="w-full bg-transparent border-none outline-none text-xs text-on-surface placeholder:text-on-surface-variant/50 ml-3 min-w-0"
+          placeholder="ค้นหา E-book วิศวกรรมซอฟต์แวร์, สถาปัตยกรรมระบบ, โค้ดตัวอย่าง..."
+          className="w-full bg-transparent border-none outline-none text-xs text-on-surface placeholder:text-on-surface-variant/40 ml-3 min-w-0"
           type="text"
         />
         {searchQuery && (
           <button
             onClick={() => setSearchQuery("")}
-            className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-white"
+            className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-white transition-colors"
           >
             <span className="material-symbols-outlined text-[13px]">close</span>
           </button>
         )}
       </div>
 
-      {/* Hero Section */}
-      <div className="relative w-full overflow-hidden rounded-3xl bg-surface-container/60 backdrop-blur-2xl p-6 shadow-xl specular-border">
-        <div className="absolute -top-16 -right-12 w-52 h-52 bg-primary-container/30 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute -bottom-16 -left-10 w-48 h-48 bg-secondary/20 rounded-full blur-3xl pointer-events-none"></div>
+      {/* Hero Section — Minimalist Obsidian Glass */}
+      <div className="relative w-full overflow-hidden rounded-3xl bg-surface-container-low/60 backdrop-blur-2xl p-6 shadow-2xl border border-white/[0.08]">
+        {/* Subtle Animated Glowing Orbs */}
+        <div className="absolute -top-16 -right-12 w-48 h-48 bg-primary/20 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
+        <div className="absolute -bottom-16 -left-10 w-44 h-44 bg-secondary/15 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="relative z-10 flex flex-col gap-3">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-semibold uppercase tracking-wider">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_currentColor]"></span>
-              Editorial Release 2026
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[11px] font-semibold uppercase tracking-wider">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+              Editorial Master Edition 2026
             </span>
           </div>
 
           <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight leading-snug">
-            Engineering & Creative E-books
+            VibeBooks Engineering & AI Series
           </h1>
           <p className="text-xs text-on-surface-variant leading-relaxed max-w-lg font-normal">
-            คลังหนังสือวิศวกรรมซอฟต์แวร์และสื่ออินเตอร์แอคทีฟ สั่งซื้อง่าย รับไฟล์ทันที
-            ระบบชำระเงินจำลอง (DEMO ONLY) ปลอดภัย 100%
+            คลังคู่มือสถาปัตยกรรมซอฟต์แวร์ระดับโปรดักชัน ภาษาไทยฉบับสมบูรณ์ (Full 6-Page Technical Master)
+            พร้อมผลการทดสอบระบบและซอร์สโค้ดจริง (DEMO ONLY)
           </p>
 
           <div className="pt-2 flex items-center justify-between gap-3 flex-wrap">
@@ -72,20 +73,20 @@ export default function CatalogPage() {
                   .getElementById("product-grid")
                   ?.scrollIntoView({ behavior: "smooth" });
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-inverse-primary via-primary-container to-secondary-container text-on-primary text-xs font-bold shadow-[0_0_24px_rgba(139,92,246,0.45)] active:scale-95 transition-transform"
+              className="btn-spring inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-secondary via-cyan-400 to-primary text-slate-950 text-xs font-bold shadow-[0_0_20px_rgba(76,215,246,0.35)] hover:opacity-95 transition-all"
             >
-              <span>Explore Collection</span>
+              <span>สำรวจคลังหนังสือ</span>
               <span className="material-symbols-outlined text-[16px]">bolt</span>
             </button>
 
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.04] backdrop-blur-md specular-border">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.03] backdrop-blur-md border border-white/[0.06]">
               <div className="w-2 h-2 rounded-full bg-secondary shadow-[0_0_6px_rgba(76,215,246,0.8)]"></div>
               <div className="flex flex-col">
                 <span className="text-[9px] text-on-surface-variant uppercase tracking-wider">
-                  Curator & Developer
+                  Lead Architect & Author
                 </span>
                 <span className="text-[11px] text-secondary font-semibold">
-                  {STUDENT_INFO.nameEn} • {STUDENT_INFO.studentId}
+                  {STUDENT_INFO.name} ({STUDENT_INFO.studentId})
                 </span>
               </div>
             </div>
@@ -93,146 +94,134 @@ export default function CatalogPage() {
         </div>
       </div>
 
-      {/* Filter Bar */}
+      {/* Minimalist Filter Bar */}
       <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
         <button
           onClick={() => setActiveCategory("all")}
-          className={`filter-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs transition-all ${
+          className={`filter-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all btn-spring ${
             activeCategory === "all"
-              ? "bg-primary/20 text-primary font-bold shadow-[0_0_16px_rgba(208,188,255,0.3)]"
-              : "bg-white/[0.04] text-on-surface-variant hover:text-on-surface"
+              ? "bg-secondary/20 text-secondary border border-secondary/40 font-bold shadow-[0_0_12px_rgba(76,215,246,0.25)]"
+              : "bg-white/[0.03] text-on-surface-variant hover:text-on-surface border border-white/[0.04]"
           }`}
         >
-          All Guides ({BOOKS.length})
+          ทั้งหมด ({BOOKS.length})
         </button>
         <button
           onClick={() => setActiveCategory("multimedia")}
-          className={`filter-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs transition-all ${
+          className={`filter-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all btn-spring ${
             activeCategory === "multimedia"
-              ? "bg-primary/20 text-primary font-bold shadow-[0_0_16px_rgba(208,188,255,0.3)]"
-              : "bg-white/[0.04] text-on-surface-variant hover:text-on-surface"
+              ? "bg-secondary/20 text-secondary border border-secondary/40 font-bold shadow-[0_0_12px_rgba(76,215,246,0.25)]"
+              : "bg-white/[0.03] text-on-surface-variant hover:text-on-surface border border-white/[0.04]"
           }`}
         >
-          Multimedia & DSP
+          มัลติมีเดีย (Lab 1)
         </button>
         <button
           onClick={() => setActiveCategory("creative-ai")}
-          className={`filter-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs transition-all ${
+          className={`filter-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all btn-spring ${
             activeCategory === "creative-ai"
-              ? "bg-primary/20 text-primary font-bold shadow-[0_0_16px_rgba(208,188,255,0.3)]"
-              : "bg-white/[0.04] text-on-surface-variant hover:text-on-surface"
+              ? "bg-secondary/20 text-secondary border border-secondary/40 font-bold shadow-[0_0_12px_rgba(76,215,246,0.25)]"
+              : "bg-white/[0.03] text-on-surface-variant hover:text-on-surface border border-white/[0.04]"
           }`}
         >
-          Creative AI & 3D
+          Creative AI (Lab 2)
         </button>
         <button
           onClick={() => setActiveCategory("productivity")}
-          className={`filter-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs transition-all ${
+          className={`filter-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all btn-spring ${
             activeCategory === "productivity"
-              ? "bg-primary/20 text-primary font-bold shadow-[0_0_16px_rgba(208,188,255,0.3)]"
-              : "bg-white/[0.04] text-on-surface-variant hover:text-on-surface"
+              ? "bg-secondary/20 text-secondary border border-secondary/40 font-bold shadow-[0_0_12px_rgba(76,215,246,0.25)]"
+              : "bg-white/[0.03] text-on-surface-variant hover:text-on-surface border border-white/[0.04]"
           }`}
         >
-          Productivity Systems
+          ระบบผลผลิต (Lab 3 & 4)
         </button>
       </div>
 
-      {/* Bento Product Grid */}
+      {/* Bento Product Grid — Minimalist Glass Cards with Clear Cover Images */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5" id="product-grid">
-        {filteredBooks.map((book) => {
+        {filteredBooks.map((book, index) => {
           const accentColor =
             book.category === "multimedia"
-              ? "secondary"
+              ? "text-[#a855f7] bg-[#a855f7]/15 border-[#a855f7]/30"
               : book.category === "creative-ai"
-              ? "tertiary"
-              : "primary";
+              ? "text-[#f59e0b] bg-[#f59e0b]/15 border-[#f59e0b]/30"
+              : "text-[#06b6d4] bg-[#06b6d4]/15 border-[#06b6d4]/30";
 
           return (
             <article
               key={book.id}
-              className="group relative flex flex-col rounded-3xl bg-surface-container-low/80 backdrop-blur-xl p-5 shadow-xl specular-border transition-all duration-300 hover:shadow-[0_16px_40px_rgba(0,0,0,0.5),0_0_24px_rgba(76,215,246,0.18)] hover:-translate-y-1"
+              style={{ animationDelay: `${index * 90}ms` }}
+              className="group relative flex flex-col rounded-3xl bg-surface-container-low/70 backdrop-blur-xl p-4 sm:p-5 shadow-xl border border-white/[0.08] glass-card-hover animate-fade-in-up"
             >
-              {/* Visual 3D Book Presentation */}
-              <div className="relative w-full h-48 rounded-2xl overflow-hidden bg-surface-container-lowest flex items-center justify-center shadow-inner">
-                <div className="absolute inset-0 bg-gradient-to-tr from-secondary/20 via-transparent to-primary/20 opacity-80 group-hover:opacity-100 transition-opacity"></div>
-                <div className="relative w-32 h-40 rounded-r-xl rounded-l-xs bg-gradient-to-br from-surface-container-high via-surface-container to-surface-container-lowest shadow-2xl flex flex-col justify-between p-3 overflow-hidden transform group-hover:scale-105 transition-transform">
-                  <div className="absolute left-0 top-0 bottom-0 w-2.5 bg-gradient-to-r from-black/60 via-white/10 to-transparent"></div>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={book.coverImage}
-                    alt={book.title}
-                    className="absolute inset-0 w-full h-full object-cover mix-blend-screen opacity-75"
-                  />
-                  <div className="relative z-10 flex justify-between items-start">
-                    <span
-                      className={`inline-flex px-1.5 py-0.5 rounded bg-${accentColor}/20 text-${accentColor} text-[9px] uppercase font-bold`}
-                    >
-                      LAB {book.labNumber}
-                    </span>
-                    <span
-                      className={`material-symbols-outlined text-${accentColor} text-[16px]`}
-                    >
-                      {book.category === "multimedia"
-                        ? "graphic_eq"
-                        : book.category === "creative-ai"
-                        ? "auto_awesome"
-                        : "dashboard_customize"}
-                    </span>
-                  </div>
-                  <div className="relative z-10 flex flex-col">
-                    <span className="text-[12px] font-bold text-on-surface leading-tight">
-                      {book.title}
-                    </span>
-                    <span className={`text-[9px] text-${accentColor}`}>
-                      {book.subtitle}
-                    </span>
-                  </div>
-                </div>
+              {/* Crisp Book Image Frame with Subtle Vignette */}
+              <div className="relative w-full h-44 sm:h-48 rounded-2xl overflow-hidden bg-surface-container-lowest border border-white/[0.06] flex items-center justify-center shadow-inner group">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={book.coverImage}
+                  alt={book.title}
+                  className="w-full h-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
+                  onError={(e) => {
+                    // Fallback to default styling if needed
+                    const target = e.target as HTMLImageElement;
+                    target.src = "/images/books/task_manager.png";
+                  }}
+                />
 
-                <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-surface-container-highest/90 text-secondary text-[10px] font-bold shadow flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[12px]">
-                    verified
-                  </span>{" "}
+                {/* Subtle gradient vignette at bottom for text contrast */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
+
+                {/* Lab Badge */}
+                <span className={`absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md border ${accentColor}`}>
                   Lab {book.labNumber}
                 </span>
+
+                {/* Pages & Format Badge */}
+                <span className="absolute top-3 right-3 px-2 py-0.5 rounded-full bg-black/60 text-white/90 text-[10px] font-mono backdrop-blur-md border border-white/10 flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[12px] text-secondary">
+                    picture_as_pdf
+                  </span>
+                  6 หน้าเต็ม
+                </span>
+
+                {/* Title Overlay in bottom of cover frame */}
+                <div className="absolute bottom-2.5 inset-x-3 text-left">
+                  <span className="text-[11px] font-semibold text-white/90 drop-shadow line-clamp-1">
+                    {book.title}
+                  </span>
+                </div>
               </div>
 
-              {/* Card Metadata & Actions */}
+              {/* Card Metadata & Minimalist Layout */}
               <div className="flex flex-col gap-2 pt-3 flex-1 justify-between">
                 <div>
                   <div className="flex items-start justify-between gap-1">
-                    <h2 className="text-sm font-bold text-on-surface truncate">
+                    <h2 className="text-sm font-bold text-on-surface group-hover:text-secondary transition-colors line-clamp-1">
                       {book.title}
                     </h2>
-                    <span className="text-sm font-extrabold text-secondary shrink-0">
-                      ฿{book.price}
+                    <span className="text-sm font-extrabold text-secondary shrink-0 font-mono">
+                      ฿{book.price}.00
                     </span>
                   </div>
-                  <p className="text-[11px] text-on-surface-variant truncate">
-                    {book.subtitle}
+                  <p className="text-[11px] text-on-surface-variant line-clamp-2 leading-relaxed mt-0.5">
+                    {book.description}
                   </p>
-                  <div className="flex flex-wrap gap-1 pt-2">
-                    <span className="px-2 py-0.5 rounded-md bg-white/[0.04] text-on-surface-variant text-[10px]">
-                      {book.specs.pages} Pages
-                    </span>
-                    <span className="px-2 py-0.5 rounded-md bg-secondary/10 text-secondary text-[10px] font-semibold">
-                      PDF + Code
-                    </span>
-                  </div>
                 </div>
 
-                <div className="pt-2 flex items-center justify-between border-t border-white/5">
-                  <span className="text-[11px] text-on-surface-variant flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[14px] text-tertiary">
+                <div className="pt-3 flex items-center justify-between border-t border-white/[0.06]">
+                  <span className="text-[11px] text-on-surface-variant flex items-center gap-1 font-mono">
+                    <span className="material-symbols-outlined text-[13px] text-amber-400 fill-current">
                       star
-                    </span>{" "}
-                    {book.rating} ({book.ratingCount})
+                    </span>
+                    <span>{book.rating}</span>
+                    <span className="text-on-surface-variant/60">({book.ratingCount})</span>
                   </span>
+
                   <Link
                     href={`/checkout/${book.id}`}
-                    className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-primary-container to-secondary text-on-primary text-xs font-bold shadow-md hover:scale-105 active:scale-95 transition-all"
+                    className="btn-spring inline-flex items-center gap-1 px-4 py-1.5 rounded-full bg-gradient-to-r from-primary-container/90 to-secondary text-slate-950 text-xs font-bold shadow-md hover:shadow-[0_0_15px_rgba(76,215,246,0.3)] transition-all"
                   >
-                    <span>View & Order</span>
+                    <span>สั่งซื้อ E-book</span>
                     <span className="material-symbols-outlined text-[14px]">
                       arrow_forward
                     </span>
@@ -244,35 +233,35 @@ export default function CatalogPage() {
         })}
       </div>
 
-      {/* Trust Bento Strip */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4">
-        <div className="rounded-2xl bg-surface-container-low p-3.5 flex items-center gap-3 specular-border">
-          <div className="w-9 h-9 rounded-xl bg-secondary/20 text-secondary flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-[20px]">bolt</span>
+      {/* Trust Bento Strip — Ultra-Minimal Glass */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+        <div className="rounded-2xl bg-surface-container-low/50 backdrop-blur-md p-3.5 flex items-center gap-3 border border-white/[0.06]">
+          <div className="w-9 h-9 rounded-xl bg-secondary/15 text-secondary flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-[20px]">menu_book</span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-xs font-bold text-on-surface">จัดส่งอัตโนมัติ 5 วินาที</span>
-            <span className="text-[10px] text-on-surface-variant">รับลิงก์ดาวน์โหลดทันทีหลังสั่งซื้อ</span>
-          </div>
-        </div>
-
-        <div className="rounded-2xl bg-surface-container-low p-3.5 flex items-center gap-3 specular-border">
-          <div className="w-9 h-9 rounded-xl bg-primary/20 text-primary flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-[20px]">lock_clock</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-xs font-bold text-on-surface">Temporary Signed URL</span>
-            <span className="text-[10px] text-on-surface-variant">ลิงก์ส่วนตัวหมดอายุใน 15 นาที</span>
+          <div className="flex flex-col min-w-0">
+            <span className="text-xs font-bold text-on-surface truncate">E-book ภาษาไทยฉบับเต็ม</span>
+            <span className="text-[10px] text-on-surface-variant">เนื้อหาละเอียด 6 หน้า พร้อมโค้ดจริง</span>
           </div>
         </div>
 
-        <div className="rounded-2xl bg-surface-container-low p-3.5 flex items-center gap-3 specular-border">
-          <div className="w-9 h-9 rounded-xl bg-tertiary/20 text-tertiary flex items-center justify-center shrink-0">
-            <span className="material-symbols-outlined text-[20px]">smartphone</span>
+        <div className="rounded-2xl bg-surface-container-low/50 backdrop-blur-md p-3.5 flex items-center gap-3 border border-white/[0.06]">
+          <div className="w-9 h-9 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-[20px]">verified_user</span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-xs font-bold text-on-surface">MIT App Inventor Ready</span>
-            <span className="text-[10px] text-on-surface-variant">รองรับการเปิดบน Android WebViewer</span>
+          <div className="flex flex-col min-w-0">
+            <span className="text-xs font-bold text-on-surface truncate">Supabase Cloud Vault</span>
+            <span className="text-[10px] text-on-surface-variant">Temporary Signed URL ปลอดภัย 100%</span>
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-surface-container-low/50 backdrop-blur-md p-3.5 flex items-center gap-3 border border-white/[0.06]">
+          <div className="w-9 h-9 rounded-xl bg-tertiary/15 text-tertiary flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-[20px]">phone_iphone</span>
+          </div>
+          <div className="flex flex-col min-w-0">
+            <span className="text-xs font-bold text-on-surface truncate">In-App Reader for iPhone</span>
+            <span className="text-[10px] text-on-surface-variant">อ่านบน MIT WebViewer ได้ทันที</span>
           </div>
         </div>
       </div>

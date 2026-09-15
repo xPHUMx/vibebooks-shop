@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
@@ -89,7 +89,7 @@ function TrackingContent() {
       </div>
 
       {/* Glass Lookup Form Card */}
-      <div className="w-full rounded-2xl bg-surface-container-low p-5 shadow-xl flex flex-col gap-3.5 specular-border">
+      <div className="w-full rounded-3xl bg-surface-container-low/70 backdrop-blur-xl p-5 sm:p-6 shadow-xl flex flex-col gap-3.5 border border-white/[0.08] animate-fade-in-up">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-primary">
             <span className="material-symbols-outlined text-[18px]">
@@ -97,7 +97,7 @@ function TrackingContent() {
             </span>
             <span className="text-xs font-bold text-on-surface">License Lookup</span>
           </div>
-          <span className="text-[10px] text-on-surface-variant bg-surface-container-highest px-2 py-0.5 rounded-full font-mono">
+          <span className="text-[10px] text-secondary bg-secondary/15 border border-secondary/30 px-2.5 py-0.5 rounded-full font-mono">
             Encrypted
           </span>
         </div>
@@ -126,7 +126,7 @@ function TrackingContent() {
                 value={orderId}
                 onChange={(e) => setOrderId(e.target.value)}
                 placeholder="เช่น ORD-2026-8821"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-surface-container-highest text-on-surface text-xs focus:outline-none focus:ring-1 focus:ring-secondary specular-border font-mono shadow-inner"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface text-xs focus:outline-none focus:border-secondary/40 focus:ring-1 focus:ring-secondary/40 border border-white/[0.08] font-mono shadow-inner transition-all"
               />
             </div>
           </div>
@@ -145,7 +145,7 @@ function TrackingContent() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="เช่น buyer@example.com"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-surface-container-highest text-on-surface text-xs focus:outline-none focus:ring-1 focus:ring-secondary specular-border shadow-inner"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface text-xs focus:outline-none focus:border-secondary/40 focus:ring-1 focus:ring-secondary/40 border border-white/[0.08] shadow-inner transition-all"
               />
             </div>
           </div>
@@ -153,7 +153,7 @@ function TrackingContent() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-primary-container via-primary to-secondary text-on-primary-container text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg active:scale-[0.99] transition-all disabled:opacity-50"
+            className="btn-spring w-full py-3 px-4 rounded-xl bg-gradient-to-r from-secondary-container via-secondary to-primary text-slate-950 text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-cyan-950/40 hover:opacity-95 transition-all disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-[16px]">search</span>
             <span>

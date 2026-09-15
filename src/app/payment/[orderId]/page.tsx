@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import DemoWarningBanner from "@/components/DemoWarningBanner";
 import { Order } from "@/types";
+import DemoWarningBanner from "@/components/DemoWarningBanner";
 
 export default function PaymentPage() {
   const params = useParams();
@@ -15,15 +15,19 @@ export default function PaymentPage() {
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [countdown, setCountdown] = useState(899); // 14:59 mins
+  const [countdown, setCountdown] = useState(300); // 5 mins demo timer
 
   useEffect(() => {
     async function fetchOrder() {
       try {
         const res = await fetch(`/api/orders?orderId=${orderId}`);
         const data = await res.json();
-        if (data.success) {
+        if (data.success && data.order) {
           setOrder(data.order);
+          // If already paid, forward to delivery view
+          if (data.order.status === "PAID") {
+            router.push(`/order/${orderId}`);
+          }
         }
       } catch (err) {
         console.error("Fetch order error:", err);
@@ -35,7 +39,7 @@ export default function PaymentPage() {
     if (orderId) {
       fetchOrder();
     }
-  }, [orderId]);
+  }, [orderId, router]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -44,10 +48,16 @@ export default function PaymentPage() {
     return () => clearInterval(timer);
   }, []);
 
-  const formatTime = (secs: number) => {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  };
+
+  const handleCopyRef = () => {
+    navigator.clipboard.writeText(orderId);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleSimulatePayment = async () => {
@@ -63,28 +73,22 @@ export default function PaymentPage() {
       if (data.success) {
         router.push(`/order/${orderId}`);
       } else {
-        alert(data.error || "เกิดข้อผิดพลาดในการจำลองการชำระเงิน");
-        setPaying(false);
+        alert(data.error || "เกิดข้อผิดพลาดในการยืนยันการชำระเงินจำลอง");
       }
     } catch (err) {
-      alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+      alert("ไม่สามารถจำลองการชำระเงินได้");
+    } finally {
       setPaying(false);
     }
   };
 
-  const handleCopyRef = () => {
-    navigator.clipboard?.writeText(orderId);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   if (loading) {
     return (
-      <div className="text-center py-20">
+      <div className="text-center py-20 animate-fade">
         <span className="material-symbols-outlined text-secondary text-[36px] animate-spin">
           progress_activity
         </span>
-        <p className="text-xs text-on-surface-variant mt-2">กำลังโหลดข้อมูลคำสั่งซื้อ...</p>
+        <p className="text-xs text-on-surface-variant mt-2 font-mono">กำลังโหลดข้อมูลคำสั่งซื้อ...</p>
       </div>
     );
   }
@@ -94,12 +98,13 @@ export default function PaymentPage() {
       {/* Prominent Mandatory DEMO Warning Banner */}
       <DemoWarningBanner />
 
-      {/* Main Payment Gateway Card from Stitch */}
-      <div className="w-full bg-surface-container-high/90 backdrop-blur-2xl rounded-3xl p-5 shadow-2xl specular-border flex flex-col relative overflow-hidden">
+      {/* Main Payment Gateway Card — Minimalist Obsidian Glass */}
+      <div className="w-full bg-surface-container-low/70 backdrop-blur-2xl rounded-3xl p-5 shadow-2xl border border-white/[0.08] flex flex-col relative overflow-hidden animate-fade-in-up">
         {/* Thai PromptPay Branded Header Bar */}
-        <div className="w-full bg-gradient-to-r from-[#0d2a54] via-[#1a437a] to-[#261f5c] rounded-2xl p-4 flex items-center justify-between shadow-lg relative overflow-hidden">
+        <div className="w-full bg-gradient-to-r from-[#0d2a54] via-[#1a437a] to-[#261f5c] rounded-2xl p-4 flex items-center justify-between shadow-lg relative overflow-hidden border border-white/10">
           <div className="flex items-center gap-3">
             <div className="h-11 px-2.5 py-1 rounded-xl bg-white flex items-center justify-center shadow-md shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/prompt-pay-logo.png"
                 alt="PromptPay Logo"
@@ -113,21 +118,21 @@ export default function PaymentPage() {
               </span>
             </div>
           </div>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 text-white text-[10px] backdrop-blur-md">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 text-white text-[10px] backdrop-blur-md font-mono border border-white/15">
             <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-ping"></span>
             Ready to scan
           </span>
         </div>
 
         {/* Order Summary Strip */}
-        <div className="mt-4 w-full bg-surface-container-lowest/80 rounded-2xl p-3.5 flex items-center justify-between gap-3 shadow-inner specular-border">
+        <div className="mt-4 w-full bg-surface-container-lowest/80 rounded-2xl p-3.5 flex items-center justify-between gap-3 shadow-inner border border-white/[0.06]">
           <div className="flex flex-col min-w-0">
             <span className="text-[10px] text-on-surface-variant uppercase tracking-wider">Order Reference</span>
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="text-xs text-on-surface font-mono font-bold truncate">{orderId}</span>
               <button
                 onClick={handleCopyRef}
-                className="p-1 rounded bg-white/5 hover:bg-white/10 text-secondary transition-colors"
+                className="btn-spring p-1 rounded bg-white/5 hover:bg-white/10 text-secondary transition-colors"
                 title="คัดลอกรหัสคำสั่งซื้อ"
               >
                 <span className="material-symbols-outlined text-[14px]">
@@ -138,14 +143,14 @@ export default function PaymentPage() {
           </div>
           <div className="flex flex-col items-end shrink-0">
             <span className="text-[10px] text-on-surface-variant uppercase tracking-wider">Amount Due</span>
-            <span className="text-lg font-bold text-secondary tracking-tight">
+            <span className="text-lg font-bold text-secondary tracking-tight font-mono">
               ฿{order ? order.bookPrice : 199}.00
             </span>
           </div>
         </div>
 
         {/* QR Stage Container */}
-        <div className="mt-5 flex flex-col items-center justify-center p-4 rounded-2xl bg-surface-container-lowest specular-border shadow-inner">
+        <div className="mt-5 flex flex-col items-center justify-center p-4 rounded-2xl bg-surface-container-lowest border border-white/[0.06] shadow-inner">
           <div className="w-48 h-48 bg-white rounded-xl p-3 flex flex-col items-center justify-center relative shadow-md">
             {/* Simulated QR Pattern Graphic */}
             <svg className="w-full h-full text-slate-900" viewBox="0 0 100 100" fill="currentColor">
@@ -180,19 +185,19 @@ export default function PaymentPage() {
             PromptPay ID: 000-000-0000 (Simulated Demo Account)
           </div>
 
-          <div className="mt-2 flex items-center gap-1.5 text-xs text-on-surface-variant">
+          <div className="mt-2 flex items-center gap-1.5 text-xs text-on-surface-variant font-mono">
             <span className="material-symbols-outlined text-[16px] text-secondary">timer</span>
             <span>เวลารอดำเนินการ:</span>
-            <span className="font-mono font-bold text-secondary">{formatTime(countdown)} นาที</span>
+            <span className="font-bold text-secondary">{formatTime(countdown)} นาที</span>
           </div>
         </div>
 
         {/* Customer Breakdown */}
         {order && (
-          <div className="mt-4 p-3 rounded-xl bg-surface-container text-xs text-on-surface-variant space-y-1">
+          <div className="mt-4 p-3 rounded-xl bg-surface-container-lowest/60 border border-white/[0.04] text-xs text-on-surface-variant space-y-1">
             <div className="flex justify-between">
               <span>รายการ:</span>
-              <span className="text-on-surface font-medium">{order.bookTitle}</span>
+              <span className="text-on-surface font-medium truncate ml-2">{order.bookTitle}</span>
             </div>
             <div className="flex justify-between">
               <span>ผู้สั่งซื้อ:</span>
@@ -210,10 +215,10 @@ export default function PaymentPage() {
           <button
             onClick={handleSimulatePayment}
             disabled={paying}
-            className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-secondary-container via-secondary to-primary-container text-on-secondary font-bold text-xs shadow-lg shadow-cyan-950/40 hover:opacity-90 active:scale-[0.99] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            className="btn-spring w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-secondary-container via-secondary to-primary text-slate-950 font-bold text-xs shadow-lg shadow-cyan-950/40 hover:opacity-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
           >
             {paying ? (
-              <span>กำลังตรวจสอบการชำระเงินจำลอง...</span>
+              <span className="font-mono">กำลังตรวจสอบการชำระเงินจำลอง...</span>
             ) : (
               <>
                 <span className="material-symbols-outlined text-[18px]">verified</span>
@@ -222,13 +227,29 @@ export default function PaymentPage() {
             )}
           </button>
 
-          <Link
-            href="/"
-            className="block w-full text-center text-[11px] text-on-surface-variant hover:text-white py-1 transition-colors"
-          >
-            ยกเลิกและกลับสู่หน้าร้านค้า
-          </Link>
+          <p className="text-[10px] text-center text-outline">
+            ระบบจะอัปเดตสถานะใน Supabase PostgreSQL เป็น PAID และออก Temporary Signed URL ทันที
+          </p>
         </div>
+      </div>
+
+      {/* Navigation Links */}
+      <div className="flex items-center justify-between text-xs pt-1">
+        <Link
+          href="/"
+          className="text-on-surface-variant hover:text-white transition-colors flex items-center gap-1"
+        >
+          <span className="material-symbols-outlined text-[14px]">arrow_back</span>
+          <span>ยกเลิกและกลับสู่หน้าร้าน</span>
+        </Link>
+        <Link
+          href={`/tracking?orderId=${orderId}&email=${encodeURIComponent(
+            order?.customerEmail || ""
+          )}`}
+          className="text-secondary hover:underline"
+        >
+          ติดตามสถานะคำสั่งซื้อ
+        </Link>
       </div>
     </div>
   );

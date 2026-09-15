@@ -181,13 +181,13 @@ export default function OrderSuccessPage() {
         </div>
 
         {/* E-book File Information Box */}
-        <div className="rounded-xl bg-surface-container-lowest p-3.5 flex items-center gap-3 shadow-inner specular-border">
-          <div className="w-12 h-14 rounded-lg bg-surface-container-high flex flex-col items-center justify-center shrink-0 shadow relative overflow-hidden">
+        <div className="rounded-2xl bg-surface-container-lowest p-3.5 flex items-center gap-3.5 shadow-inner border border-white/[0.06]">
+          <div className="w-12 h-14 rounded-xl bg-surface-container-high flex flex-col items-center justify-center shrink-0 shadow relative overflow-hidden border border-white/10">
             <div className="absolute top-0 inset-x-0 h-1.5 bg-secondary"></div>
             <span className="material-symbols-outlined text-secondary text-[24px]">
               menu_book
             </span>
-            <span className="text-[8px] text-secondary-fixed font-bold uppercase">6 PAGES</span>
+            <span className="text-[7.5px] text-secondary-fixed font-bold uppercase font-mono">6 หน้าไทย</span>
           </div>
           <div className="flex flex-col min-w-0 flex-1">
             <h2 className="text-xs font-bold text-on-surface truncate">
@@ -197,7 +197,7 @@ export default function OrderSuccessPage() {
               {order?.fileName || "Media_Player_PRO_Engineering.pdf"}
             </span>
             <p className="text-[10px] text-on-surface-variant mt-0.5">
-              Digital Master Edition • Supabase Vault Certified
+              ฉบับสมบูรณ์ภาษาไทย 6 หน้า • Supabase Vault Certified
             </p>
           </div>
         </div>
@@ -205,7 +205,7 @@ export default function OrderSuccessPage() {
         {/* Action 1: IN-APP PDF READER (Primary for MIT App Inventor & iPhone) */}
         <button
           onClick={() => setShowReader(!showReader)}
-          className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-secondary via-cyan-500 to-primary text-slate-950 text-xs font-bold shadow-lg shadow-cyan-950/40 hover:opacity-95 active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+          className="btn-spring w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-secondary via-cyan-400 to-primary text-slate-950 text-xs font-bold shadow-lg shadow-cyan-950/40 hover:opacity-95 transition-all flex items-center justify-center gap-2"
         >
           <span className="material-symbols-outlined text-[20px]">
             {showReader ? "visibility_off" : "auto_stories"}
@@ -222,7 +222,7 @@ export default function OrderSuccessPage() {
           <button
             onClick={handleOpenDirect}
             disabled={downloading || countdown === 0}
-            className="py-2.5 px-3 rounded-xl bg-surface-container-highest hover:bg-surface-container-highest/80 text-on-surface text-xs font-semibold specular-border transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
+            className="btn-spring py-2.5 px-3 rounded-xl bg-surface-container-highest/70 hover:bg-surface-container-highest text-on-surface text-xs font-semibold border border-white/[0.08] transition-all flex items-center justify-center gap-1.5 disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-secondary text-[18px]">
               open_in_browser
@@ -232,7 +232,7 @@ export default function OrderSuccessPage() {
 
           <button
             onClick={handleCopyPdfLink}
-            className="py-2.5 px-3 rounded-xl bg-surface-container-highest hover:bg-surface-container-highest/80 text-on-surface text-xs font-semibold specular-border transition-all flex items-center justify-center gap-1.5"
+            className="btn-spring py-2.5 px-3 rounded-xl bg-surface-container-highest/70 hover:bg-surface-container-highest text-on-surface text-xs font-semibold border border-white/[0.08] transition-all flex items-center justify-center gap-1.5"
           >
             <span className="material-symbols-outlined text-primary text-[18px]">
               {copiedLink ? "check_circle" : "content_copy"}

@@ -34,7 +34,7 @@ export const BOOKS: Book[] = [
     },
     fileName: "Media_Player_PRO_Engineering.pdf",
     fileSize: "12.5 KB (Digital Master)",
-    coverImage: "https://lh3.googleusercontent.com/aida-public/AB6AXuBM_oIxvJVl88ICp_yW_qmkG9qIXIXgpzB-YciRw31eXbz0l4sLoGSWyWD4Kjpxw_u0dJB2ex0NAliraFkOO-5u-EHaq0s_PP_NwIXVKoO_y6n_IfJw6ew-9QIc_mgTFxY4AWArbaR54Jzq6eP2-QuBgARjB-GgqqWj1VxGRngJu4S-0Gg-uy5yRF8tkg15eQGxdZQ_ntloxMYlrbS6tt5YEJ7qBf5SorH6LjVkfcVuwhfUjhPyciIc",
+    coverImage: "/images/books/media_player.png",
     curator: STUDENT_INFO.name,
   },
   {
@@ -63,7 +63,7 @@ export const BOOKS: Book[] = [
     },
     fileName: "Mystic_Tarot_Altar_System.pdf",
     fileSize: "9.2 KB (Digital Master)",
-    coverImage: "https://lh3.googleusercontent.com/aida-public/AB6AXuAKzuxjOOrpIA70b5MolLQkqvEiwuiqm45tvssofQz_uTfphOHbJ52Mjfo4wwzeaAmsi6kE_sTutXNlgDTk4bxSdfC87WmyLcxD81WohWdIRDdRN9upxu6tqPMEk49JrjkOKMXD3hhlRqdmZrHbDTlL98IBcNxVL5l1pm18UrC4smvAmWis-wBgO9c8L2x00GHfQ14nl1cx4xVM7Yu1ErDUzTs0kU7jhVE2Opt1iVK1is295SWl_XGM",
+    coverImage: "/images/books/tarot_app.png",
     curator: STUDENT_INFO.name,
   },
   {
@@ -92,7 +92,7 @@ export const BOOKS: Book[] = [
     },
     fileName: "TaskMaster_PRO_Architecture.pdf",
     fileSize: "8.6 KB (Digital Master)",
-    coverImage: "https://lh3.googleusercontent.com/aida-public/AB6AXuDEl26e_b72nBw9yv4H4e7YyA9B8t5Zz8q_xR6q3F7w1L6s4V2j1K9n8P7m6T5r4W3q2X1z0Y9b8A7c6D5e4F3g2H1j0K9l8M7n6P5q4R3s2T1u0V9w8X7y6Z5a4B3c2D1e0F9g8H7j6K5l4M3n2P1q0R9s8T7u6V5w4X3y2Z1",
+    coverImage: "/images/books/task_manager.png",
     curator: STUDENT_INFO.name,
   },
 ];
