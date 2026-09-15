@@ -30,6 +30,7 @@ export async function GET(
         return NextResponse.json({
           success: true,
           downloadUrl: data.signedUrl,
+          viewUrl: `/api/pdf/${orderId}`,
           expiresInSeconds: 900,
           fileName: order.fileName,
           storage: "supabase-cloud",
@@ -47,6 +48,7 @@ export async function GET(
     success: true,
     simulated: true,
     downloadUrl: `/books/${order.fileName}`,
+    viewUrl: `/api/pdf/${orderId}`,
     expiresAt,
     expiresInSeconds: 900,
     fileName: order.fileName,

@@ -99,15 +99,17 @@ export default function PaymentPage() {
         {/* Thai PromptPay Branded Header Bar */}
         <div className="w-full bg-gradient-to-r from-[#0d2a54] via-[#1a437a] to-[#261f5c] rounded-2xl p-4 flex items-center justify-between shadow-lg relative overflow-hidden">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center p-1.5 shadow-md shrink-0">
-              <svg className="w-full h-full text-[#143d73]" fill="currentColor" viewBox="0 0 40 40">
-                <path d="M7 6h26a3 3 0 0 1 3 3v22a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V9a3 3 0 0 1 3-3zm13 5c-4.418 0-8 3.582-8 8s3.582 8 8 8 8-3.582 8-8-3.582-8-8-8zm0 4a4 4 0 1 1 0 8 4 4 0 0 1 0-8z" />
-              </svg>
+            <div className="h-11 px-2.5 py-1 rounded-xl bg-white flex items-center justify-center shadow-md shrink-0">
+              <img
+                src="/prompt-pay-logo.png"
+                alt="PromptPay Logo"
+                className="h-8 w-auto object-contain max-w-[120px]"
+              />
             </div>
             <div className="flex flex-col">
-              <span className="text-white text-sm font-bold tracking-tight">PromptPay</span>
+              <span className="text-white text-sm font-bold tracking-tight">PromptPay พร้อมเพย์</span>
               <span className="text-secondary-fixed text-[10px] font-semibold tracking-wider uppercase">
-                Thai QR Payment • Simulated
+                Thai QR Payment • Simulated Demo
               </span>
             </div>
           </div>
