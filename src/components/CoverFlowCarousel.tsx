@@ -5,20 +5,20 @@ import Link from "next/link";
 
 // Inline Icons (Zero external dependencies)
 const ChevronLeftIcon = () => (
-  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
   </svg>
 );
 
 const ChevronRightIcon = () => (
-  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+  <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
   </svg>
 );
 
 const ArrowRightIcon = () => (
-  <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+  <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
   </svg>
 );
 
@@ -48,42 +48,42 @@ export interface CoverFlowCarouselProps {
   onCtaClick?: (item: CarouselItem) => void;
 }
 
-export const defaultDishes: CarouselItem[] = [
+export const defaultBooks: CarouselItem[] = [
   {
-    tag: "#Lab1_Engineering",
-    titleLine1: "FASTPLAYER PRO",
-    titleLine2: "– AUDIO & VIDEO ENGINE",
+    tag: "LAB 1 · ENGINEERING",
+    titleLine1: "FastPlayer PRO",
+    titleLine2: "Desktop Media Player Architecture",
     desc: "คู่มือสถาปัตยกรรม Desktop Media Player ภาษาไทย 6 หน้าเต็ม พัฒนาด้วย PyQt6 พร้อม Pure Vector Icon และ Persistent JSON",
     img: "/images/books/media_player.png",
-    ctaText: "สั่งซื้อ ฿199.00",
+    ctaText: "สั่งซื้อ ฿199",
     ctaUrl: "/checkout/media-player-pro",
     price: 199,
   },
   {
-    tag: "#Lab2_CreativeAI",
-    titleLine1: "MYSTIC TAROT",
-    titleLine2: "– 3-CARD ORACLE AI",
+    tag: "LAB 2 · CREATIVE AI",
+    titleLine1: "Mystic Tarot",
+    titleLine2: "Celestial Altar Oracle AI System",
     desc: "คู่มือสถาปัตยกรรมระบบทำนายไพ่ Celestial Altar ผสานเสียงสมาธิ 432Hz Ambient BGM และ Defensive Vector Fallback",
     img: "/images/books/tarot_app.png",
-    ctaText: "สั่งซื้อ ฿259.00",
+    ctaText: "สั่งซื้อ ฿259",
     ctaUrl: "/checkout/mystic-tarot-altar",
     price: 259,
   },
   {
-    tag: "#Lab3_Productivity",
-    titleLine1: "TASKMANAGER PRO",
-    titleLine2: "– BENTO KANBAN & SQLITE",
+    tag: "LAB 3 & 4 · PRODUCTIVITY",
+    titleLine1: "TaskManagerPRO",
+    titleLine2: "Bento Kanban & SQLite Architecture",
     desc: "คู่มือสถาปัตยกรรม Bento Dashboard & Kanban Board ความปลอดภัยระดับ Enterprise ด้วย Parameterized SQLite และ PBKDF2 Hashing",
     img: "/images/books/task_manager.png",
-    ctaText: "สั่งซื้อ ฿179.00",
+    ctaText: "สั่งซื้อ ฿179",
     ctaUrl: "/checkout/taskmaster-pro",
     price: 179,
   },
 ];
 
 export function CoverFlowCarousel({
-  items = defaultDishes,
-  sectionLabel = "BEST SELLERS",
+  items = defaultBooks,
+  sectionLabel = "VIBEBOOKS MASTER SERIES",
   autoplay = true,
   autoplayDelay = 5000,
   className = "",
@@ -147,25 +147,20 @@ export function CoverFlowCarousel({
 
   if (!items || items.length === 0) return null;
 
-  const cardSpacing1 = isMobile ? 180 : 285;
-  const cardSpacing2 = isMobile ? 320 : 510;
-  const cardWidth = isMobile ? "275px" : "330px";
-  const cardHeight = isMobile ? "440px" : "500px";
+  const cardSpacing1 = isMobile ? 175 : 285;
+  const cardSpacing2 = isMobile ? 310 : 500;
+  const cardWidth = isMobile ? "270px" : "330px";
+  const cardHeight = isMobile ? "430px" : "490px";
 
   return (
     <section
-      className={`relative w-full min-h-[640px] sm:min-h-[740px] flex items-center justify-center overflow-hidden py-8 sm:py-12 select-none rounded-3xl border border-white/[0.08] ${className}`}
-      style={{
-        backgroundColor: "#0c0a09",
-        color: "#ffffff",
-        fontFamily: "system-ui, -apple-system, sans-serif",
-      }}
+      className={`relative w-full min-h-[620px] sm:min-h-[700px] flex items-center justify-center overflow-hidden py-6 sm:py-10 select-none rounded-[32px] bg-[#000000] border border-white/[0.08] ${className}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Background Ambience */}
+      {/* Apple-style Subtle Ambient Backdrop Reflection */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -175,43 +170,34 @@ export function CoverFlowCarousel({
             width: "100%",
             height: "100%",
             objectFit: "cover",
-            filter: "brightness(0.22) blur(32px)",
-            transform: "scale(1.15)",
-            transition: "opacity 1000ms ease, filter 1000ms ease",
+            filter: "brightness(0.16) blur(40px)",
+            transform: "scale(1.2)",
+            transition: "opacity 900ms cubic-bezier(0.16, 1, 0.3, 1), filter 900ms ease",
           }}
         />
         <div
           className="absolute inset-0"
           style={{
-            background: "radial-gradient(circle at center, rgba(12,10,9,0.3) 0%, rgba(12,10,9,0.92) 100%)",
+            background: "radial-gradient(circle at center, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.94) 100%)",
           }}
         />
       </div>
 
       <div className="relative w-full max-w-6xl mx-auto px-3 sm:px-4 z-10 flex flex-col items-center">
-        {/* Eyebrow */}
+        {/* Apple Pro Eyebrow */}
         {sectionLabel && (
           <div className="flex items-center gap-3 mb-6 sm:mb-8">
-            <span style={{ width: "36px", height: "1px", background: "linear-gradient(90deg, transparent, #c5a880)" }} />
-            <h3
-              style={{
-                fontSize: "0.75rem",
-                fontWeight: 700,
-                letterSpacing: "0.3em",
-                textTransform: "uppercase",
-                color: "#c5a880",
-                margin: 0,
-              }}
-            >
+            <span className="w-8 h-[1px] bg-gradient-to-r from-transparent to-white/20" />
+            <h3 className="text-[11px] font-semibold tracking-[0.25em] uppercase text-[#86868b]">
               {sectionLabel}
             </h3>
-            <span style={{ width: "36px", height: "1px", background: "linear-gradient(90deg, #c5a880, transparent)" }} />
+            <span className="w-8 h-[1px] bg-gradient-to-l from-transparent to-white/20" />
           </div>
         )}
 
         {/* 3D Coverflow Stage */}
         <div
-          className="relative w-full h-[460px] sm:h-[520px] flex justify-center items-center mb-6 sm:mb-8"
+          className="relative w-full h-[450px] sm:h-[510px] flex justify-center items-center mb-6 sm:mb-8"
           style={{ perspective: "1400px" }}
         >
           {items.map((item, idx) => {
@@ -220,7 +206,7 @@ export function CoverFlowCarousel({
             let transform = "translateX(0px) scale(0.4) rotateY(0deg)";
             let opacity = 0;
             let zIndex = 0;
-            let filter = "brightness(0.4) blur(2px)";
+            let filter = "brightness(0.3) blur(3px)";
             let isCenter = false;
 
             if (offset === 0) {
@@ -230,26 +216,25 @@ export function CoverFlowCarousel({
               zIndex = 30;
               filter = "brightness(1)";
             } else if (offset === 1) {
-              transform = `translateX(${cardSpacing1}px) scale(0.84) rotateY(-24deg)`;
-              opacity = 0.65;
+              transform = `translateX(${cardSpacing1}px) scale(0.85) rotateY(-22deg)`;
+              opacity = 0.6;
               zIndex = 20;
-              filter = "brightness(0.75)";
+              filter = "brightness(0.7)";
             } else if (offset === total - 1) {
-              // Left Card
-              transform = `translateX(-${cardSpacing1}px) scale(0.84) rotateY(24deg)`;
-              opacity = 0.65;
+              transform = `translateX(-${cardSpacing1}px) scale(0.85) rotateY(22deg)`;
+              opacity = 0.6;
               zIndex = 20;
-              filter = "brightness(0.75)";
+              filter = "brightness(0.7)";
             } else if (offset === 2) {
-              transform = `translateX(${cardSpacing2}px) scale(0.68) rotateY(-38deg)`;
-              opacity = 0.38;
+              transform = `translateX(${cardSpacing2}px) scale(0.7) rotateY(-36deg)`;
+              opacity = 0.3;
               zIndex = 10;
-              filter = "brightness(0.55) blur(1px)";
+              filter = "brightness(0.5) blur(1px)";
             } else if (offset === total - 2) {
-              transform = `translateX(-${cardSpacing2}px) scale(0.68) rotateY(38deg)`;
-              opacity = 0.38;
+              transform = `translateX(-${cardSpacing2}px) scale(0.7) rotateY(36deg)`;
+              opacity = 0.3;
               zIndex = 10;
-              filter = "brightness(0.55) blur(1px)";
+              filter = "brightness(0.5) blur(1px)";
             }
 
             return (
@@ -260,19 +245,19 @@ export function CoverFlowCarousel({
                   position: "absolute",
                   width: cardWidth,
                   height: cardHeight,
-                  borderRadius: "18px",
+                  borderRadius: "24px",
                   overflow: "hidden",
-                  backgroundColor: "#171311",
-                  border: "1px solid rgba(255, 255, 255, 0.12)",
+                  backgroundColor: "#161617",
+                  border: isCenter ? "1px solid rgba(255, 255, 255, 0.18)" : "1px solid rgba(255, 255, 255, 0.08)",
                   transform,
                   opacity,
                   zIndex,
                   filter,
                   transformOrigin: "center center",
-                  transition: "all 800ms cubic-bezier(0.25, 1, 0.5, 1)",
+                  transition: "all 750ms cubic-bezier(0.16, 1, 0.3, 1)",
                   boxShadow: isCenter
-                    ? "0 25px 60px rgba(0,0,0,0.9), 0 0 35px rgba(197,168,128,0.25)"
-                    : "0 15px 35px rgba(0,0,0,0.5)",
+                    ? "0 30px 70px rgba(0,0,0,0.95), 0 0 35px rgba(255,255,255,0.06)"
+                    : "0 15px 35px rgba(0,0,0,0.6)",
                   cursor: isCenter ? "default" : "pointer",
                 }}
               >
@@ -300,7 +285,7 @@ export function CoverFlowCarousel({
                     position: "absolute",
                     inset: 0,
                     background:
-                      "linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 25%, rgba(0,0,0,0.68) 60%, rgba(0,0,0,0.96) 100%)",
+                      "linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.1) 20%, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.98) 100%)",
                     pointerEvents: "none",
                     zIndex: 10,
                   }}
@@ -312,127 +297,53 @@ export function CoverFlowCarousel({
                     position: "relative",
                     width: "100%",
                     height: "100%",
-                    padding: "20px 18px 22px",
+                    padding: "20px 20px 24px",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
                     textAlign: "center",
                     zIndex: 20,
                     opacity: isCenter ? 1 : 0,
-                    transform: isCenter ? "translateY(0px)" : "translateY(16px)",
-                    transition: "opacity 500ms ease, transform 500ms ease",
+                    transform: isCenter ? "translateY(0px)" : "translateY(14px)",
+                    transition: "opacity 450ms ease, transform 450ms ease",
                     pointerEvents: isCenter ? "auto" : "none",
                   }}
                 >
-                  {/* Tag */}
-                  <div style={{ textAlign: "right", width: "100%", paddingRight: "4px" }}>
-                    <span
-                      style={{
-                        display: "inline-block",
-                        fontSize: "0.78rem",
-                        fontWeight: 600,
-                        letterSpacing: "0.06em",
-                        color: "rgba(255,255,255,0.9)",
-                        textShadow: "0 2px 6px rgba(0,0,0,0.8)",
-                      }}
-                    >
+                  {/* Tag (Apple Pill) */}
+                  <div className="flex justify-end w-full">
+                    <span className="inline-block text-[10px] font-semibold tracking-wider text-white/80 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10">
                       {item.tag}
                     </span>
                   </div>
 
                   {/* Body Content */}
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      gap: "3px",
-                      marginTop: "auto",
-                      paddingBottom: "4px",
-                    }}
-                  >
-                    <h2
-                      style={{
-                        fontSize: isMobile ? "1.4rem" : "1.65rem",
-                        fontWeight: 900,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.04em",
-                        color: "#ffffff",
-                        margin: 0,
-                        lineHeight: 1.1,
-                        textShadow: "0 3px 12px rgba(0,0,0,0.95)",
-                      }}
-                    >
+                  <div className="flex flex-col items-center gap-1.5 mt-auto pb-1">
+                    <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#f5f5f7] m-0 drop-shadow-md">
                       {item.titleLine1}
                     </h2>
 
                     {item.titleLine2 && (
-                      <span
-                        style={{
-                          fontSize: isMobile ? "0.95rem" : "1.1rem",
-                          fontWeight: 700,
-                          textTransform: "uppercase",
-                          letterSpacing: "0.06em",
-                          color: "#f3f0ea",
-                          lineHeight: 1.2,
-                          textShadow: "0 3px 10px rgba(0,0,0,0.9)",
-                        }}
-                      >
+                      <span className="text-xs sm:text-sm font-medium text-[#86868b] tracking-tight">
                         {item.titleLine2}
                       </span>
                     )}
 
-                    <div
-                      style={{
-                        width: "34px",
-                        height: "2px",
-                        backgroundColor: "#c5a880",
-                        borderRadius: "2px",
-                        margin: "5px auto 4px",
-                        boxShadow: "0 0 8px rgba(197,168,128,0.7)",
-                      }}
-                    />
+                    <div className="w-8 h-[1.5px] bg-white/20 rounded-full my-2" />
 
                     {item.desc && (
-                      <p
-                        style={{
-                          fontSize: isMobile ? "0.75rem" : "0.82rem",
-                          fontStyle: "italic",
-                          color: "rgba(255,255,255,0.9)",
-                          maxWidth: "280px",
-                          margin: "0 0 10px",
-                          lineHeight: 1.3,
-                          textShadow: "0 2px 8px rgba(0,0,0,0.9)",
-                        }}
-                      >
+                      <p className="text-[11px] sm:text-xs text-[#a1a1a6] line-clamp-2 max-w-[260px] m-0 mb-3 leading-relaxed">
                         {item.desc}
                       </p>
                     )}
 
+                    {/* Apple Pill CTA */}
                     {item.ctaUrl ? (
                       <Link
                         href={item.ctaUrl}
                         onClick={() => {
                           if (onCtaClick) onCtaClick(item);
                         }}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          padding: "8px 20px",
-                          borderRadius: "9999px",
-                          background: "linear-gradient(135deg, #c5a880 0%, #a48256 100%)",
-                          color: "#110d0c",
-                          fontSize: "0.72rem",
-                          fontWeight: 800,
-                          letterSpacing: "0.14em",
-                          textTransform: "uppercase",
-                          textDecoration: "none",
-                          boxShadow: "0 4px 14px rgba(0,0,0,0.4), 0 0 15px rgba(197,168,128,0.3)",
-                          cursor: "pointer",
-                          transition: "transform 200ms ease, box-shadow 200ms ease",
-                        }}
-                        className="hover:scale-105 active:scale-95"
+                        className="inline-flex items-center gap-1.5 px-6 py-2 rounded-full bg-white text-black text-xs font-semibold hover:bg-[#f5f5f7] active:scale-95 transition-all shadow-md"
                       >
                         <span>{item.ctaText || "สั่งซื้อ E-book"}</span>
                         <ArrowRightIcon />
@@ -442,22 +353,7 @@ export function CoverFlowCarousel({
                         onClick={() => {
                           if (onCtaClick) onCtaClick(item);
                         }}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          padding: "8px 20px",
-                          borderRadius: "9999px",
-                          background: "linear-gradient(135deg, #c5a880 0%, #a48256 100%)",
-                          color: "#110d0c",
-                          fontSize: "0.72rem",
-                          fontWeight: 800,
-                          letterSpacing: "0.14em",
-                          textTransform: "uppercase",
-                          boxShadow: "0 4px 14px rgba(0,0,0,0.4), 0 0 15px rgba(197,168,128,0.3)",
-                          cursor: "pointer",
-                        }}
-                        className="hover:scale-105 active:scale-95"
+                        className="inline-flex items-center gap-1.5 px-6 py-2 rounded-full bg-white text-black text-xs font-semibold hover:bg-[#f5f5f7] active:scale-95 transition-all shadow-md"
                       >
                         <span>{item.ctaText || "สั่งซื้อ E-book"}</span>
                         <ArrowRightIcon />
@@ -470,31 +366,11 @@ export function CoverFlowCarousel({
           })}
         </div>
 
-        {/* Navigation Arrows */}
+        {/* Navigation Arrows (Apple Circular Glass) */}
         <button
           onClick={prevSlide}
           aria-label="Previous book"
-          style={{
-            position: "absolute",
-            left: isMobile ? "8px" : "24px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: isMobile ? "38px" : "46px",
-            height: isMobile ? "38px" : "46px",
-            borderRadius: "50%",
-            backgroundColor: "rgba(0,0,0,0.65)",
-            border: "1px solid rgba(255,255,255,0.2)",
-            color: "#ffffff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            backdropFilter: "blur(8px)",
-            cursor: "pointer",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-            zIndex: 40,
-            transition: "all 200ms ease",
-          }}
-          className="hover:bg-black/80 hover:border-amber-400/50"
+          className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/85 border border-white/10 hover:border-white/25 text-white flex items-center justify-center backdrop-blur-xl transition-all z-40 shadow-lg cursor-pointer"
         >
           <ChevronLeftIcon />
         </button>
@@ -502,47 +378,26 @@ export function CoverFlowCarousel({
         <button
           onClick={nextSlide}
           aria-label="Next book"
-          style={{
-            position: "absolute",
-            right: isMobile ? "8px" : "24px",
-            top: "50%",
-            transform: "translateY(-50%)",
-            width: isMobile ? "38px" : "46px",
-            height: isMobile ? "38px" : "46px",
-            borderRadius: "50%",
-            backgroundColor: "rgba(0,0,0,0.65)",
-            border: "1px solid rgba(255,255,255,0.2)",
-            color: "#ffffff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            backdropFilter: "blur(8px)",
-            cursor: "pointer",
-            boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-            zIndex: 40,
-            transition: "all 200ms ease",
-          }}
-          className="hover:bg-black/80 hover:border-amber-400/50"
+          className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/85 border border-white/10 hover:border-white/25 text-white flex items-center justify-center backdrop-blur-xl transition-all z-40 shadow-lg cursor-pointer"
         >
           <ChevronRightIcon />
         </button>
 
-        {/* Pagination Dots */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", zIndex: 30 }}>
+        {/* Apple Capsule Pagination Dots */}
+        <div className="flex items-center justify-center gap-2 z-30">
           {items.map((_, idx) => (
             <button
               key={idx}
               onClick={() => goToSlide(idx)}
               aria-label={`Go to slide ${idx + 1}`}
               style={{
-                height: "8px",
-                width: idx === currentIndex ? "28px" : "8px",
+                height: "6px",
+                width: idx === currentIndex ? "24px" : "6px",
                 borderRadius: "9999px",
-                backgroundColor: idx === currentIndex ? "#c5a880" : "rgba(255,255,255,0.25)",
+                backgroundColor: idx === currentIndex ? "#ffffff" : "rgba(255,255,255,0.2)",
                 border: "none",
                 cursor: "pointer",
-                boxShadow: idx === currentIndex ? "0 0 10px rgba(197,168,128,0.7)" : "none",
-                transition: "all 300ms ease",
+                transition: "all 300ms cubic-bezier(0.16, 1, 0.3, 1)",
               }}
             />
           ))}
@@ -552,5 +407,4 @@ export function CoverFlowCarousel({
   );
 }
 
-export const Component = CoverFlowCarousel;
 export default CoverFlowCarousel;

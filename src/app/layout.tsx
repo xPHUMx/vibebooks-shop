@@ -24,8 +24,8 @@ const notoSansThai = Noto_Sans_Thai({
 });
 
 export const metadata: Metadata = {
-  title: "VibeBooks PRO — Glassmorphism E-book Platform",
-  description: "ระบบร้านค้าจำหน่าย E-book ออนไลน์สไตล์ Obsidian Glassmorphism โดย นายเกียรติภูมิ หารศรีนาถ (64332110242-2)",
+  title: "VibeBooks PRO — Architecture & Engineering E-books",
+  description: "Minimalist Premium Tech Platform by นายเกียรติภูมิ หารศรีนาถ (64332110242-2)",
 };
 
 export default function RootLayout({
@@ -34,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="th" className="dark">
+    <html lang="th" className="dark bg-black">
       <head>
         <link
           rel="stylesheet"
@@ -42,20 +42,19 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${plusJakarta.variable} ${inter.variable} ${notoSansThai.variable} font-sans bg-surface text-on-surface min-h-screen flex flex-col relative overflow-x-hidden selection:bg-primary selection:text-on-primary`}
+        className={`${plusJakarta.variable} ${inter.variable} ${notoSansThai.variable} font-sans bg-black text-[#f5f5f7] min-h-screen flex flex-col relative overflow-x-hidden selection:bg-[#0071e3] selection:text-white`}
       >
-        {/* Ambient Glowing Mesh Backdrop (Fixed Layer 0) */}
+        {/* Apple-style Subtle Top Ambient Spotlight */}
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-          <div className="absolute -top-32 -left-32 w-96 h-96 bg-primary-container/20 rounded-full blur-[140px]"></div>
-          <div className="absolute top-1/3 -right-32 w-80 h-80 bg-secondary/15 rounded-full blur-[120px]"></div>
-          <div className="absolute -bottom-20 left-1/4 w-96 h-96 bg-tertiary-container/10 rounded-full blur-[160px]"></div>
+          <div className="absolute top-0 inset-x-0 h-[600px] bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(120,119,198,0.12),transparent_70%)]" />
+          <div className="absolute top-1/3 -right-40 w-96 h-96 bg-[radial-gradient(circle,rgba(41,151,255,0.06),transparent_70%)] blur-3xl" />
         </div>
 
-        {/* Global Fixed Header */}
+        {/* Global Fixed Apple-style Header */}
         <Header />
 
         {/* Page Content */}
-        <main className="flex-1 w-full max-w-4xl mx-auto px-4 pt-20 pb-28 relative z-10">
+        <main className="flex-1 w-full max-w-4xl mx-auto px-4 pt-16 sm:pt-20 pb-28 relative z-10">
           {children}
         </main>
 

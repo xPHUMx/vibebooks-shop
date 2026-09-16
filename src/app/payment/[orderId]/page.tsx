@@ -85,75 +85,75 @@ export default function PaymentPage() {
   if (loading) {
     return (
       <div className="text-center py-20 animate-fade">
-        <span className="material-symbols-outlined text-secondary text-[36px] animate-spin">
+        <span className="material-symbols-outlined text-white text-[32px] animate-spin">
           progress_activity
         </span>
-        <p className="text-xs text-on-surface-variant mt-2 font-mono">กำลังโหลดข้อมูลคำสั่งซื้อ...</p>
+        <p className="text-xs text-[#86868b] mt-2 font-mono">กำลังโหลดข้อมูลคำสั่งซื้อ...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-5 max-w-lg mx-auto animate-fade">
+    <div className="space-y-6 max-w-lg mx-auto animate-fade">
       {/* Prominent Mandatory DEMO Warning Banner */}
       <DemoWarningBanner />
 
-      {/* Main Payment Gateway Card — Minimalist Obsidian Glass */}
-      <div className="w-full bg-surface-container-low/70 backdrop-blur-2xl rounded-3xl p-5 shadow-2xl border border-white/[0.08] flex flex-col relative overflow-hidden animate-fade-in-up">
-        {/* Thai PromptPay Branded Header Bar */}
-        <div className="w-full bg-gradient-to-r from-[#0d2a54] via-[#1a437a] to-[#261f5c] rounded-2xl p-4 flex items-center justify-between shadow-lg relative overflow-hidden border border-white/10">
+      {/* Main Payment Gateway Card (Apple Minimalism) */}
+      <div className="w-full bg-[#161617] rounded-[24px] p-5 sm:p-6 border border-white/[0.08] shadow-2xl flex flex-col space-y-4">
+        {/* PromptPay Header Bar */}
+        <div className="w-full bg-black rounded-[18px] p-4 flex items-center justify-between border border-white/[0.08]">
           <div className="flex items-center gap-3">
-            <div className="h-11 px-2.5 py-1 rounded-xl bg-white flex items-center justify-center shadow-md shrink-0">
+            <div className="h-10 px-2.5 py-1 rounded-xl bg-white flex items-center justify-center shadow-md shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/prompt-pay-logo.png"
                 alt="PromptPay Logo"
-                className="h-8 w-auto object-contain max-w-[120px]"
+                className="h-7 w-auto object-contain max-w-[120px]"
               />
             </div>
             <div className="flex flex-col">
-              <span className="text-white text-sm font-bold tracking-tight">PromptPay พร้อมเพย์</span>
-              <span className="text-secondary-fixed text-[10px] font-semibold tracking-wider uppercase">
-                Thai QR Payment • Simulated Demo
+              <span className="text-white text-sm font-semibold tracking-tight">PromptPay พร้อมเพย์</span>
+              <span className="text-[#86868b] text-[10px] font-medium uppercase tracking-wider">
+                Thai QR Payment · Demo
               </span>
             </div>
           </div>
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 text-white text-[10px] backdrop-blur-md font-mono border border-white/15">
-            <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-ping"></span>
-            Ready to scan
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/10 text-white text-[10px] font-mono border border-white/10">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+            Ready
           </span>
         </div>
 
         {/* Order Summary Strip */}
-        <div className="mt-4 w-full bg-surface-container-lowest/80 rounded-2xl p-3.5 flex items-center justify-between gap-3 shadow-inner border border-white/[0.06]">
+        <div className="w-full bg-black rounded-[16px] p-3.5 flex items-center justify-between gap-3 border border-white/[0.06]">
           <div className="flex flex-col min-w-0">
-            <span className="text-[10px] text-on-surface-variant uppercase tracking-wider">Order Reference</span>
+            <span className="text-[10px] text-[#86868b] uppercase tracking-wider">Order Reference</span>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="text-xs text-on-surface font-mono font-bold truncate">{orderId}</span>
+              <span className="text-xs text-[#f5f5f7] font-mono font-bold truncate">{orderId}</span>
               <button
                 onClick={handleCopyRef}
-                className="btn-spring p-1 rounded bg-white/5 hover:bg-white/10 text-secondary transition-colors"
+                className="p-1 rounded bg-white/10 hover:bg-white/20 text-[#86868b] hover:text-white transition-colors cursor-pointer"
                 title="คัดลอกรหัสคำสั่งซื้อ"
               >
-                <span className="material-symbols-outlined text-[14px]">
+                <span className="material-symbols-outlined text-[13px]">
                   {copied ? "check" : "content_copy"}
                 </span>
               </button>
             </div>
           </div>
           <div className="flex flex-col items-end shrink-0">
-            <span className="text-[10px] text-on-surface-variant uppercase tracking-wider">Amount Due</span>
-            <span className="text-lg font-bold text-secondary tracking-tight font-mono">
+            <span className="text-[10px] text-[#86868b] uppercase tracking-wider">Amount Due</span>
+            <span className="text-lg font-bold text-[#f5f5f7] tracking-tight font-mono">
               ฿{order ? order.bookPrice : 199}.00
             </span>
           </div>
         </div>
 
         {/* QR Stage Container */}
-        <div className="mt-5 flex flex-col items-center justify-center p-4 rounded-2xl bg-surface-container-lowest border border-white/[0.06] shadow-inner">
-          <div className="w-48 h-48 bg-white rounded-xl p-3 flex flex-col items-center justify-center relative shadow-md">
+        <div className="flex flex-col items-center justify-center p-5 rounded-[18px] bg-black border border-white/[0.06]">
+          <div className="w-44 h-44 bg-white rounded-2xl p-3 flex flex-col items-center justify-center relative shadow-lg">
             {/* Simulated QR Pattern Graphic */}
-            <svg className="w-full h-full text-slate-900" viewBox="0 0 100 100" fill="currentColor">
+            <svg className="w-full h-full text-black" viewBox="0 0 100 100" fill="currentColor">
               <rect x="5" y="5" width="25" height="25" fill="black" />
               <rect x="10" y="10" width="15" height="15" fill="white" />
               <rect x="13" y="13" width="9" height="9" fill="black" />
@@ -167,7 +167,7 @@ export default function PaymentPage() {
               <rect x="50" y="15" width="12" height="8" fill="black" />
               <rect x="35" y="35" width="30" height="30" fill="black" />
               <rect x="42" y="42" width="16" height="16" fill="white" />
-              <text x="50" y="52" fontSize="6" fontWeight="bold" fill="#7c3aed" textAnchor="middle">
+              <text x="50" y="52" fontSize="6" fontWeight="bold" fill="#0071e3" textAnchor="middle">
                 DEMO
               </text>
               <rect x="70" y="35" width="8" height="15" fill="black" />
@@ -176,80 +176,51 @@ export default function PaymentPage() {
               <rect x="65" y="70" width="25" height="8" fill="black" />
               <rect x="75" y="85" width="15" height="10" fill="black" />
             </svg>
-            <div className="absolute bottom-1 px-2 py-0.5 bg-rose-600 text-white text-[8px] font-black rounded-full uppercase tracking-wider">
+            <div className="absolute bottom-1 px-2 py-0.5 bg-rose-600 text-white text-[8px] font-bold rounded-full uppercase tracking-wider">
               TEST QR ONLY
             </div>
           </div>
 
-          <div className="mt-2 text-[10px] text-on-surface-variant font-mono">
-            PromptPay ID: 000-000-0000 (Simulated Demo Account)
+          <div className="mt-3 text-[11px] text-[#86868b] font-mono">
+            PromptPay ID: 000-000-0000 (Simulated Demo)
           </div>
 
-          <div className="mt-2 flex items-center gap-1.5 text-xs text-on-surface-variant font-mono">
-            <span className="material-symbols-outlined text-[16px] text-secondary">timer</span>
+          <div className="mt-1.5 flex items-center gap-1.5 text-xs text-[#86868b] font-mono">
+            <span className="material-symbols-outlined text-[15px]">timer</span>
             <span>เวลารอดำเนินการ:</span>
-            <span className="font-bold text-secondary">{formatTime(countdown)} นาที</span>
+            <span className="text-[#f5f5f7] font-bold">{formatTime(countdown)}</span>
           </div>
         </div>
 
-        {/* Customer Breakdown */}
-        {order && (
-          <div className="mt-4 p-3 rounded-xl bg-surface-container-lowest/60 border border-white/[0.04] text-xs text-on-surface-variant space-y-1">
-            <div className="flex justify-between">
-              <span>รายการ:</span>
-              <span className="text-on-surface font-medium truncate ml-2">{order.bookTitle}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>ผู้สั่งซื้อ:</span>
-              <span className="text-on-surface font-medium">{order.customerName}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>ส่งไปที่อีเมล:</span>
-              <span className="text-secondary font-mono">{order.customerEmail}</span>
-            </div>
-          </div>
-        )}
+        {/* Action Button: Simulate Payment (Apple Blue Button) */}
+        <button
+          onClick={handleSimulatePayment}
+          disabled={paying}
+          className="apple-btn-primary w-full py-3 text-xs font-semibold shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+        >
+          {paying ? (
+            <>
+              <span className="material-symbols-outlined text-[16px] animate-spin">
+                progress_activity
+              </span>
+              <span>กำลังตรวจสอบยอดเงิน...</span>
+            </>
+          ) : (
+            <>
+              <span className="material-symbols-outlined text-[16px]">check_circle</span>
+              <span>จำลองการโอนเงินสำเร็จ (Simulate Pay)</span>
+            </>
+          )}
+        </button>
 
-        {/* Simulation Action */}
-        <div className="mt-5 space-y-2">
-          <button
-            onClick={handleSimulatePayment}
-            disabled={paying}
-            className="btn-spring w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-secondary-container via-secondary to-primary text-slate-950 font-bold text-xs shadow-lg shadow-cyan-950/40 hover:opacity-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+        <div className="text-center">
+          <Link
+            href="/"
+            className="text-[11px] text-[#86868b] hover:text-white transition-colors"
           >
-            {paying ? (
-              <span className="font-mono">กำลังตรวจสอบการชำระเงินจำลอง...</span>
-            ) : (
-              <>
-                <span className="material-symbols-outlined text-[18px]">verified</span>
-                <span>[กดเพื่อทดสอบ] จำลองการชำระเงินสำเร็จ (Simulate Pay)</span>
-              </>
-            )}
-          </button>
-
-          <p className="text-[10px] text-center text-outline">
-            ระบบจะอัปเดตสถานะใน Supabase PostgreSQL เป็น PAID และออก Temporary Signed URL ทันที
-          </p>
+            ยกเลิกและกลับสู่หน้าร้านค้า
+          </Link>
         </div>
-      </div>
-
-      {/* Navigation Links */}
-      <div className="flex items-center justify-between text-xs pt-1">
-        <Link
-          href="/"
-          className="text-on-surface-variant hover:text-white transition-colors flex items-center gap-1"
-        >
-          <span className="material-symbols-outlined text-[14px]">arrow_back</span>
-          <span>ยกเลิกและกลับสู่หน้าร้าน</span>
-        </Link>
-        <Link
-          href={`/tracking?orderId=${orderId}&email=${encodeURIComponent(
-            order?.customerEmail || ""
-          )}`}
-          className="text-secondary hover:underline"
-        >
-          ติดตามสถานะคำสั่งซื้อ
-        </Link>
       </div>
     </div>
   );

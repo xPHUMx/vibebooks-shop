@@ -61,7 +61,7 @@ export default function CommunityPage() {
     const newComment: CommunityComment = {
       id: `cmt-${Date.now()}`,
       author: authorName.trim() || "นักศึกษา / ผู้เยี่ยมชม",
-      avatarColor: "from-cyan-500 to-indigo-600",
+      avatarColor: "from-[#2c2c2e] to-[#1c1c1e]",
       role: "Community Member",
       isAuthor: authorName.trim().includes("เกียรติภูมิ"),
       bookId: targetBook,
@@ -84,7 +84,7 @@ export default function CommunityPage() {
     setCommentText("");
     setIsSubmitting(false);
     setShowSuccessToast(true);
-    setTimeout(() => setShowSuccessToast(false), 3500);
+    setTimeout(() => setShowSuccessToast(false), 3000);
   };
 
   const handleLike = (id: string) => {
@@ -136,59 +136,56 @@ export default function CommunityPage() {
     <div className="space-y-8 animate-fade pb-16">
       {/* Toast Notification */}
       {showSuccessToast && (
-        <div className="fixed top-20 right-4 z-50 animate-fade-in-up bg-emerald-500/90 backdrop-blur-md text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-emerald-400/40">
-          <span className="material-symbols-outlined text-[20px]">check_circle</span>
-          <span className="text-xs font-bold">โพสต์ความคิดเห็นสำเร็จเรียบร้อย!</span>
+        <div className="fixed top-16 right-4 z-50 animate-fade-in-up bg-[#1c1c1e] text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 border border-white/15">
+          <span className="material-symbols-outlined text-[18px] text-[#2997ff]">check_circle</span>
+          <span className="text-xs font-semibold">โพสต์ความคิดเห็นสำเร็จเรียบร้อย</span>
         </div>
       )}
 
-      {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-3xl bg-surface-container-low/80 backdrop-blur-2xl p-6 sm:p-8 border border-white/[0.08] shadow-2xl">
-        <div className="absolute -top-16 -right-16 w-56 h-56 bg-primary/20 rounded-full blur-3xl pointer-events-none animate-pulse" />
-        <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-secondary/15 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/15 border border-secondary/30 text-secondary text-[11px] font-bold uppercase tracking-wider">
-              <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-ping" />
-              Community & Reviews Hub
-            </span>
-          </div>
-
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight">
-            ชุมชนนักพัฒนาและรีวิว E-book VibeBooks
-          </h1>
-
-          <p className="text-xs sm:text-sm text-on-surface-variant max-w-2xl leading-relaxed">
-            พื้นที่แลกเปลี่ยนความคิดเห็น เทคนิคการเขียนโค้ด Python, PyQt6, QtMultimedia, สถาปัตยกรรม Bento Grid และระบบทำนายไพ่ทาโรต์ 432Hz ตามเกณฑ์ใบงานที่ 1 - 4
-          </p>
-
-          <div className="pt-2 flex items-center gap-4 flex-wrap text-xs text-on-surface-variant">
-            <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-secondary text-[16px]">forum</span>
-              <span>{comments.length} ความคิดเห็น</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-amber-400 text-[16px]">star</span>
-              <span>คะแนนเฉลี่ย 4.95 / 5.0</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-primary text-[16px]">verified</span>
-              <span>Lead Architect: {STUDENT_INFO.name}</span>
-            </div>
-          </div>
+      {/* Apple-style Hero Header */}
+      <section className="text-center pt-2 sm:pt-6 pb-2 flex flex-col items-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] border border-white/[0.08] mb-3">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#0071e3]" />
+          <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-[0.2em]">
+            Developer Community & Reviews
+          </span>
         </div>
-      </div>
 
-      {/* New Comment Submission Card */}
-      <div className="rounded-3xl bg-surface-container-low/60 backdrop-blur-xl p-5 sm:p-7 border border-white/[0.08] shadow-xl">
-        <div className="flex items-center gap-2 mb-4">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-secondary to-primary flex items-center justify-center text-slate-950 font-bold text-sm shadow-md">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2">
+          <span className="bg-gradient-to-b from-white via-[#f5f5f7] to-[#86868b] bg-clip-text text-transparent">
+            VibeBooks Community.
+          </span>
+        </h1>
+
+        <p className="text-xs sm:text-sm text-[#86868b] max-w-lg leading-relaxed mb-4">
+          พื้นที่แลกเปลี่ยนความคิดเห็น สถาปัตยกรรมซอฟต์แวร์ Python, PyQt6 และผลงานวิจัยเชิงวิศวกรรม
+        </p>
+
+        <div className="flex items-center gap-4 flex-wrap justify-center text-xs text-[#86868b] font-medium">
+          <span className="flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-[16px] text-white">forum</span>
+            <span>{comments.length} ความคิดเห็น</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-[16px] text-amber-400 fill-current">star</span>
+            <span>คะแนนเฉลี่ย 4.9 / 5.0</span>
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-[16px] text-[#2997ff]">verified</span>
+            <span>Lead Architect: {STUDENT_INFO.name}</span>
+          </span>
+        </div>
+      </section>
+
+      {/* New Comment Submission Card (Apple Style) */}
+      <div className="rounded-[24px] bg-[#161617] p-5 sm:p-7 border border-white/[0.08] shadow-xl">
+        <div className="flex items-center gap-2.5 mb-5">
+          <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-white font-bold text-xs">
             +
           </div>
           <div>
-            <h2 className="text-sm font-bold text-on-surface">เขียนรีวิวหรือแสดงความคิดเห็น</h2>
-            <p className="text-[11px] text-on-surface-variant">ร่วมเป็นส่วนหนึ่งของชุมชน VibeBooks</p>
+            <h2 className="text-sm font-semibold text-[#f5f5f7]">เขียนรีวิวหรือตั้งคำถาม</h2>
+            <p className="text-[11px] text-[#86868b]">ร่วมแลกเปลี่ยนในชุมชน VibeBooks</p>
           </div>
         </div>
 
@@ -196,7 +193,7 @@ export default function CommunityPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Author Name */}
             <div>
-              <label className="block text-[11px] font-semibold text-on-surface-variant mb-1.5">
+              <label className="block text-[11px] font-medium text-[#86868b] mb-1.5">
                 ชื่อของคุณ หรือ นามแฝง
               </label>
               <input
@@ -204,19 +201,19 @@ export default function CommunityPage() {
                 value={authorName}
                 onChange={(e) => setAuthorName(e.target.value)}
                 placeholder="เช่น วิศวกรซอฟต์แวร์, นศ. 643321..."
-                className="w-full rounded-xl bg-white/[0.04] border border-white/[0.08] px-3.5 py-2.5 text-xs text-on-surface placeholder:text-on-surface-variant/40 outline-none focus:border-secondary/50 focus:bg-white/[0.07] transition-all"
+                className="w-full rounded-xl bg-black border border-white/[0.08] px-3.5 py-2.5 text-xs text-[#f5f5f7] placeholder:text-[#86868b]/50 outline-none focus:border-white/25 transition-all"
               />
             </div>
 
             {/* Target Book / Topic */}
             <div>
-              <label className="block text-[11px] font-semibold text-on-surface-variant mb-1.5">
+              <label className="block text-[11px] font-medium text-[#86868b] mb-1.5">
                 หัวข้อ / เล่มหนังสือที่ต้องการรีวิว
               </label>
               <select
                 value={targetBook}
                 onChange={(e) => setTargetBook(e.target.value)}
-                className="w-full rounded-xl bg-[#14121d] border border-white/[0.08] px-3.5 py-2.5 text-xs text-on-surface outline-none focus:border-secondary/50 transition-all cursor-pointer"
+                className="w-full rounded-xl bg-black border border-white/[0.08] px-3.5 py-2.5 text-xs text-[#f5f5f7] outline-none focus:border-white/25 transition-all cursor-pointer"
               >
                 <option value="all">🌟 ทั่วไป / ภาพรวมระบบ (General Discussion)</option>
                 <option value="media-player-pro">🎵 FastPlayer PRO (Lab 1: Multimedia)</option>
@@ -228,42 +225,42 @@ export default function CommunityPage() {
 
           {/* Star Rating Picker */}
           <div>
-            <label className="block text-[11px] font-semibold text-on-surface-variant mb-1.5">
+            <label className="block text-[11px] font-medium text-[#86868b] mb-1.5">
               คะแนนความพึงพอใจ
             </label>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   type="button"
                   key={star}
                   onClick={() => setRating(star)}
-                  className="p-1 rounded-lg transition-transform hover:scale-125 focus:outline-none"
+                  className="p-1 rounded-lg transition-transform hover:scale-110 focus:outline-none cursor-pointer"
                 >
                   <span
-                    className={`material-symbols-outlined text-[24px] transition-colors ${
-                      star <= rating ? "text-amber-400 fill-current drop-shadow-[0_0_8px_rgba(251,191,36,0.6)]" : "text-white/20"
+                    className={`material-symbols-outlined text-[22px] transition-colors ${
+                      star <= rating ? "text-amber-400 fill-current" : "text-white/20"
                     }`}
                   >
                     star
                   </span>
                 </button>
               ))}
-              <span className="text-xs text-amber-300 font-bold ml-2 font-mono">{rating} / 5</span>
+              <span className="text-xs text-[#f5f5f7] font-semibold ml-2 font-mono">{rating} / 5</span>
             </div>
           </div>
 
           {/* Text Area */}
           <div>
-            <label className="block text-[11px] font-semibold text-on-surface-variant mb-1.5">
-              ความคิดเห็นของคุณ
+            <label className="block text-[11px] font-medium text-[#86868b] mb-1.5">
+              ข้อความความคิดเห็น
             </label>
             <textarea
               required
               rows={3}
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
-              placeholder="พิมพ์ข้อความรีวิว สถาปัตยกรรมโค้ด หรือสอบถามแนวคิดการออกแบบซอฟต์แวร์ที่นี่..."
-              className="w-full rounded-xl bg-white/[0.04] border border-white/[0.08] p-3 text-xs text-on-surface placeholder:text-on-surface-variant/40 outline-none focus:border-secondary/50 focus:bg-white/[0.07] transition-all resize-none leading-relaxed"
+              placeholder="พิมพ์ข้อความรีวิว สถาปัตยกรรมโค้ด หรือข้อสงสัยทางเทคนิคที่นี่..."
+              className="w-full rounded-xl bg-black border border-white/[0.08] p-3 text-xs text-[#f5f5f7] placeholder:text-[#86868b]/50 outline-none focus:border-white/25 transition-all resize-none leading-relaxed"
             />
           </div>
 
@@ -272,139 +269,137 @@ export default function CommunityPage() {
             <button
               type="submit"
               disabled={isSubmitting || !commentText.trim()}
-              className="btn-spring inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-secondary via-cyan-400 to-primary text-slate-950 text-xs font-bold shadow-lg hover:shadow-[0_0_20px_rgba(76,215,246,0.35)] disabled:opacity-50 transition-all cursor-pointer"
+              className="apple-btn-primary px-6 py-2 text-xs font-semibold shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <span>{isSubmitting ? "กำลังส่ง..." : "ส่งความคิดเห็น"}</span>
-              <span className="material-symbols-outlined text-[16px]">send</span>
+              <span className="material-symbols-outlined text-[15px]">send</span>
             </button>
           </div>
         </form>
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        {/* Search */}
-        <div className="relative flex-1 flex items-center rounded-2xl bg-white/[0.03] backdrop-blur-md px-4 py-2.5 border border-white/[0.08]">
-          <span className="material-symbols-outlined text-secondary text-[18px]">search</span>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ค้นหาข้อความ หรือผู้เขียนรีวิว..."
-            className="w-full bg-transparent border-none outline-none text-xs text-on-surface placeholder:text-on-surface-variant/40 ml-2"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-white"
+      <div className="space-y-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+          {/* Search */}
+          <div className="relative flex-1 flex items-center rounded-2xl bg-[#161617] px-4 py-2 border border-white/[0.08]">
+            <span className="material-symbols-outlined text-[#86868b] text-[18px]">search</span>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="ค้นหาข้อความ หรือผู้เขียนรีวิว..."
+              className="w-full bg-transparent border-none outline-none text-xs text-[#f5f5f7] placeholder:text-[#86868b]/50 ml-2.5"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="w-4 h-4 rounded-full bg-white/10 flex items-center justify-center text-[#86868b] hover:text-white"
+              >
+                <span className="material-symbols-outlined text-[12px]">close</span>
+              </button>
+            )}
+          </div>
+
+          {/* Sort */}
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[11px] text-[#86868b]">เรียงตาม:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="rounded-xl bg-[#161617] border border-white/[0.08] px-3 py-1.5 text-xs text-[#f5f5f7] outline-none cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[12px]">close</span>
-            </button>
-          )}
+              <option value="newest">ใหม่ล่าสุด</option>
+              <option value="likes">ยอดไลก์สูงสุด</option>
+              <option value="rating">คะแนนสูงสุด</option>
+            </select>
+          </div>
         </div>
 
-        {/* Sort */}
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-[11px] text-on-surface-variant">เรียงตาม:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
-            className="rounded-xl bg-[#14121d] border border-white/[0.08] px-3 py-2 text-xs text-on-surface outline-none cursor-pointer"
+        {/* Topic Filter Chips (Apple Segmented Style) */}
+        <div className="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none">
+          <button
+            onClick={() => setSelectedTopic("all")}
+            className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 cursor-pointer ${
+              selectedTopic === "all"
+                ? "bg-white text-black font-semibold shadow-sm"
+                : "bg-[#161617] text-[#86868b] hover:text-white border border-white/[0.06]"
+            }`}
           >
-            <option value="newest">ใหม่ล่าสุด</option>
-            <option value="likes">ยอดไลก์สูงสุด</option>
-            <option value="rating">คะแนนสูงสุด</option>
-          </select>
+            ทั้งหมด
+          </button>
+          <button
+            onClick={() => setSelectedTopic("media-player-pro")}
+            className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 cursor-pointer ${
+              selectedTopic === "media-player-pro"
+                ? "bg-white text-black font-semibold shadow-sm"
+                : "bg-[#161617] text-[#86868b] hover:text-white border border-white/[0.06]"
+            }`}
+          >
+            FastPlayer (Lab 1)
+          </button>
+          <button
+            onClick={() => setSelectedTopic("mystic-tarot-altar")}
+            className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 cursor-pointer ${
+              selectedTopic === "mystic-tarot-altar"
+                ? "bg-white text-black font-semibold shadow-sm"
+                : "bg-[#161617] text-[#86868b] hover:text-white border border-white/[0.06]"
+            }`}
+          >
+            Mystic Tarot (Lab 2)
+          </button>
+          <button
+            onClick={() => setSelectedTopic("taskmaster-pro")}
+            className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 cursor-pointer ${
+              selectedTopic === "taskmaster-pro"
+                ? "bg-white text-black font-semibold shadow-sm"
+                : "bg-[#161617] text-[#86868b] hover:text-white border border-white/[0.06]"
+            }`}
+          >
+            TaskManager (Lab 3 & 4)
+          </button>
         </div>
-      </div>
-
-      {/* Topic Filter Chips */}
-      <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
-        <button
-          onClick={() => setSelectedTopic("all")}
-          className={`filter-chip shrink-0 px-4 py-1.5 rounded-full text-xs font-medium transition-all btn-spring ${
-            selectedTopic === "all"
-              ? "bg-secondary/20 text-secondary border border-secondary/40 font-bold shadow-[0_0_12px_rgba(76,215,246,0.25)]"
-              : "bg-white/[0.03] text-on-surface-variant hover:text-on-surface border border-white/[0.04]"
-          }`}
-        >
-          ทั้งหมด
-        </button>
-        <button
-          onClick={() => setSelectedTopic("media-player-pro")}
-          className={`filter-chip shrink-0 px-4 py-1.5 rounded-full text-xs font-medium transition-all btn-spring ${
-            selectedTopic === "media-player-pro"
-              ? "bg-secondary/20 text-secondary border border-secondary/40 font-bold shadow-[0_0_12px_rgba(76,215,246,0.25)]"
-              : "bg-white/[0.03] text-on-surface-variant hover:text-on-surface border border-white/[0.04]"
-          }`}
-        >
-          FastPlayer (Lab 1)
-        </button>
-        <button
-          onClick={() => setSelectedTopic("mystic-tarot-altar")}
-          className={`filter-chip shrink-0 px-4 py-1.5 rounded-full text-xs font-medium transition-all btn-spring ${
-            selectedTopic === "mystic-tarot-altar"
-              ? "bg-secondary/20 text-secondary border border-secondary/40 font-bold shadow-[0_0_12px_rgba(76,215,246,0.25)]"
-              : "bg-white/[0.03] text-on-surface-variant hover:text-on-surface border border-white/[0.04]"
-          }`}
-        >
-          Mystic Tarot (Lab 2)
-        </button>
-        <button
-          onClick={() => setSelectedTopic("taskmaster-pro")}
-          className={`filter-chip shrink-0 px-4 py-1.5 rounded-full text-xs font-medium transition-all btn-spring ${
-            selectedTopic === "taskmaster-pro"
-              ? "bg-secondary/20 text-secondary border border-secondary/40 font-bold shadow-[0_0_12px_rgba(76,215,246,0.25)]"
-              : "bg-white/[0.03] text-on-surface-variant hover:text-on-surface border border-white/[0.04]"
-          }`}
-        >
-          TaskManager (Lab 3 & 4)
-        </button>
       </div>
 
       {/* Comments Feed */}
       <div className="space-y-4">
         {filteredComments.length === 0 ? (
-          <div className="text-center py-12 rounded-3xl bg-white/[0.02] border border-white/[0.06]">
-            <span className="material-symbols-outlined text-[36px] text-on-surface-variant/40 mb-2">
+          <div className="text-center py-12 rounded-[24px] bg-[#161617] border border-white/[0.06]">
+            <span className="material-symbols-outlined text-[32px] text-[#86868b] mb-2">
               chat_bubble_outline
             </span>
-            <p className="text-xs text-on-surface-variant">ยังไม่พบความคิดเห็นในหมวดนี้ เป็นคนแรกที่เริ่มเขียนรีวิว!</p>
+            <p className="text-xs text-[#86868b]">ยังไม่พบความคิดเห็นในหมวดนี้ เป็นคนแรกที่ร่วมแสดงความคิดเห็น!</p>
           </div>
         ) : (
           filteredComments.map((comment) => (
             <article
               key={comment.id}
-              className="rounded-3xl bg-surface-container-low/70 backdrop-blur-xl p-5 sm:p-6 border border-white/[0.08] shadow-lg transition-all hover:border-white/[0.15] space-y-3"
+              className="rounded-[24px] bg-[#161617] p-5 sm:p-6 border border-white/[0.08] hover:border-white/[0.16] transition-all space-y-3"
             >
-              {/* Header: Author Info & Rating */}
+              {/* Header */}
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div
-                    className={`w-10 h-10 rounded-2xl bg-gradient-to-tr ${
-                      comment.avatarColor || "from-cyan-500 to-indigo-600"
-                    } flex items-center justify-center text-white font-bold text-sm shadow-md shrink-0`}
-                  >
+                  <div className="w-9 h-9 rounded-full bg-[#2c2c2e] border border-white/10 flex items-center justify-center text-white font-semibold text-xs shrink-0">
                     {comment.author.charAt(0)}
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs sm:text-sm font-bold text-on-surface">
+                      <span className="text-xs sm:text-sm font-semibold text-[#f5f5f7]">
                         {comment.author}
                       </span>
                       {comment.isAuthor && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/30 text-[9px] font-bold uppercase tracking-wider">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full bg-[#0071e3]/20 text-[#2997ff] border border-[#0071e3]/30 text-[9px] font-semibold uppercase tracking-wider">
                           <span className="material-symbols-outlined text-[10px]">verified</span>
                           Lead Architect
                         </span>
                       )}
                       {comment.role && !comment.isAuthor && (
-                        <span className="px-2 py-0.5 rounded-full bg-white/[0.06] text-on-surface-variant text-[9px] font-medium">
+                        <span className="px-2 py-0.2 rounded-full bg-white/[0.06] text-[#86868b] text-[9px] font-medium">
                           {comment.role}
                         </span>
                       )}
                     </div>
-                    <span className="text-[10px] text-on-surface-variant/60">
+                    <span className="text-[10px] text-[#86868b]">
                       {formatDate(comment.createdAt)}
                     </span>
                   </div>
@@ -415,7 +410,7 @@ export default function CommunityPage() {
                   {[1, 2, 3, 4, 5].map((s) => (
                     <span
                       key={s}
-                      className={`material-symbols-outlined text-[14px] ${
+                      className={`material-symbols-outlined text-[13px] ${
                         s <= comment.rating ? "text-amber-400 fill-current" : "text-white/15"
                       }`}
                     >
@@ -427,29 +422,29 @@ export default function CommunityPage() {
 
               {/* Tag / Topic */}
               {comment.bookTitle && (
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.06] text-[10px] text-secondary font-medium">
-                  <span className="material-symbols-outlined text-[12px]">bookmark</span>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.06] text-[10px] text-[#a1a1a6] font-medium">
+                  <span className="material-symbols-outlined text-[12px] text-[#2997ff]">bookmark</span>
                   <span>{comment.bookTitle}</span>
                 </div>
               )}
 
               {/* Content Body */}
-              <p className="text-xs sm:text-[13px] text-on-surface/90 leading-relaxed font-normal whitespace-pre-line">
+              <p className="text-xs sm:text-[13px] text-[#d1d1d6] leading-relaxed font-normal whitespace-pre-line">
                 {comment.content}
               </p>
 
-              {/* Footer: Likes and Action */}
+              {/* Footer: Likes and Book link */}
               <div className="pt-2 flex items-center justify-between border-t border-white/[0.06] text-xs">
                 <button
                   type="button"
                   onClick={() => handleLike(comment.id)}
-                  className={`btn-spring inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-medium transition-all cursor-pointer ${
                     comment.likedByMe
-                      ? "bg-rose-500/20 text-rose-400 border border-rose-500/30 shadow-[0_0_12px_rgba(244,63,94,0.3)]"
-                      : "bg-white/[0.04] text-on-surface-variant hover:text-white border border-white/[0.06]"
+                      ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
+                      : "bg-white/[0.04] text-[#86868b] hover:text-white border border-white/[0.06]"
                   }`}
                 >
-                  <span className={`material-symbols-outlined text-[14px] ${comment.likedByMe ? "fill-current" : ""}`}>
+                  <span className={`material-symbols-outlined text-[13px] ${comment.likedByMe ? "fill-current" : ""}`}>
                     favorite
                   </span>
                   <span>{comment.likes} ไลก์</span>
@@ -458,7 +453,7 @@ export default function CommunityPage() {
                 {comment.bookId && comment.bookId !== "all" && (
                   <Link
                     href={`/checkout/${comment.bookId}`}
-                    className="text-[11px] text-secondary hover:underline flex items-center gap-1"
+                    className="text-[11px] text-[#2997ff] hover:underline flex items-center gap-1"
                   >
                     <span>ดู E-book เล่มนี้</span>
                     <span className="material-symbols-outlined text-[12px]">arrow_forward</span>

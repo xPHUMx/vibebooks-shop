@@ -11,42 +11,42 @@ export default function BottomNav() {
   const isTracking = pathname.startsWith("/tracking");
 
   return (
-    <nav className="fixed bottom-4 inset-x-0 z-50 px-4 pb-safe flex justify-center pointer-events-none">
-      <div className="pointer-events-auto flex items-center justify-between gap-1 px-3 py-1.5 rounded-full bg-surface-container-highest/80 backdrop-blur-2xl border border-white/10 shadow-[0_16px_40px_rgba(0,0,0,0.6)] w-full max-w-sm">
+    <nav className="fixed bottom-4 inset-x-0 z-50 px-4 pb-safe flex justify-center pointer-events-none md:hidden">
+      <div className="pointer-events-auto flex items-center justify-between gap-1 p-1.5 rounded-full bg-[#161617]/85 backdrop-blur-2xl border border-white/[0.12] shadow-[0_16px_40px_rgba(0,0,0,0.8)] w-full max-w-xs">
         <Link
-          href="/#storefront"
+          href="/"
           className={`flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-full transition-all duration-200 ${
             isCatalog && !isCommunity
-              ? "text-secondary bg-white/[0.08] font-semibold shadow-[0_0_16px_rgba(76,215,246,0.25)]"
-              : "text-on-surface-variant hover:text-on-surface"
+              ? "text-white bg-white/[0.12] font-semibold shadow-sm"
+              : "text-[#86868b] hover:text-[#f5f5f7]"
           }`}
         >
-          <span className="material-symbols-outlined text-[20px]">menu_book</span>
-          <span className="text-[10px] mt-0.5">Catalog</span>
+          <span className="material-symbols-outlined text-[19px]">menu_book</span>
+          <span className="text-[9px] mt-0.5 tracking-tight font-medium">Catalog</span>
         </Link>
 
         <Link
           href="/community"
           className={`flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-full transition-all duration-200 ${
             isCommunity
-              ? "text-secondary bg-white/[0.08] font-semibold shadow-[0_0_16px_rgba(76,215,246,0.25)]"
-              : "text-on-surface-variant hover:text-on-surface"
+              ? "text-white bg-white/[0.12] font-semibold shadow-sm"
+              : "text-[#86868b] hover:text-[#f5f5f7]"
           }`}
         >
-          <span className="material-symbols-outlined text-[20px]">forum</span>
-          <span className="text-[10px] mt-0.5">Community</span>
+          <span className="material-symbols-outlined text-[19px]">forum</span>
+          <span className="text-[9px] mt-0.5 tracking-tight font-medium">Community</span>
         </Link>
 
         <Link
           href="/tracking"
           className={`flex-1 flex flex-col items-center justify-center py-1.5 px-2 rounded-full transition-all duration-200 ${
             isTracking
-              ? "text-secondary bg-white/[0.08] font-semibold shadow-[0_0_16px_rgba(76,215,246,0.25)]"
-              : "text-on-surface-variant hover:text-on-surface"
+              ? "text-white bg-white/[0.12] font-semibold shadow-sm"
+              : "text-[#86868b] hover:text-[#f5f5f7]"
           }`}
         >
-          <span className="material-symbols-outlined text-[20px]">receipt_long</span>
-          <span className="text-[10px] mt-0.5">Track Order</span>
+          <span className="material-symbols-outlined text-[19px]">receipt_long</span>
+          <span className="text-[9px] mt-0.5 tracking-tight font-medium">Track</span>
         </Link>
       </div>
     </nav>

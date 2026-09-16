@@ -1,67 +1,95 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { STUDENT_INFO } from "@/lib/booksData";
 
 export default function Header() {
-  return (
-    <header className="fixed top-0 inset-x-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-white/5 shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
-      <div className="max-w-4xl mx-auto h-16 px-4 flex items-center justify-between gap-2">
-        <Link href="/" className="flex items-center gap-3 min-w-0 flex-1 group">
-          {/* SVG Brand Logo from Google Stitch */}
-          <svg className="h-9 w-9 shrink-0 shadow-lg rounded-xl transition-transform group-hover:scale-105" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
-            <defs>
-              <linearGradient id="vb-grad-nav" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#8b5cf6"/>
-                <stop offset="50%" stopColor="#ec4899"/>
-                <stop offset="100%" stopColor="#06b6d4"/>
-              </linearGradient>
-            </defs>
-            <rect width="100" height="100" rx="28" fill="#14121d"/>
-            <rect width="98" height="98" x="1" y="1" rx="27" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5"/>
-            <path d="M28 32 C36 28, 44 32, 50 36 C56 32, 64 28, 72 32 L72 68 C64 64, 56 68, 50 72 C44 68, 36 64, 28 68 Z" fill="url(#vb-grad-nav)" opacity="0.95"/>
-            <path d="M50 36 L50 72" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round"/>
-            <circle cx="50" cy="27" r="3.5" fill="#06b6d4"/>
-          </svg>
+  const pathname = usePathname();
 
-          <div className="flex flex-col min-w-0">
+  return (
+    <header className="fixed top-0 inset-x-0 z-50 bg-[#000000]/80 backdrop-blur-2xl border-b border-white/[0.08] transition-all">
+      <div className="max-w-4xl mx-auto h-12 sm:h-14 px-4 flex items-center justify-between gap-4">
+        {/* Brand Logo & Author */}
+        <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+          {/* Minimalist Apple-style Vector Monogram */}
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-gradient-to-b from-[#2c2c2e] to-[#1c1c1e] border border-white/10 flex items-center justify-center text-white shadow-sm transition-transform group-hover:scale-105">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              <path d="M9 6h6" />
+              <path d="M9 10h6" />
+            </svg>
+          </div>
+
+          <div className="flex flex-col">
             <div className="flex items-center gap-1.5">
-              <span className="text-base font-bold text-on-surface tracking-tight group-hover:text-primary transition-colors">
+              <span className="text-xs sm:text-sm font-semibold tracking-tight text-[#f5f5f7] group-hover:text-white transition-colors">
                 {STUDENT_INFO.brand}
               </span>
-              <span className="text-xs text-on-surface-variant font-medium hidden sm:inline">
-                · Obsidian Glass
+              <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-white/10 text-white/90 uppercase tracking-wider">
+                PRO
               </span>
             </div>
-            <span className="inline-flex items-center gap-1 text-[10px] text-secondary font-medium truncate">
-              <span className="w-1.5 h-1.5 rounded-full bg-secondary shrink-0 animate-pulse"></span>
-              By {STUDENT_INFO.nameEn} ({STUDENT_INFO.studentId})
+            <span className="text-[9px] text-[#86868b] font-medium hidden sm:inline">
+              by {STUDENT_INFO.nameEn} ({STUDENT_INFO.studentId})
             </span>
           </div>
         </Link>
 
-        <div className="flex items-center gap-2 shrink-0">
+        {/* Center Navigation Links (Apple Style) */}
+        <nav className="hidden md:flex items-center gap-6 text-[12px] font-medium text-[#86868b]">
+          <Link
+            href="/"
+            className={`transition-colors hover:text-white ${
+              pathname === "/" ? "text-white font-semibold" : ""
+            }`}
+          >
+            แคตตาล็อก
+          </Link>
           <Link
             href="/community"
-            className="w-9 h-9 rounded-full flex items-center justify-center bg-white/[0.05] text-on-surface-variant hover:text-secondary hover:bg-white/[0.1] transition-all"
-            title="คอมมูนิตี้และรีวิว E-book"
+            className={`transition-colors hover:text-white ${
+              pathname.startsWith("/community") ? "text-white font-semibold" : ""
+            }`}
           >
-            <span className="material-symbols-outlined text-[19px]">forum</span>
+            คอมมูนิตี้ & รีวิว
           </Link>
           <Link
             href="/tracking"
-            className="w-9 h-9 rounded-full flex items-center justify-center bg-white/[0.05] text-on-surface-variant hover:text-on-surface hover:bg-white/[0.1] transition-all"
-            title="ค้นหาและติดตามคำสั่งซื้อ"
+            className={`transition-colors hover:text-white ${
+              pathname.startsWith("/tracking") ? "text-white font-semibold" : ""
+            }`}
           >
-            <span className="material-symbols-outlined text-[19px]">receipt_long</span>
+            ติดตามคำสั่งซื้อ
           </Link>
+        </nav>
+
+        {/* Right Action Icons */}
+        <div className="flex items-center gap-2 shrink-0">
           <Link
-            href="/#storefront"
-            className="w-9 h-9 rounded-full flex items-center justify-center bg-white/[0.05] text-on-surface-variant hover:text-on-surface hover:bg-white/[0.1] relative transition-all"
-            title="แคตตาล็อกหนังสือ"
+            href="/community"
+            className="md:hidden w-8 h-8 rounded-full flex items-center justify-center bg-white/[0.04] text-[#86868b] hover:text-white hover:bg-white/[0.08] transition-all"
+            title="คอมมูนิตี้และรีวิว"
           >
-            <span className="material-symbols-outlined text-[19px]">shopping_bag</span>
-            <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-secondary text-on-secondary text-[9px] font-bold flex items-center justify-center shadow-sm">
+            <span className="material-symbols-outlined text-[18px]">forum</span>
+          </Link>
+
+          <Link
+            href="/tracking"
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-white/[0.04] text-[#86868b] hover:text-white hover:bg-white/[0.08] transition-all"
+            title="ติดตามคำสั่งซื้อ"
+          >
+            <span className="material-symbols-outlined text-[18px]">receipt_long</span>
+          </Link>
+
+          <Link
+            href="/"
+            className="w-8 h-8 rounded-full flex items-center justify-center bg-white/[0.06] text-white hover:bg-white/[0.12] relative transition-all"
+            title="แคตตาล็อก E-book"
+          >
+            <span className="material-symbols-outlined text-[18px]">shopping_bag</span>
+            <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-[#0071e3] text-white text-[9px] font-bold flex items-center justify-center shadow-sm">
               3
             </span>
           </Link>

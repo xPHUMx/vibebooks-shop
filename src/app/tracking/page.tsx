@@ -71,53 +71,55 @@ function TrackingContent() {
   };
 
   return (
-    <div className="space-y-5 max-w-lg mx-auto animate-fade">
-      {/* Page Header */}
-      <div className="flex flex-col gap-1">
-        <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-0.5 rounded-full bg-surface-container-high text-secondary text-[10px] font-semibold">
-          <span className="material-symbols-outlined text-[14px]">
-            verified_user
+    <div className="space-y-6 max-w-lg mx-auto animate-fade">
+      {/* Page Header (Apple Style) */}
+      <div className="text-center pt-2 sm:pt-6 flex flex-col items-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] border border-white/[0.08] mb-3">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#0071e3]" />
+          <span className="text-[11px] font-semibold text-[#86868b] uppercase tracking-[0.2em]">
+            Order Recovery · 24/7
           </span>
-          <span>Instant Recovery</span>
         </div>
-        <h1 className="text-xl font-bold text-on-surface tracking-tight">
-          Self-Service Order Tracking
+
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white mb-1.5">
+          <span className="bg-gradient-to-b from-white via-[#f5f5f7] to-[#86868b] bg-clip-text text-transparent">
+            ติดตามและค้นหาคำสั่งซื้อ.
+          </span>
         </h1>
-        <p className="text-xs text-on-surface-variant">
-          ค้นหาประวัติคำสั่งซื้อ ตรวจสอบสถานะการชำระเงิน และขอรับลิงก์ดาวน์โหลดใหม่
+
+        <p className="text-xs text-[#86868b] max-w-sm leading-relaxed">
+          ตรวจสอบสถานะการชำระเงิน และขอรับลิงก์ดาวน์โหลด E-book ภาษาไทยฉบับเต็มได้ทันที
         </p>
       </div>
 
-      {/* Glass Lookup Form Card */}
-      <div className="w-full rounded-3xl bg-surface-container-low/70 backdrop-blur-xl p-5 sm:p-6 shadow-xl flex flex-col gap-3.5 border border-white/[0.08] animate-fade-in-up">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-primary">
-            <span className="material-symbols-outlined text-[18px]">
-              manage_search
-            </span>
-            <span className="text-xs font-bold text-on-surface">License Lookup</span>
+      {/* Apple Titanium Card Form */}
+      <div className="w-full rounded-[24px] bg-[#161617] p-5 sm:p-6 border border-white/[0.08] shadow-xl space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-white/[0.06]">
+          <div className="flex items-center gap-2 text-white">
+            <span className="material-symbols-outlined text-[18px]">manage_search</span>
+            <span className="text-xs font-semibold text-[#f5f5f7]">License & Order Lookup</span>
           </div>
-          <span className="text-[10px] text-secondary bg-secondary/15 border border-secondary/30 px-2.5 py-0.5 rounded-full font-mono">
-            Encrypted
+          <span className="text-[10px] text-[#86868b] font-mono">
+            Direct Cloud Sync
           </span>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
-            <div className="flex justify-between items-center mb-1">
-              <label className="text-xs font-semibold text-on-surface-variant">
+            <div className="flex justify-between items-center mb-1.5">
+              <label className="text-[11px] font-medium text-[#86868b]">
                 Order Reference ID (หมายเลขคำสั่งซื้อ)
               </label>
               <button
                 type="button"
                 onClick={handleFillDemo}
-                className="text-[10px] text-secondary hover:underline"
+                className="text-[10px] text-[#2997ff] hover:underline cursor-pointer"
               >
                 [ใช้รหัสทดสอบ Demo]
               </button>
             </div>
             <div className="relative flex items-center">
-              <span className="material-symbols-outlined absolute left-3 text-on-surface-variant text-[18px]">
+              <span className="material-symbols-outlined absolute left-3 text-[#86868b] text-[16px]">
                 tag
               </span>
               <input
@@ -126,17 +128,17 @@ function TrackingContent() {
                 value={orderId}
                 onChange={(e) => setOrderId(e.target.value)}
                 placeholder="เช่น ORD-2026-8821"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface text-xs focus:outline-none focus:border-secondary/40 focus:ring-1 focus:ring-secondary/40 border border-white/[0.08] font-mono shadow-inner transition-all"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-black text-[#f5f5f7] text-xs outline-none focus:border-white/25 border border-white/[0.08] font-mono transition-all"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-on-surface-variant mb-1">
+            <label className="block text-[11px] font-medium text-[#86868b] mb-1.5">
               Billing Email (อีเมลที่ใช้สั่งซื้อ)
             </label>
             <div className="relative flex items-center">
-              <span className="material-symbols-outlined absolute left-3 text-on-surface-variant text-[18px]">
+              <span className="material-symbols-outlined absolute left-3 text-[#86868b] text-[16px]">
                 mail
               </span>
               <input
@@ -145,7 +147,7 @@ function TrackingContent() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="เช่น buyer@example.com"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface text-xs focus:outline-none focus:border-secondary/40 focus:ring-1 focus:ring-secondary/40 border border-white/[0.08] shadow-inner transition-all"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-black text-[#f5f5f7] text-xs outline-none focus:border-white/25 border border-white/[0.08] transition-all"
               />
             </div>
           </div>
@@ -153,11 +155,11 @@ function TrackingContent() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-spring w-full py-3 px-4 rounded-xl bg-gradient-to-r from-secondary-container via-secondary to-primary text-slate-950 text-xs font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-cyan-950/40 hover:opacity-95 transition-all disabled:opacity-50"
+            className="apple-btn-primary w-full py-3 px-4 text-xs font-semibold flex items-center justify-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
           >
             <span className="material-symbols-outlined text-[16px]">search</span>
             <span>
-              {loading ? "กำลังค้นหาข้อมูลในระบบ..." : "Search Order Digital Vault"}
+              {loading ? "กำลังค้นหาข้อมูล..." : "ค้นหาคำสั่งซื้อ (Search Order)"}
             </span>
           </button>
         </form>
@@ -165,7 +167,7 @@ function TrackingContent() {
 
       {/* Error Message */}
       {errorMessage && (
-        <div className="p-3.5 rounded-xl bg-error-container text-on-error-container text-xs flex items-center gap-2">
+        <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
           <span className="material-symbols-outlined text-[16px]">error</span>
           <span>{errorMessage}</span>
         </div>
@@ -173,59 +175,59 @@ function TrackingContent() {
 
       {/* Live Search Result Card */}
       {order && (
-        <div className="w-full rounded-2xl bg-surface-container-high p-4 shadow-xl flex flex-col gap-3 specular-border animate-fade">
+        <div className="w-full rounded-[24px] bg-[#161617] p-5 border border-white/[0.08] shadow-xl space-y-3 animate-fade">
           <div className="flex items-start justify-between gap-2">
             <div className="flex flex-col min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs font-mono font-bold text-on-surface">
+                <span className="text-xs font-mono font-bold text-[#f5f5f7]">
                   {order.id}
                 </span>
                 <button
                   onClick={handleCopy}
-                  className="p-0.5 rounded bg-surface-container text-on-surface-variant hover:text-on-surface"
-                  title="Copy"
+                  className="p-1 rounded bg-white/10 hover:bg-white/20 text-[#86868b] hover:text-white cursor-pointer"
+                  title="คัดลอก"
                 >
-                  <span className="material-symbols-outlined text-[14px]">
+                  <span className="material-symbols-outlined text-[13px]">
                     {copied ? "check" : "content_copy"}
                   </span>
                 </button>
               </div>
-              <span className="text-[10px] text-on-surface-variant mt-0.5">
+              <span className="text-[10px] text-[#86868b] mt-0.5">
                 ผู้สั่งซื้อ: {order.customerName}
               </span>
             </div>
 
             <span
-              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+              className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${
                 order.status === "PAID"
-                  ? "bg-secondary text-on-secondary"
-                  : "bg-error text-on-error"
+                  ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                  : "bg-rose-500/15 text-rose-400 border border-rose-500/30"
               }`}
             >
-              {order.status === "PAID" ? "PAID & DELIVERED" : order.status}
+              {order.status === "PAID" ? "PAID & READY" : order.status}
             </span>
           </div>
 
-          <div className="p-3 rounded-xl bg-surface-container-lowest flex items-center justify-between specular-border gap-2">
+          <div className="p-3.5 rounded-xl bg-black flex items-center justify-between border border-white/[0.06] gap-2">
             <div className="flex items-center gap-2.5 min-w-0">
-              <span className="material-symbols-outlined text-secondary text-[20px]">
+              <span className="material-symbols-outlined text-white text-[18px]">
                 menu_book
               </span>
               <div className="flex flex-col min-w-0">
-                <span className="text-xs font-bold text-on-surface truncate">
+                <span className="text-xs font-semibold text-[#f5f5f7] truncate">
                   {order.bookTitle}
                 </span>
-                <span className="text-[10px] text-on-surface-variant">
-                  {order.fileName} • ฿{order.bookPrice}.00
+                <span className="text-[10px] text-[#86868b]">
+                  {order.fileName} · ฿{order.bookPrice}.00
                 </span>
               </div>
             </div>
 
             <Link
               href={order.status === "PAID" ? `/order/${order.id}` : `/payment/${order.id}`}
-              className="px-3 py-1.5 rounded-lg bg-secondary/15 text-secondary border border-secondary/30 text-xs font-semibold hover:bg-secondary hover:text-on-secondary transition-all shrink-0"
+              className="apple-btn-primary px-3.5 py-1.5 text-xs font-semibold shrink-0"
             >
-              {order.status === "PAID" ? "Get Link →" : "Pay Now →"}
+              {order.status === "PAID" ? "เปิดอ่าน →" : "ชำระเงิน →"}
             </Link>
           </div>
         </div>
@@ -233,7 +235,7 @@ function TrackingContent() {
 
       {/* Back to Home */}
       <div className="text-center pt-2">
-        <Link href="/" className="text-xs text-on-surface-variant hover:text-white">
+        <Link href="/" className="text-xs text-[#86868b] hover:text-white transition-colors">
           ← กลับสู่หน้าร้านค้าหลัก
         </Link>
       </div>
@@ -246,10 +248,10 @@ export default function TrackingPage() {
     <Suspense
       fallback={
         <div className="text-center py-20">
-          <span className="material-symbols-outlined text-secondary text-[36px] animate-spin">
+          <span className="material-symbols-outlined text-white text-[32px] animate-spin">
             progress_activity
           </span>
-          <p className="text-xs text-on-surface-variant mt-2">กำลังโหลดระบบค้นหา...</p>
+          <p className="text-xs text-[#86868b] mt-2 font-mono">กำลังโหลดระบบค้นหา...</p>
         </div>
       }
     >
