@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { BOOKS, STUDENT_INFO } from "@/lib/booksData";
+import CoverFlowCarousel, { CarouselItem } from "@/components/CoverFlowCarousel";
 
 export default function CatalogPage() {
   const [activeCategory, setActiveCategory] = useState<string>("all");
@@ -20,125 +21,148 @@ export default function CatalogPage() {
     });
   }, [activeCategory, searchQuery]);
 
+  // Transform books into CoverFlow carousel items
+  const carouselItems: CarouselItem[] = useMemo(() => {
+    const sourceBooks = filteredBooks.length > 0 ? filteredBooks : BOOKS;
+    return sourceBooks.map((book) => {
+      let tag = `#Lab${book.labNumber}_Architecture`;
+      let titleLine1 = book.title.toUpperCase();
+      let titleLine2 = `– ${book.series.toUpperCase()}`;
+
+      if (book.id === "media-player-pro") {
+        tag = "#Lab1_Engineering";
+        titleLine1 = "FASTPLAYER PRO";
+        titleLine2 = "– AUDIO & VIDEO ENGINE";
+      } else if (book.id === "mystic-tarot-altar") {
+        tag = "#Lab2_CreativeAI";
+        titleLine1 = "MYSTIC TAROT";
+        titleLine2 = "– 3-CARD ORACLE AI";
+      } else if (book.id === "taskmaster-pro") {
+        tag = "#Lab3_Productivity";
+        titleLine1 = "TASKMANAGER PRO";
+        titleLine2 = "– BENTO KANBAN & SQLITE";
+      }
+
+      return {
+        id: book.id,
+        tag,
+        titleLine1,
+        titleLine2,
+        desc: book.description,
+        img: book.coverImage,
+        ctaText: `สั่งซื้อ ฿${book.price}.00`,
+        ctaUrl: `/checkout/${book.id}`,
+        price: book.price,
+        originalPrice: book.originalPrice,
+        rating: book.rating,
+        ratingCount: book.ratingCount,
+        labNumber: book.labNumber,
+        category: book.category,
+      };
+    });
+  }, [filteredBooks]);
+
   return (
-    <div className="space-y-6 animate-fade">
-      {/* Minimalist Search Bar */}
-      <div className="relative flex items-center w-full rounded-2xl bg-white/[0.03] backdrop-blur-xl px-4 py-3 border border-white/[0.08] shadow-lg transition-all focus-within:bg-white/[0.06] focus-within:border-secondary/40 focus-within:shadow-[0_0_20px_rgba(76,215,246,0.2)]">
-        <span className="material-symbols-outlined text-secondary shrink-0 text-[20px]">
-          search
-        </span>
-        <input
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="ค้นหา E-book วิศวกรรมซอฟต์แวร์, สถาปัตยกรรมระบบ, โค้ดตัวอย่าง..."
-          className="w-full bg-transparent border-none outline-none text-xs text-on-surface placeholder:text-on-surface-variant/40 ml-3 min-w-0"
-          type="text"
-        />
-        {searchQuery && (
-          <button
-            onClick={() => setSearchQuery("")}
-            className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-white transition-colors"
-          >
-            <span className="material-symbols-outlined text-[13px]">close</span>
-          </button>
-        )}
-      </div>
-
-      {/* Hero Section — Minimalist Obsidian Glass */}
-      <div className="relative w-full overflow-hidden rounded-3xl bg-surface-container-low/60 backdrop-blur-2xl p-6 shadow-2xl border border-white/[0.08]">
-        {/* Subtle Animated Glowing Orbs */}
-        <div className="absolute -top-16 -right-12 w-48 h-48 bg-primary/20 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
-        <div className="absolute -bottom-16 -left-10 w-44 h-44 bg-secondary/15 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div className="relative z-10 flex flex-col gap-3">
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[11px] font-semibold uppercase tracking-wider">
-              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
-              Editorial Master Edition 2026
-            </span>
-          </div>
-
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-on-surface tracking-tight leading-snug">
-            VibeBooks Engineering & AI Series
-          </h1>
-          <p className="text-xs text-on-surface-variant leading-relaxed max-w-lg font-normal">
-            คลังคู่มือสถาปัตยกรรมซอฟต์แวร์ระดับโปรดักชัน ภาษาไทยฉบับสมบูรณ์ (Full 6-Page Technical Master)
-            พร้อมผลการทดสอบระบบและซอร์สโค้ดจริง (DEMO ONLY)
-          </p>
-
-          <div className="pt-2 flex items-center justify-between gap-3 flex-wrap">
+    <div className="space-y-8 animate-fade pb-10">
+      {/* Top Search & Author Meta Bar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        {/* Minimalist Search Bar */}
+        <div className="relative flex-1 flex items-center rounded-2xl bg-white/[0.03] backdrop-blur-xl px-4 py-3 border border-white/[0.08] shadow-lg transition-all focus-within:bg-white/[0.06] focus-within:border-secondary/40 focus-within:shadow-[0_0_20px_rgba(76,215,246,0.2)]">
+          <span className="material-symbols-outlined text-secondary shrink-0 text-[20px]">
+            search
+          </span>
+          <input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="ค้นหา E-book วิศวกรรมซอฟต์แวร์, สถาปัตยกรรมระบบ, โค้ดตัวอย่าง..."
+            className="w-full bg-transparent border-none outline-none text-xs text-on-surface placeholder:text-on-surface-variant/40 ml-3 min-w-0"
+            type="text"
+          />
+          {searchQuery && (
             <button
-              onClick={() => {
-                document
-                  .getElementById("product-grid")
-                  ?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="btn-spring inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-secondary via-cyan-400 to-primary text-slate-950 text-xs font-bold shadow-[0_0_20px_rgba(76,215,246,0.35)] hover:opacity-95 transition-all"
+              onClick={() => setSearchQuery("")}
+              className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center text-on-surface-variant hover:text-white transition-colors"
             >
-              <span>สำรวจคลังหนังสือ</span>
-              <span className="material-symbols-outlined text-[16px]">bolt</span>
+              <span className="material-symbols-outlined text-[13px]">close</span>
             </button>
+          )}
+        </div>
 
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.03] backdrop-blur-md border border-white/[0.06]">
-              <div className="w-2 h-2 rounded-full bg-secondary shadow-[0_0_6px_rgba(76,215,246,0.8)]"></div>
-              <div className="flex flex-col">
-                <span className="text-[9px] text-on-surface-variant uppercase tracking-wider">
-                  Lead Architect & Author
-                </span>
-                <span className="text-[11px] text-secondary font-semibold">
-                  {STUDENT_INFO.name} ({STUDENT_INFO.studentId})
-                </span>
-              </div>
-            </div>
+        {/* Lead Architect Badge */}
+        <div className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-white/[0.03] backdrop-blur-md border border-white/[0.08] shrink-0">
+          <div className="w-2.5 h-2.5 rounded-full bg-secondary shadow-[0_0_8px_rgba(76,215,246,0.8)] animate-pulse"></div>
+          <div className="flex flex-col">
+            <span className="text-[9px] text-on-surface-variant uppercase tracking-wider font-semibold">
+              Author & Architect
+            </span>
+            <span className="text-[12px] text-secondary font-bold">
+              {STUDENT_INFO.name} ({STUDENT_INFO.studentId})
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Minimalist Filter Bar */}
-      <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
-        <button
-          onClick={() => setActiveCategory("all")}
-          className={`filter-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all btn-spring ${
-            activeCategory === "all"
-              ? "bg-secondary/20 text-secondary border border-secondary/40 font-bold shadow-[0_0_12px_rgba(76,215,246,0.25)]"
-              : "bg-white/[0.03] text-on-surface-variant hover:text-on-surface border border-white/[0.04]"
-          }`}
-        >
-          ทั้งหมด ({BOOKS.length})
-        </button>
-        <button
-          onClick={() => setActiveCategory("multimedia")}
-          className={`filter-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all btn-spring ${
-            activeCategory === "multimedia"
-              ? "bg-secondary/20 text-secondary border border-secondary/40 font-bold shadow-[0_0_12px_rgba(76,215,246,0.25)]"
-              : "bg-white/[0.03] text-on-surface-variant hover:text-on-surface border border-white/[0.04]"
-          }`}
-        >
-          มัลติมีเดีย (Lab 1)
-        </button>
-        <button
-          onClick={() => setActiveCategory("creative-ai")}
-          className={`filter-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all btn-spring ${
-            activeCategory === "creative-ai"
-              ? "bg-secondary/20 text-secondary border border-secondary/40 font-bold shadow-[0_0_12px_rgba(76,215,246,0.25)]"
-              : "bg-white/[0.03] text-on-surface-variant hover:text-on-surface border border-white/[0.04]"
-          }`}
-        >
-          Creative AI (Lab 2)
-        </button>
-        <button
-          onClick={() => setActiveCategory("productivity")}
-          className={`filter-chip shrink-0 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all btn-spring ${
-            activeCategory === "productivity"
-              ? "bg-secondary/20 text-secondary border border-secondary/40 font-bold shadow-[0_0_12px_rgba(76,215,246,0.25)]"
-              : "bg-white/[0.03] text-on-surface-variant hover:text-on-surface border border-white/[0.04]"
-          }`}
-        >
-          ระบบผลผลิต (Lab 3 & 4)
-        </button>
+      {/* 3D CoverFlow Carousel Section (Primary Showcase) */}
+      <div className="relative">
+        <CoverFlowCarousel
+          items={carouselItems}
+          sectionLabel="VIBEBOOKS EDITORIAL MASTER 2026"
+          autoplay={true}
+          autoplayDelay={4500}
+        />
       </div>
 
-      {/* Bento Product Grid — Minimalist Glass Cards with Clear Cover Images */}
+      {/* Filter Chips Bar */}
+      <div className="flex items-center justify-between gap-4 flex-wrap pt-2">
+        <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
+          <button
+            onClick={() => setActiveCategory("all")}
+            className={`filter-chip shrink-0 px-4 py-2 rounded-full text-xs font-medium transition-all btn-spring ${
+              activeCategory === "all"
+                ? "bg-secondary/20 text-secondary border border-secondary/40 font-bold shadow-[0_0_12px_rgba(76,215,246,0.25)]"
+                : "bg-white/[0.03] text-on-surface-variant hover:text-on-surface border border-white/[0.04]"
+            }`}
+          >
+            ทั้งหมด ({BOOKS.length})
+          </button>
+          <button
+            onClick={() => setActiveCategory("multimedia")}
+            className={`filter-chip shrink-0 px-4 py-2 rounded-full text-xs font-medium transition-all btn-spring ${
+              activeCategory === "multimedia"
+                ? "bg-secondary/20 text-secondary border border-secondary/40 font-bold shadow-[0_0_12px_rgba(76,215,246,0.25)]"
+                : "bg-white/[0.03] text-on-surface-variant hover:text-on-surface border border-white/[0.04]"
+            }`}
+          >
+            มัลติมีเดีย (Lab 1)
+          </button>
+          <button
+            onClick={() => setActiveCategory("creative-ai")}
+            className={`filter-chip shrink-0 px-4 py-2 rounded-full text-xs font-medium transition-all btn-spring ${
+              activeCategory === "creative-ai"
+                ? "bg-secondary/20 text-secondary border border-secondary/40 font-bold shadow-[0_0_12px_rgba(76,215,246,0.25)]"
+                : "bg-white/[0.03] text-on-surface-variant hover:text-on-surface border border-white/[0.04]"
+            }`}
+          >
+            Creative AI (Lab 2)
+          </button>
+          <button
+            onClick={() => setActiveCategory("productivity")}
+            className={`filter-chip shrink-0 px-4 py-2 rounded-full text-xs font-medium transition-all btn-spring ${
+              activeCategory === "productivity"
+                ? "bg-secondary/20 text-secondary border border-secondary/40 font-bold shadow-[0_0_12px_rgba(76,215,246,0.25)]"
+                : "bg-white/[0.03] text-on-surface-variant hover:text-on-surface border border-white/[0.04]"
+            }`}
+          >
+            ระบบผลผลิต (Lab 3 & 4)
+          </button>
+        </div>
+
+        <span className="text-xs text-on-surface-variant font-mono">
+          แสดง {filteredBooks.length} เล่ม
+        </span>
+      </div>
+
+      {/* Bento Grid — Direct Book Comparison & Details */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5" id="product-grid">
         {filteredBooks.map((book, index) => {
           const accentColor =
@@ -162,13 +186,11 @@ export default function CatalogPage() {
                   alt={book.title}
                   className="w-full h-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
                   onError={(e) => {
-                    // Fallback to default styling if needed
                     const target = e.target as HTMLImageElement;
                     target.src = "/images/books/task_manager.png";
                   }}
                 />
 
-                {/* Subtle gradient vignette at bottom for text contrast */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none"></div>
 
                 {/* Lab Badge */}
