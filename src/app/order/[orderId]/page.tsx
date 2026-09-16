@@ -170,15 +170,28 @@ export default function OrderDeliveryPage() {
           </div>
         </div>
 
-        {/* iOS WebViewer Notice */}
-        <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-[11px] text-[#86868b] space-y-1">
-          <div className="text-white font-medium flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-[15px] text-[#2997ff]">phone_iphone</span>
-            <span>แนะนำสำหรับ iPhone และ MIT App Inventor:</span>
+        {/* Cross-Platform Android & iOS WebViewer Guidance */}
+        <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/[0.08] text-[11px] text-[#86868b] space-y-2">
+          <div className="flex items-center justify-between text-[#f5f5f7] font-medium">
+            <div className="flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px] text-[#2997ff]">devices</span>
+              <span>รองรับทั้ง Android & iOS สมบูรณ์แบบ</span>
+            </div>
+            <div className="flex items-center gap-1 text-[9px] font-mono uppercase">
+              <span className="px-1.5 py-0.5 rounded bg-white/10 text-white">iOS</span>
+              <span className="px-1.5 py-0.5 rounded bg-white/10 text-white">Android</span>
+            </div>
           </div>
-          <p>
-            บน iOS WebViewer สามารถกดปุ่ม <strong>&quot;อ่านบนแอปทันที&quot;</strong> เพื่อเปิดอ่านในหน้าจอได้ทันทีโดยไม่ต้องดาวน์โหลด
-          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-white/[0.06] text-[10.5px]">
+            <div className="flex items-start gap-1.5 text-[#a1a1a6]">
+              <span className="material-symbols-outlined text-[14px] text-white shrink-0 mt-0.5">phone_iphone</span>
+              <span><strong>iOS / iPhone:</strong> แนะนำกด <em>&quot;เปิดอ่านบนแอปทันที&quot;</em> หรือเปิดผ่าน Safari</span>
+            </div>
+            <div className="flex items-start gap-1.5 text-[#a1a1a6]">
+              <span className="material-symbols-outlined text-[14px] text-emerald-400 shrink-0 mt-0.5">android</span>
+              <span><strong>Android:</strong> สามารถเปิดอ่านในแอป หรือกด <em>&quot;ดาวน์โหลด PDF&quot;</em> ลงเครื่องได้ทันที</span>
+            </div>
+          </div>
         </div>
 
         {/* Action Buttons */}
@@ -186,10 +199,10 @@ export default function OrderDeliveryPage() {
           {/* In-App Reader Button (Primary Apple Blue) */}
           <button
             onClick={() => setShowInAppReader(true)}
-            className="apple-btn-primary w-full py-3 text-xs font-semibold shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+            className="apple-btn-primary w-full py-3.5 text-xs font-semibold shadow-sm flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span className="material-symbols-outlined text-[16px]">menu_book</span>
-            <span>เปิดอ่านบนแอปทันที (In-App Reader)</span>
+            <span className="material-symbols-outlined text-[17px]">menu_book</span>
+            <span>เปิดอ่านบนแอปทันที (In-App Reader สำหรับ Android & iOS)</span>
           </button>
 
           {/* Secondary Actions */}
@@ -225,10 +238,10 @@ export default function OrderDeliveryPage() {
         </div>
       </div>
 
-      {/* In-App Reader Modal (Apple Style) */}
+      {/* In-App Reader Modal (Apple Style with Multi-platform Toolbar) */}
       {showInAppReader && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-2xl flex flex-col p-3 sm:p-6 animate-fade">
-          <div className="w-full max-w-4xl mx-auto flex items-center justify-between py-2 mb-2 text-white">
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex flex-col p-2 sm:p-6 animate-fade">
+          <div className="w-full max-w-4xl mx-auto flex items-center justify-between py-2 px-1 mb-2 text-white">
             <div className="flex items-center gap-2 min-w-0">
               <span className="material-symbols-outlined text-[20px] text-[#2997ff]">
                 picture_as_pdf
@@ -237,15 +250,29 @@ export default function OrderDeliveryPage() {
                 {order?.bookTitle || currentBook.title}
               </span>
             </div>
-            <button
-              onClick={() => setShowInAppReader(false)}
-              className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-xs font-medium text-white transition-colors cursor-pointer"
-            >
-              ปิด (Close)
-            </button>
+
+            <div className="flex items-center gap-2">
+              <a
+                href={pdfStreamUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="px-2.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-[11px] font-medium text-white transition-colors flex items-center gap-1"
+                title="เปิดในแท็บใหม่"
+              >
+                <span className="material-symbols-outlined text-[13px]">open_in_new</span>
+                <span className="hidden sm:inline">แท็บใหม่</span>
+              </a>
+
+              <button
+                onClick={() => setShowInAppReader(false)}
+                className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-xs font-medium text-white transition-colors cursor-pointer"
+              >
+                ปิด (Close)
+              </button>
+            </div>
           </div>
 
-          <div className="flex-1 w-full max-w-4xl mx-auto bg-black rounded-[20px] overflow-hidden border border-white/10 relative">
+          <div className="flex-1 w-full max-w-4xl mx-auto bg-[#1c1c1e] rounded-[20px] overflow-hidden border border-white/10 relative shadow-2xl">
             <iframe
               src={pdfStreamUrl}
               className="w-full h-full border-none"
