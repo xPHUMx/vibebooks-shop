@@ -1,10 +1,11 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Order } from "@/types";
 import { BOOKS } from "@/lib/booksData";
+import ApplePdfReader from "@/components/ApplePdfReader";
 
 export default function OrderDeliveryPage() {
   const params = useParams();
@@ -16,6 +17,8 @@ export default function OrderDeliveryPage() {
   const [downloading, setDownloading] = useState(false);
   const [showInAppReader, setShowInAppReader] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+  const [directDownloadUrl, setDirectDownloadUrl] = useState("");
 
   useEffect(() => {
     async function fetchOrder() {
@@ -59,13 +62,50 @@ export default function OrderDeliveryPage() {
     try {
       const res = await fetch(`/api/download/${orderId}`);
       const data = await res.json();
-      if (data.success && data.downloadUrl) {
-        window.open(data.downloadUrl, "_blank");
-      } else {
-        window.open(pdfStreamUrl, "_blank");
+      const targetUrl =
+        data.success && data.downloadUrl
+          ? data.downloadUrl
+          : `${window.location.origin}${pdfStreamUrl}`;
+
+      setDirectDownloadUrl(targetUrl);
+
+      // 1. MIT App Inventor WebViewer Bridge (ActivityStarter trigger)
+      if (typeof window !== "undefined" && (window as any).AppInventor) {
+        try {
+          (window as any).AppInventor.setWebViewString(targetUrl);
+        } catch (e) {
+          console.log("AppInventor bridge message:", e);
+        }
       }
+
+      // 2. Try copying to clipboard automatically
+      try {
+        await navigator.clipboard.writeText(targetUrl);
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 3000);
+      } catch {
+        // clipboard fallback
+      }
+
+      // 3. Try triggering standard download link
+      try {
+        const a = document.createElement("a");
+        a.href = targetUrl;
+        a.download = order?.fileName || currentBook.fileName;
+        a.target = "_blank";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch {
+        // standard download fallback
+      }
+
+      // 4. Open Mobile & MIT App Download Assistant modal
+      setDownloadModalOpen(true);
     } catch (err) {
-      window.open(pdfStreamUrl, "_blank");
+      console.error("Download handling exception:", err);
+      setDirectDownloadUrl(`${window.location.origin}${pdfStreamUrl}`);
+      setDownloadModalOpen(true);
     } finally {
       setDownloading(false);
     }
@@ -93,6 +133,9 @@ export default function OrderDeliveryPage() {
       </div>
     );
   }
+
+  const effectiveDownloadUrl = directDownloadUrl || (typeof window !== "undefined" ? `${window.location.origin}${pdfStreamUrl}` : pdfStreamUrl);
+  const googleDocsViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(effectiveDownloadUrl)}&embedded=true`;
 
   return (
     <div className="space-y-5 max-w-lg mx-auto animate-fade">
@@ -165,7 +208,7 @@ export default function OrderDeliveryPage() {
             </span>
             <span className="text-[10px] text-emerald-400 mt-1 flex items-center gap-1 font-mono">
               <span className="material-symbols-outlined text-[12px]">verified</span>
-              Supabase Storage Verified
+              Supabase Storage & In-App Canvas Ready
             </span>
           </div>
         </div>
@@ -185,11 +228,11 @@ export default function OrderDeliveryPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-white/[0.06] text-[10.5px]">
             <div className="flex items-start gap-1.5 text-[#a1a1a6]">
               <span className="material-symbols-outlined text-[14px] text-white shrink-0 mt-0.5">phone_iphone</span>
-              <span><strong>iOS / iPhone:</strong> แนะนำกด <em>&quot;เปิดอ่านบนแอปทันที&quot;</em> หรือเปิดผ่าน Safari</span>
+              <span><strong>iOS / iPhone:</strong> กดปุ่ม <em>&quot;เปิดอ่านบนแอปทันที&quot;</em> หรือเปิดผ่าน Safari</span>
             </div>
             <div className="flex items-start gap-1.5 text-[#a1a1a6]">
               <span className="material-symbols-outlined text-[14px] text-emerald-400 shrink-0 mt-0.5">android</span>
-              <span><strong>Android:</strong> สามารถเปิดอ่านในแอป หรือกด <em>&quot;ดาวน์โหลด PDF&quot;</em> ลงเครื่องได้ทันที</span>
+              <span><strong>Android:</strong> สามารถเปิดอ่านในแอปได้ทันที หรือเปิดใน Chrome เพื่อดาวน์โหลดลงเครื่อง</span>
             </div>
           </div>
         </div>
@@ -202,7 +245,7 @@ export default function OrderDeliveryPage() {
             className="apple-btn-primary w-full py-3.5 text-xs font-semibold shadow-sm flex items-center justify-center gap-2 cursor-pointer"
           >
             <span className="material-symbols-outlined text-[17px]">menu_book</span>
-            <span>เปิดอ่านบนแอปทันที (In-App Reader สำหรับ Android & iOS)</span>
+            <span>เปิดอ่านบนแอปทันที (In-App Canvas Reader)</span>
           </button>
 
           {/* Secondary Actions */}
@@ -213,7 +256,7 @@ export default function OrderDeliveryPage() {
               className="apple-btn-secondary py-2.5 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <span className="material-symbols-outlined text-[15px]">download</span>
-              <span>{downloading ? "กำลังโหลด..." : "ดาวน์โหลด PDF"}</span>
+              <span>{downloading ? "กำลังประมวลผล..." : "ดาวน์โหลด PDF"}</span>
             </button>
 
             <button
@@ -238,48 +281,95 @@ export default function OrderDeliveryPage() {
         </div>
       </div>
 
-      {/* In-App Reader Modal (Apple Style with Multi-platform Toolbar) */}
-      {showInAppReader && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-2xl flex flex-col p-2 sm:p-6 animate-fade">
-          <div className="w-full max-w-4xl mx-auto flex items-center justify-between py-2 px-1 mb-2 text-white">
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="material-symbols-outlined text-[20px] text-[#2997ff]">
-                picture_as_pdf
-              </span>
-              <span className="text-xs sm:text-sm font-semibold truncate">
-                {order?.bookTitle || currentBook.title}
-              </span>
+      {/* Download Assistant Modal (For MIT App Inventor & Mobile Browsers) */}
+      {downloadModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-2xl flex items-center justify-center p-4 animate-fade">
+          <div className="w-full max-w-md bg-[#161617] rounded-[24px] border border-white/10 p-5 sm:p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[20px] text-[#2997ff]">
+                  download_for_offline
+                </span>
+                <h3 className="text-sm font-bold text-white">
+                  ดาวน์โหลด E-Book บนมือถือ & MIT App
+                </h3>
+              </div>
+              <button
+                onClick={() => setDownloadModalOpen(false)}
+                className="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[15px]">close</span>
+              </button>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2">
+              <span className="material-symbols-outlined text-[18px]">check_circle</span>
+              <span>คัดลอกลิงก์ดาวน์โหลดเรียบร้อยแล้ว!</span>
+            </div>
+
+            <p className="text-xs text-[#86868b] leading-relaxed">
+              สำหรับผู้ใช้งานผ่าน <strong>MIT App Inventor</strong> คุณสามารถเข้าถึงหนังสือได้ง่ายๆ 3 วิธีดังนี้:
+            </p>
+
+            <div className="space-y-2.5">
+              {/* Option 1: Open In-App Reader */}
+              <button
+                onClick={() => {
+                  setDownloadModalOpen(false);
+                  setShowInAppReader(true);
+                }}
+                className="apple-btn-primary w-full py-3 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer shadow-md"
+              >
+                <span className="material-symbols-outlined text-[16px]">menu_book</span>
+                <span>วิธีที่ 1: เปิดอ่านในแอปทันที (ไม่ต้องโหลดไฟล์)</span>
+              </button>
+
+              {/* Option 2: Open in External Browser */}
               <a
-                href={pdfStreamUrl}
+                href={effectiveDownloadUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="px-2.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-[11px] font-medium text-white transition-colors flex items-center gap-1"
-                title="เปิดในแท็บใหม่"
+                className="apple-btn-secondary w-full py-2.5 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span className="material-symbols-outlined text-[13px]">open_in_new</span>
-                <span className="hidden sm:inline">แท็บใหม่</span>
+                <span className="material-symbols-outlined text-[16px] text-[#2997ff]">open_in_browser</span>
+                <span>วิธีที่ 2: เปิดดาวน์โหลดใน Google Chrome / Safari</span>
               </a>
 
-              <button
-                onClick={() => setShowInAppReader(false)}
-                className="px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-xs font-medium text-white transition-colors cursor-pointer"
+              {/* Option 3: Google Docs Viewer */}
+              <a
+                href={googleDocsViewerUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full py-2 px-3 rounded-full bg-white/[0.04] hover:bg-white/[0.08] text-[11px] font-medium text-[#86868b] hover:text-white transition-all flex items-center justify-center gap-1.5 border border-white/[0.06]"
               >
-                ปิด (Close)
+                <span className="material-symbols-outlined text-[14px]">cloud</span>
+                <span>เปิดดูผ่าน Google Docs Cloud Viewer</span>
+              </a>
+            </div>
+
+            <div className="pt-2 border-t border-white/[0.06] flex items-center justify-between text-[11px] text-[#86868b]">
+              <span>ต้องการส่งต่อหรือเปิดบนคอม?</span>
+              <button
+                onClick={handleCopyPdfLink}
+                className="text-[#2997ff] hover:underline flex items-center gap-1"
+              >
+                <span className="material-symbols-outlined text-[13px]">content_copy</span>
+                <span>{copiedLink ? "คัดลอกแล้ว!" : "คัดลอกลิงก์อีกครั้ง"}</span>
               </button>
             </div>
           </div>
-
-          <div className="flex-1 w-full max-w-4xl mx-auto bg-[#1c1c1e] rounded-[20px] overflow-hidden border border-white/10 relative shadow-2xl">
-            <iframe
-              src={pdfStreamUrl}
-              className="w-full h-full border-none"
-              title="In-App E-book Reader"
-            />
-          </div>
         </div>
+      )}
+
+      {/* Full-featured Apple-Style Canvas PDF Reader Modal */}
+      {showInAppReader && (
+        <ApplePdfReader
+          orderId={orderId}
+          bookTitle={order?.bookTitle || currentBook.title}
+          fileName={order?.fileName || currentBook.fileName}
+          onClose={() => setShowInAppReader(false)}
+          downloadUrl={effectiveDownloadUrl}
+        />
       )}
     </div>
   );
