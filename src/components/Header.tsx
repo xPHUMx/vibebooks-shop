@@ -42,6 +42,13 @@ export default function Header() {
 
         <div className="flex items-center gap-2 shrink-0">
           <Link
+            href="/community"
+            className="w-9 h-9 rounded-full flex items-center justify-center bg-white/[0.05] text-on-surface-variant hover:text-secondary hover:bg-white/[0.1] transition-all"
+            title="คอมมูนิตี้และรีวิว E-book"
+          >
+            <span className="material-symbols-outlined text-[19px]">forum</span>
+          </Link>
+          <Link
             href="/tracking"
             className="w-9 h-9 rounded-full flex items-center justify-center bg-white/[0.05] text-on-surface-variant hover:text-on-surface hover:bg-white/[0.1] transition-all"
             title="ค้นหาและติดตามคำสั่งซื้อ"
@@ -49,7 +56,7 @@ export default function Header() {
             <span className="material-symbols-outlined text-[19px]">receipt_long</span>
           </Link>
           <Link
-            href="/"
+            href="/#storefront"
             className="w-9 h-9 rounded-full flex items-center justify-center bg-white/[0.05] text-on-surface-variant hover:text-on-surface hover:bg-white/[0.1] relative transition-all"
             title="แคตตาล็อกหนังสือ"
           >

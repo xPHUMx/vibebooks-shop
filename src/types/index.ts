@@ -37,3 +37,18 @@ export interface Order {
   createdAt: string;
   paidAt?: string;
 }
+
+export interface CommunityComment {
+  id: string;
+  author: string;
+  avatarColor?: string;
+  role?: string;
+  isAuthor?: boolean;
+  bookId?: string;
+  bookTitle?: string;
+  rating: number;
+  content: string;
+  likes: number;
+  likedByMe?: boolean;
+  createdAt: string;
+}
