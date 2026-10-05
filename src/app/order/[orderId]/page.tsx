@@ -281,7 +281,7 @@ export default function OrderDeliveryPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-white text-[18px]">encrypted</span>
-            <span className="text-xs font-semibold text-[#f5f5f7]">Digital Delivery Vault</span>
+            <span className="text-xs font-semibold text-[#f5f5f7]">Digital Delivery Service</span>
           </div>
           <span className="text-[10px] text-[#86868b] bg-black px-2.5 py-0.5 rounded-full font-mono border border-white/[0.08]">
             {isPaid ? `หมดอายุใน: ${formatCountdown(countdown)}` : "สถานะ: รอการอนุมัติ"}

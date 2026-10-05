@@ -109,7 +109,7 @@ export default function CartDrawer() {
             <div className="flex items-center justify-between text-xs px-3 py-2 rounded-full bg-accent-emerald/10 border border-accent-emerald/20 text-[#248a3d]">
               <div className="flex items-center gap-1.5 font-medium">
                 <span className="material-symbols-outlined text-[16px]">bolt</span>
-                <span>จัดส่งทันทีผ่าน Supabase Vault</span>
+                <span>จัดส่งไฟล์ดิจิทัลทันทีหลังชำระเงิน</span>
               </div>
               <span className="font-bold">ฟรี</span>
             </div>

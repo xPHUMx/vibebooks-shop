@@ -64,7 +64,7 @@ export default function ProductModal({ product, onClose, onOpenPdfReader }: Prod
             )}
             <div className="absolute bottom-4 right-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border border-black/[0.06] text-xs font-semibold text-charcoal shadow-sm flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[15px] text-accent-emerald">verified</span>
-              <span>100% Verified Vault</span>
+              <span>100% Verified Original</span>
             </div>
           </div>
 

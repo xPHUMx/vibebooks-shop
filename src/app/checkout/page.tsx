@@ -262,7 +262,7 @@ export default function CheckoutPage() {
             >
               3
             </div>
-            <span className="text-[11px] font-medium text-charcoal">รับไฟล์ Vault</span>
+            <span className="text-[11px] font-medium text-charcoal">รับไฟล์ดิจิทัล</span>
           </div>
         </div>
       </section>
@@ -310,7 +310,7 @@ export default function CheckoutPage() {
                   <span className="tabular-nums">฿{checkoutTotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-[#248a3d] font-semibold">
-                  <span>จัดส่งผ่าน Supabase Vault</span>
+                  <span>จัดส่งไฟล์ดิจิทัลอัตโนมัติ</span>
                   <span>ฟรี (Instant)</span>
                 </div>
                 <div className="flex justify-between text-base font-extrabold text-charcoal pt-2 border-t border-black/[0.06]">
@@ -346,7 +346,7 @@ export default function CheckoutPage() {
                 <span>ระบบคุ้มครองลิขสิทธิ์ & สิทธิ์ใช้งาน</span>
               </div>
               <p className="text-[11px] opacity-90">
-                เมื่อชำระสำเร็จ ระบบจะเปิดสิทธิ์เข้าถึงคลัง Vault พร้อม Signed URL ดาวน์โหลดทันที
+                เมื่อชำระสำเร็จ ระบบจะเปิดสิทธิ์เข้าถึงและดาวน์โหลดไฟล์ให้คุณทันที
               </p>
             </div>
           </div>
@@ -668,7 +668,7 @@ export default function CheckoutPage() {
                   ชำระเงินสำเร็จเรียบร้อย!
                 </h2>
                 <p className="text-xs text-muted-slate mt-1">
-                  คำสั่งซื้อ <span className="font-mono font-bold text-charcoal">{createdOrder.id}</span> ได้รับการอนุมัติและเปิดสิทธิ์ใน Vault เรียบร้อยแล้ว
+                  คำสั่งซื้อ <span className="font-mono font-bold text-charcoal">{createdOrder.id}</span> ได้รับการอนุมัติและเปิดสิทธิ์ดาวน์โหลดเรียบร้อยแล้ว
                 </p>
               </div>
             </>

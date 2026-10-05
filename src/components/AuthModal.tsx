@@ -287,7 +287,7 @@ export default function AuthModal() {
         <div className="mt-5 pt-3.5 border-t border-black/[0.06] text-center">
           <div className="inline-flex items-center gap-1 text-[10px] text-muted-slate">
             <span className="material-symbols-outlined text-[13px] text-accent-emerald">lock</span>
-            <span>Supabase Auth Protected • 100% Encrypted Sessions</span>
+            <span>ระบบความปลอดภัยมาตรฐาน • ปกป้องข้อมูลบัญชีผู้ใช้ 100%</span>
           </div>
         </div>
       </div>

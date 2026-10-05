@@ -38,7 +38,7 @@ export default function MerchantDashboardPage() {
   const [newFileName, setNewFileName] = useState('My_Digital_Product.pdf');
   const [newFileSize, setNewFileSize] = useState('15 MB');
   const [newCover, setNewCover] = useState(COVER_PRESETS[0].url);
-  const [newDescription, setNewDescription] = useState('สินค้าดิจิทัลลิขสิทธิ์แท้พร้อมสิทธิ์ใช้งานและการส่งมอบไฟล์ผ่านระบบ Vault ทันที');
+  const [newDescription, setNewDescription] = useState('สินค้าดิจิทัลลิขสิทธิ์แท้พร้อมสิทธิ์ใช้งานและการส่งมอบไฟล์อัตโนมัติทันทีหลังชำระเงิน');
   const [newBadge, setNewBadge] = useState('New Release');
   const [newSamples, setNewSamples] = useState<string[]>([]);
   const [isUploadingNewCover, setIsUploadingNewCover] = useState(false);
@@ -157,7 +157,7 @@ export default function MerchantDashboardPage() {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        alert('✓ ตรวจสอบสลิปสำเร็จ! ระบบได้อนุมัติและปล่อยสิทธิ์ไฟล์ Vault ให้ลูกค้าเรียบร้อยแล้ว');
+        alert('✓ ตรวจสอบสลิปสำเร็จ! ระบบได้อนุมัติและเปิดสิทธิ์ส่งมอบไฟล์ให้ลูกค้าเรียบร้อยแล้ว');
         setOrders((prev) =>
           prev.map((o) => (o.id === orderId ? { ...o, status: 'PAID' as any, paidAt: new Date().toISOString() } : o))
         );
@@ -233,12 +233,12 @@ export default function MerchantDashboardPage() {
         setNewFileName(data.fileName);
         if (data.fileSize) setNewFileSize(data.fileSize);
         if (data.fileFormat) setNewFormat(data.fileFormat);
-        alert(`✓ อัปโหลดไฟล์ Master เข้า Digital Vault สำเร็จ! (${data.fileSize})`);
+        alert(`✓ อัปโหลดไฟล์ส่งมอบลูกค้าสำเร็จ! (${data.fileSize})`);
       } else {
         alert(data.error || 'ไม่สามารถอัปโหลดไฟล์สินค้าได้');
       }
     } catch {
-      alert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์เข้า Vault');
+      alert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์สินค้า');
     } finally {
       setIsUploadingNewFile(false);
     }
@@ -303,12 +303,12 @@ export default function MerchantDashboardPage() {
         setEditFileName(data.fileName);
         if (data.fileSize) setEditFileSize(data.fileSize);
         if (data.fileFormat) setEditFormat(data.fileFormat);
-        alert(`✓ อัปโหลดไฟล์ Master เข้า Digital Vault สำเร็จ! (${data.fileSize})`);
+        alert(`✓ อัปโหลดไฟล์ส่งมอบลูกค้าสำเร็จ! (${data.fileSize})`);
       } else {
         alert(data.error || 'ไม่สามารถอัปโหลดไฟล์สินค้าได้');
       }
     } catch {
-      alert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์เข้า Vault');
+      alert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์สินค้า');
     } finally {
       setIsUploadingEditFile(false);
     }
@@ -1308,7 +1308,7 @@ export default function MerchantDashboardPage() {
             <div className="flex items-center justify-between border-b border-black/[0.06] pb-3">
               <div>
                 <h3 className="font-bold text-base text-charcoal">เพิ่มสินค้าดิจิทัลใหม่ลงร้านค้า</h3>
-                <p className="text-xs text-muted-slate">อัปโหลดภาพปก ตัวอย่างสินค้า และไฟล์ Master เข้าคลัง Vault</p>
+                <p className="text-xs text-muted-slate">อัปโหลดภาพปก ตัวอย่างสินค้า และไฟล์ส่งมอบลูกค้า</p>
               </div>
               <button
                 onClick={() => setIsAddProductOpen(false)}
@@ -1519,7 +1519,7 @@ export default function MerchantDashboardPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <label className="block text-xs font-bold text-charcoal">
-                      ไฟล์สินค้าดิจิทัลใน Vault (Master File) *
+                      ไฟล์สินค้าดิจิทัลส่งมอบลูกค้า (Master File) *
                     </label>
                     <p className="text-[11px] text-muted-slate">
                       อัปโหลดไฟล์ที่ผู้ซื้อจะได้รับหลังชำระเงิน (PDF, ZIP, FIG ฯลฯ)
@@ -1532,12 +1532,12 @@ export default function MerchantDashboardPage() {
                     {isUploadingNewFile ? (
                       <>
                         <span className="w-3.5 h-3.5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                        <span>กำลังส่งไฟล์เข้า Vault...</span>
+                        <span>กำลังอัปโหลดไฟล์...</span>
                       </>
                     ) : (
                       <>
                         <span className="material-symbols-outlined text-[16px]">cloud_upload</span>
-                        <span>อัปโหลดไฟล์ Master เข้า Vault</span>
+                        <span>อัปโหลดไฟล์ Master ส่งมอบลูกค้า</span>
                       </>
                     )}
                     <input
@@ -1800,7 +1800,7 @@ export default function MerchantDashboardPage() {
               <div className="p-3.5 rounded-2xl bg-porcelain border border-black/[0.06] space-y-2">
                 <div className="flex items-center justify-between">
                   <label className="block text-xs font-bold text-charcoal">
-                    ไฟล์ Master ใน Vault
+                    ไฟล์ Master ส่งมอบลูกค้า
                   </label>
                   <label className="h-8 px-3 rounded-full bg-black text-white text-[11px] font-semibold flex items-center gap-1 cursor-pointer transition-all">
                     {isUploadingEditFile ? (

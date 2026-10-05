@@ -89,7 +89,7 @@ export default function ProductPreviewModal({
               )}
               <div className="absolute bottom-4 right-4 px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border border-black/[0.06] text-[11px] font-semibold text-charcoal shadow-sm flex items-center gap-1.5">
                 <span className="material-symbols-outlined text-[15px] text-accent-emerald">verified</span>
-                <span>100% Digital Vault Secure</span>
+                <span>100% Verified Original</span>
               </div>
             </div>
 
@@ -204,11 +204,11 @@ export default function ProductPreviewModal({
           <div className="p-4 rounded-squircle bg-porcelain border border-black/[0.06] text-xs">
             <h4 className="text-[11px] font-bold text-charcoal uppercase tracking-wider mb-3 flex items-center gap-1.5">
               <span className="material-symbols-outlined text-[16px] text-secondary">verified_user</span>
-              <span>ข้อมูลไฟล์ดิจิทัลในคลัง (Vault Specifications)</span>
+              <span>ข้อมูลจำเพาะของไฟล์และลิขสิทธิ์ (Specifications)</span>
             </h4>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
-                <span className="text-muted-slate block text-[10px]">ชื่อไฟล์ Vault</span>
+                <span className="text-muted-slate block text-[10px]">ชื่อไฟล์ต้นฉบับ</span>
                 <span className="font-mono font-bold text-charcoal truncate block" title={product.fileName}>
                   {product.fileName || '-'}
                 </span>

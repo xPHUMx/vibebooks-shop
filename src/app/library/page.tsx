@@ -108,7 +108,7 @@ export default function MyLibraryPage() {
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/10 text-secondary text-xs font-bold mb-2">
             <span className="material-symbols-outlined text-[15px]">folder_special</span>
-            <span>Private Vault Collection</span>
+            <span>My Purchased Items</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-charcoal">
             My Library (คลังดิจิทัลของฉัน)
@@ -208,7 +208,7 @@ export default function MyLibraryPage() {
           <span className="material-symbols-outlined text-[32px] text-secondary animate-spin">
             progress_activity
           </span>
-          <p className="text-xs text-muted-slate mt-2 font-mono">กำลังตรวจสอบสิทธิ์ใน Vault...</p>
+          <p className="text-xs text-muted-slate mt-2 font-mono">กำลังตรวจสอบสิทธิ์การเข้าถึงไฟล์...</p>
         </div>
       ) : activeTab === 'pending' ? (
         /* PENDING ORDERS TAB: Awaiting Merchant Approval */
@@ -482,7 +482,7 @@ export default function MyLibraryPage() {
                 <div className="pt-2 flex items-center justify-between text-[11px] text-muted-slate">
                   <span className="flex items-center gap-1">
                     <span className="material-symbols-outlined text-[14px] text-accent-emerald">verified</span>
-                    <span>ส่งมอบไฟล์สำเร็จผ่าน Supabase Private Vault</span>
+                    <span>ส่งมอบไฟล์สำเร็จ พร้อมเปิดสิทธิ์เข้าถึงตลอดเวลา</span>
                   </span>
                   <span className="font-mono font-semibold text-charcoal">
                     ฿{order.totalAmount.toLocaleString()}.00

@@ -67,7 +67,7 @@ export default function StorefrontPage() {
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-black/[0.06] shadow-level-1 mb-5">
           <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
           <span className="text-xs font-semibold text-charcoal tracking-wide">
-            Next.js 14 SSR • Supabase Vault • Liquid Glass Commerce
+            แพลตฟอร์มจำหน่ายผลงานดิจิทัลคุณภาพ • ลิขสิทธิ์แท้ 100%
           </span>
         </div>
 
@@ -105,7 +105,7 @@ export default function StorefrontPage() {
           <div className="p-3.5 rounded-squircle bg-white border border-black/[0.06] shadow-level-1 text-center">
             <span className="material-symbols-outlined text-[20px] text-secondary mb-1">bolt</span>
             <div className="text-sm font-bold text-charcoal">Instant Delivery</div>
-            <div className="text-[11px] text-muted-slate">ส่งมอบไฟล์ทันทีผ่าน Vault</div>
+            <div className="text-[11px] text-muted-slate">ดาวน์โหลดไฟล์ได้ทันทีหลังชำระเงิน</div>
           </div>
           <div className="p-3.5 rounded-squircle bg-white border border-black/[0.06] shadow-level-1 text-center">
             <span className="material-symbols-outlined text-[20px] text-accent-emerald mb-1">verified</span>
@@ -125,12 +125,12 @@ export default function StorefrontPage() {
         </div>
       </section>
 
-      {/* 2. EDITORIAL BENTO SHOWCASE (Liquid Glass Flagships) */}
+      {/* 2. EDITORIAL BENTO SHOWCASE */}
       <section className="space-y-4">
         <div className="flex items-center justify-between px-1">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-charcoal">
-              Editor’s Flagship Vaults
+              สินค้าแนะนำยอดนิยม (Featured Collections)
             </h2>
             <p className="text-xs text-muted-slate">ผลิตภัณฑ์คัดสรรพิเศษสำหรับนักพัฒนาและดีไซเนอร์</p>
           </div>
@@ -256,7 +256,7 @@ export default function StorefrontPage() {
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ค้นหา E-books, Figma kits, Notion OS, Next.js templates..."
+              placeholder="ค้นหาชื่อผลงาน, E-books, ไฟล์ดีไซน์ หรือ ซอร์สโค้ด..."
               className="w-full bg-transparent border-none outline-none text-xs sm:text-sm text-charcoal placeholder:text-muted-slate/70 ml-2.5"
               type="text"
             />
@@ -405,7 +405,7 @@ export default function StorefrontPage() {
           พัฒนาและจัดทำโดย {STORE_INFO.curator} ({STORE_INFO.curatorEn}) — รหัสนักศึกษา {STORE_INFO.studentId}
         </p>
         <p className="text-[11px] text-muted-slate/70">
-          Powered by Next.js 14 App Router, Supabase SSR Auth, Private Vault Storage & PromptPay QR
+          ระบบความปลอดภัยมาตรฐาน • จัดส่งไฟล์ดิจิทัลอัตโนมัติทันทีหลังชำระเงิน
         </p>
       </footer>
 

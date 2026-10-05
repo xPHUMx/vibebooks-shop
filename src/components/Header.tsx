@@ -28,7 +28,7 @@ export default function Header() {
                 {STORE_INFO.brand}
               </span>
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-secondary/10 text-secondary uppercase tracking-wider">
-                Vault
+                OFFICIAL
               </span>
             </div>
             <span className="text-[10px] text-muted-slate font-medium hidden sm:inline">

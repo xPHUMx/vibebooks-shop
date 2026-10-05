@@ -283,7 +283,7 @@ export default function ProductDetailPage() {
             <div className="pt-2 border-t border-black/[0.06] flex items-center justify-between text-[11px] text-muted-slate">
               <span className="flex items-center gap-1">
                 <span className="material-symbols-outlined text-[14px] text-secondary">verified_user</span>
-                <span>ระบบรักษาความปลอดภัยดาวน์โหลดไฟล์ Private Vault 15 นาที</span>
+                <span>ระบบความปลอดภัยมาตรฐาน ดาวน์โหลดไฟล์ได้อย่างมั่นใจตลอดเวลา</span>
               </span>
               {storePromptPay && (
                 <span className="font-mono text-charcoal font-semibold">

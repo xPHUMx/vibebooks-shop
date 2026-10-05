@@ -17,8 +17,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: `${STORE_INFO.brand} (${STORE_INFO.brandTh}) — Ultra-Refined Digital Store & Creator Vault`,
-  description: `คลังหนังสือวิศวกรรมและดิจิทัลโปรดักส์สั่งได้ โดย ${STORE_INFO.curatorFull} Next.js 14 + Supabase SSR`,
+  title: `${STORE_INFO.brand} (${STORE_INFO.brandTh}) — แพลตฟอร์มจำหน่ายผลงานดิจิทัลและอีบุ๊กคุณภาพ`,
+  description: `ศูนย์รวมหนังสือและผลงานดิจิทัลคุณภาพ ลิขสิทธิ์แท้ 100% โดย ${STORE_INFO.curatorFull}`,
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
