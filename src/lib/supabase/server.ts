@@ -15,7 +15,7 @@ export function createClient() {
       get(name: string) {
         return cookieStore.get(name)?.value;
       },
-      setAll(cookiesToSet) {
+      setAll(cookiesToSet: Array<{ name: string; value: string; options?: any }>) {
         try {
           cookiesToSet.forEach(({ name, value, options }) => {
             cookieStore.set({ name, value, ...options });
