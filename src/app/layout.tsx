@@ -1,27 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, Inter, Noto_Sans_Thai } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
-
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-jakarta",
-  display: "swap",
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const notoSansThai = Noto_Sans_Thai({
-  subsets: ["thai"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-thai",
-  display: "swap",
-});
+import CartDrawer from "@/components/CartDrawer";
+import AuthModal from "@/components/AuthModal";
+import { AppProviders } from "@/providers/AppProviders";
+import { STORE_INFO } from "@/lib/productsData";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -29,17 +13,17 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   viewportFit: "cover",
-  themeColor: "#000000",
+  themeColor: "#fbfbfd",
 };
 
 export const metadata: Metadata = {
-  title: "VibeBooks PRO — Architecture & Engineering E-books",
-  description: "Minimalist Premium Tech Platform by นายเกียรติภูมิ หารศรีนาถ (64332110242-2)",
+  title: `${STORE_INFO.brand} (${STORE_INFO.brandTh}) — Ultra-Refined Digital Store & Creator Vault`,
+  description: `คลังหนังสือวิศวกรรมและดิจิทัลโปรดักส์สั่งได้ โดย ${STORE_INFO.curatorFull} Next.js 14 + Supabase SSR`,
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
-    title: "VibeBooks PRO",
+    statusBarStyle: "default",
+    title: STORE_INFO.brand,
   },
   formatDetection: {
     telephone: false,
@@ -52,35 +36,48 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="th" className="dark bg-black">
+    <html lang="th" className="bg-[#fbfbfd]">
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+        />
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
         />
       </head>
       <body
-        className={`${plusJakarta.variable} ${inter.variable} ${notoSansThai.variable} font-sans bg-black text-[#f5f5f7] min-h-screen flex flex-col relative overflow-x-hidden selection:bg-[#0071e3] selection:text-white`}
+        className="font-sans bg-[#fbfbfd] text-[#1d1d1f] min-h-screen flex flex-col relative overflow-x-hidden selection:bg-[#0071e3] selection:text-white"
       >
-        {/* Apple-style Subtle Top Ambient Spotlight */}
-        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-          <div className="absolute top-0 inset-x-0 h-[600px] bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(120,119,198,0.12),transparent_70%)]" />
-          <div className="absolute top-1/3 -right-40 w-96 h-96 bg-[radial-gradient(circle,rgba(41,151,255,0.06),transparent_70%)] blur-3xl" />
-        </div>
+        <AppProviders>
+          {/* Subtle Porcelain Ambient Lighting */}
+          <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+            <div className="absolute top-0 inset-x-0 h-[600px] bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,rgba(0,113,227,0.04),transparent_70%)]" />
+            <div className="absolute top-1/3 -right-40 w-96 h-96 bg-[radial-gradient(circle,rgba(52,199,89,0.03),transparent_70%)] blur-3xl" />
+          </div>
 
-        {/* Global Fixed Apple-style Header */}
-        <Header />
+          {/* Liquid Glass Header */}
+          <Header />
 
-        {/* Page Content */}
-        <main className="flex-1 w-full max-w-4xl mx-auto px-4 pt-16 sm:pt-20 pb-28 relative z-10">
-          {children}
-        </main>
+          {/* Main App Container */}
+          <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24 pb-28 relative z-10">
+            {children}
+          </main>
 
-        {/* Floating Bottom Nav for Mobile / WebViewer */}
-        <BottomNav />
+          {/* Cart Drawer */}
+          <CartDrawer />
+
+          {/* Auth Modal */}
+          <AuthModal />
+
+          {/* Mobile Bottom Nav */}
+          <BottomNav />
+        </AppProviders>
       </body>
     </html>
   );

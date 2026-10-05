@@ -10,8 +10,8 @@ function TrackingContent() {
   const qOrderId = searchParams?.get("orderId") || "";
   const qEmail = searchParams?.get("email") || "";
 
-  const [orderId, setOrderId] = useState(qOrderId || "ORD-2026-8821");
-  const [email, setEmail] = useState(qEmail || "kiatphum.h@example.com");
+  const [orderId, setOrderId] = useState(qOrderId || "");
+  const [email, setEmail] = useState(qEmail || "");
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -54,12 +54,6 @@ function TrackingContent() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleLookup();
-  };
-
-  const handleFillDemo = () => {
-    setOrderId("ORD-2026-8821");
-    setEmail("kiatphum.h@example.com");
-    handleLookup("ORD-2026-8821", "kiatphum.h@example.com");
   };
 
   const handleCopy = () => {
@@ -106,18 +100,9 @@ function TrackingContent() {
 
         <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
-            <div className="flex justify-between items-center mb-1.5">
-              <label className="text-[11px] font-medium text-[#86868b]">
-                Order Reference ID (หมายเลขคำสั่งซื้อ)
-              </label>
-              <button
-                type="button"
-                onClick={handleFillDemo}
-                className="text-[10px] text-[#2997ff] hover:underline cursor-pointer"
-              >
-                [ใช้รหัสทดสอบ Demo]
-              </button>
-            </div>
+            <label className="block text-[11px] font-medium text-[#86868b] mb-1.5">
+              Order Reference ID (หมายเลขคำสั่งซื้อ)
+            </label>
             <div className="relative flex items-center">
               <span className="material-symbols-outlined absolute left-3 text-[#86868b] text-[16px]">
                 tag

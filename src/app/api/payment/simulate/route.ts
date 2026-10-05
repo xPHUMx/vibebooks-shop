@@ -1,31 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
-import { updateOrderStatus, getOrderById } from "@/lib/supabase";
+import { NextResponse } from "next/server";
 
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
-    const { orderId } = body;
-
-    if (!orderId) {
-      return NextResponse.json({ error: "Missing orderId" }, { status: 400 });
-    }
-
-    const order = await getOrderById(orderId);
-    if (!order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
-    }
-
-    const updated = await updateOrderStatus(orderId, "PAID");
-    return NextResponse.json({
-      success: true,
-      message: "จำลองการชำระเงินสำเร็จ (Simulated Payment Verified)",
-      order: updated,
-    });
-  } catch (error) {
-    console.error("Payment simulation error:", error);
-    return NextResponse.json(
-      { error: "เกิดข้อผิดพลาดในการจำลองการชำระเงิน" },
-      { status: 500 }
-    );
-  }
+export async function POST() {
+  return NextResponse.json(
+    {
+      error: "ระบบจำลองการชำระเงินถูกปิดการใช้งานอย่างถาวร (Demo Payment Disabled) กรุณาชำระเงินผ่าน PromptPay จริงและแนบสลิปโอนเงินเพื่อให้ร้านค้าตรวจสอบและอนุมัติ",
+    },
+    { status: 410 }
+  );
 }
+

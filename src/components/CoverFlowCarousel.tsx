@@ -83,7 +83,7 @@ export const defaultBooks: CarouselItem[] = [
 
 export function CoverFlowCarousel({
   items = defaultBooks,
-  sectionLabel = "VIBEBOOKS MASTER SERIES",
+  sectionLabel = "BOOK SANGDAI MASTER SERIES",
   autoplay = true,
   autoplayDelay = 5000,
   className = "",

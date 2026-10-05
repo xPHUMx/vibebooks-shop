@@ -2,9 +2,11 @@ import { Book } from "@/types";
 
 export const STUDENT_INFO = {
   name: "นายเกียรติภูมิ หารศรีนาถ",
+  authorFull: "นายเกียรติภูมิ หารศรีนาถ (รหัสนักศึกษา: 64332110242-2)",
   nameEn: "Kiatphum Hansrinath",
   studentId: "64332110242-2",
-  brand: "VibeBooks",
+  brand: "Book Sangdai",
+  brandTh: "บุ๊คสั่งได้",
 };
 
 export const BOOKS: Book[] = [
@@ -35,7 +37,7 @@ export const BOOKS: Book[] = [
     fileName: "Media_Player_PRO_Engineering.pdf",
     fileSize: "12.5 KB (Digital Master)",
     coverImage: "/images/books/media_player.png",
-    curator: STUDENT_INFO.name,
+    curator: STUDENT_INFO.authorFull,
   },
   {
     id: "mystic-tarot-altar",
@@ -64,7 +66,7 @@ export const BOOKS: Book[] = [
     fileName: "Mystic_Tarot_Altar_System.pdf",
     fileSize: "9.2 KB (Digital Master)",
     coverImage: "/images/books/tarot_app.png",
-    curator: STUDENT_INFO.name,
+    curator: STUDENT_INFO.authorFull,
   },
   {
     id: "taskmaster-pro",
@@ -93,10 +95,29 @@ export const BOOKS: Book[] = [
     fileName: "TaskMaster_PRO_Architecture.pdf",
     fileSize: "8.6 KB (Digital Master)",
     coverImage: "/images/books/task_manager.png",
-    curator: STUDENT_INFO.name,
+    curator: STUDENT_INFO.authorFull,
   },
 ];
 
+import { DIGITAL_PRODUCTS } from "./productsData";
+
 export function getBookById(id: string): Book | undefined {
-  return BOOKS.find((b) => b.id === id || b.labNumber.toString() === id);
+  const b = BOOKS.find((b) => b.id === id || b.labNumber?.toString() === id);
+  if (b) return b;
+  const prod = DIGITAL_PRODUCTS.find((p) => p.id === id);
+  if (prod) {
+    return {
+      ...prod,
+      series: prod.categoryNameTh,
+      labNumber: 1,
+      specs: {
+        release: prod.specs?.release || "v2.0",
+        pages: 100,
+        format: prod.fileFormat,
+        level: "All Levels",
+      },
+    } as Book;
+  }
+  return undefined;
 }
+

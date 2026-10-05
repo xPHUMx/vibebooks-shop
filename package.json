@@ -1,15 +1,17 @@
 {
-  "name": "vibebooks-ebook-shop",
-  "version": "1.0.0",
+  "name": "book-sangdai",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "stop": "npx --yes kill-port 3000 3001",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
     "@pdf-lib/fontkit": "^1.1.1",
+    "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.45.4",
     "adm-zip": "^0.6.1",
     "canvas": "^3.2.3",

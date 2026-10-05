@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 
@@ -141,7 +141,7 @@ export default function ApplePdfReader({
       try {
         await navigator.share({
           title: bookTitle,
-          text: `E-book: ${bookTitle} โดย นายเกียรติภูมิ หารศรีนาถ (64332110242-2)`,
+          text: `E-book: ${bookTitle} โดย นายเกียรติภูมิ หารศรีนาถ (รหัสนักศึกษา: 64332110242-2)`,
           url: shareUrl,
         });
       } catch {
@@ -177,7 +177,7 @@ export default function ApplePdfReader({
               {bookTitle}
             </h2>
             <span className="text-[10px] text-[#86868b] truncate hidden sm:inline">
-              ผู้จัดทำ: นายเกียรติภูมิ หารศรีนาถ (64332110242-2)
+              ผู้จัดทำ: นายเกียรติภูมิ หารศรีนาถ (รหัสนักศึกษา: 64332110242-2)
             </span>
           </div>
         </div>
@@ -295,7 +295,7 @@ export default function ApplePdfReader({
                 {/* Page Indicator Tag */}
                 <div className="w-full bg-[#2c2c2e] text-[#86868b] px-3 py-1 text-[10px] font-mono flex items-center justify-between select-none border-b border-white/[0.06]">
                   <span>หน้า {idx + 1} จาก {numPages}</span>
-                  <span className="text-[9px] text-[#2997ff]">VibeBooks PRO Master</span>
+                  <span className="text-[9px] text-[#2997ff]">Book Sangdai Master</span>
                 </div>
                 <div className="w-full flex justify-center bg-white overflow-hidden">
                   <canvas
@@ -316,7 +316,7 @@ export default function ApplePdfReader({
             <div className="w-full flex flex-col items-center shadow-[0_20px_50px_rgba(0,0,0,0.6)] rounded-xl overflow-hidden bg-white border border-white/20">
               <div className="w-full bg-[#2c2c2e] text-[#86868b] px-3 py-1 text-[10px] font-mono flex items-center justify-between select-none border-b border-white/[0.06]">
                 <span>หน้า {currentPage} จาก {numPages}</span>
-                <span className="text-[9px] text-[#2997ff]">VibeBooks PRO Master</span>
+                <span className="text-[9px] text-[#2997ff]">Book Sangdai Master</span>
               </div>
               <div className="w-full flex justify-center bg-white overflow-hidden">
                 <canvas

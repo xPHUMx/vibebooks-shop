@@ -34,15 +34,18 @@
 ### ขั้นตอนที่ 3: สร้าง Private Storage Bucket และอัปโหลดไฟล์ PDF
 1. ไปที่เมนู **"Storage"** บนแถบซ้าย
 2. กดปุ่ม **"New bucket"**
-3. ตั้งชื่อ: `ebook-vault`
+3. ตั้งชื่อ: `digital-vault` (หรือ `ebook-vault`)
 4. **จุดสำคัญ**: ตรวจสอบว่าตัวเลือก **Public bucket** ปิดอยู่ (OFF) เพื่อให้เป็นถังเก็บไฟล์ส่วนตัวที่มีความปลอดภัยสูง
 5. กด **Save**
-6. คลิกเข้าไปใน Bucket `ebook-vault` แล้วกด **"Upload files"**
-7. เลือกไฟล์ PDF ทั้ง 3 ไฟล์ที่ระบบสร้างไว้ให้ในโฟลเดอร์:
+6. คลิกเข้าไปใน Bucket `digital-vault` แล้วกด **"Upload files"**
+7. เลือกไฟล์ PDF ทั้งหมดที่ระบบเตรียมไว้ให้ในโฟลเดอร์:
    `ebook_shop/supabase/storage_vault_files/`
    - `Media_Player_PRO_Engineering.pdf`
    - `Mystic_Tarot_Altar_System.pdf`
    - `TaskMaster_PRO_Architecture.pdf`
+   - `FastPlayer_PRO_Engineering.pdf`
+   - `Mystic_Tarot_Oracle_System.pdf`
+   - `TaskManager_PRO_Architecture.pdf`
 
 ---
 

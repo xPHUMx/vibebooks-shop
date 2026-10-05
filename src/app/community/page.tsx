@@ -2,104 +2,138 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { CommunityComment } from "@/types";
-import { INITIAL_COMMENTS } from "@/lib/commentsData";
-import { STUDENT_INFO, BOOKS } from "@/lib/booksData";
+import { CommunityComment, DigitalProduct } from "@/types";
+import { STUDENT_INFO } from "@/lib/booksData";
+import { useAuth } from "@/context/AuthContext";
 
 export default function CommunityPage() {
-  const [comments, setComments] = useState<CommunityComment[]>(INITIAL_COMMENTS);
+  const { user, profile, openAuthModal } = useAuth();
+
+  const [comments, setComments] = useState<CommunityComment[]>([]);
+  const [products, setProducts] = useState<DigitalProduct[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedTopic, setSelectedTopic] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"newest" | "likes" | "rating">("newest");
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("" );
 
   // Form State
-  const [authorName, setAuthorName] = useState<string>("");
   const [targetBook, setTargetBook] = useState<string>("all");
   const [rating, setRating] = useState<number>(5);
   const [commentText, setCommentText] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showSuccessToast, setShowSuccessToast] = useState<boolean>(false);
 
-  // Load from localStorage on mount
+  // Fetch real comments & products on mount
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("vibebooks_community_comments");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setComments(parsed);
-        }
-      }
-      const savedName = localStorage.getItem("vibebooks_author_name");
-      if (savedName) {
-        setAuthorName(savedName);
-      }
-    } catch (e) {
-      console.warn("Could not load comments from localStorage", e);
-    }
+    fetchComments();
+    fetchProducts();
   }, []);
 
-  // Save to localStorage when comments change
-  const saveComments = (newComments: CommunityComment[]) => {
-    setComments(newComments);
+  const fetchComments = async () => {
+    setIsLoading(true);
     try {
-      localStorage.setItem("vibebooks_community_comments", JSON.stringify(newComments));
+      const res = await fetch("/api/comments");
+      const data = await res.json();
+      if (data.success && Array.isArray(data.comments)) {
+        setComments(data.comments);
+      }
     } catch (e) {
-      console.warn("Could not save to localStorage", e);
+      console.warn("Could not load comments from API", e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handlePostComment = (e: React.FormEvent) => {
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch("/api/products");
+      const data = await res.json();
+      if (data.success && Array.isArray(data.products)) {
+        setProducts(data.products);
+      }
+    } catch (e) {
+      console.warn("Could not load products from API", e);
+    }
+  };
+
+  const handlePostComment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentText.trim()) return;
 
-    setIsSubmitting(true);
-
-    const bookObj = BOOKS.find((b) => b.id === targetBook);
-    const bookTitle = bookObj ? bookObj.title : "ทั่วไป (General Discussion)";
-
-    const newComment: CommunityComment = {
-      id: `cmt-${Date.now()}`,
-      author: authorName.trim() || "นักศึกษา / ผู้เยี่ยมชม",
-      avatarColor: "from-[#2c2c2e] to-[#1c1c1e]",
-      role: "Community Member",
-      isAuthor: authorName.trim().includes("เกียรติภูมิ"),
-      bookId: targetBook,
-      bookTitle,
-      rating,
-      content: commentText.trim(),
-      likes: 0,
-      createdAt: new Date().toISOString(),
-    };
-
-    const updated = [newComment, ...comments];
-    saveComments(updated);
-
-    if (authorName.trim()) {
-      try {
-        localStorage.setItem("vibebooks_author_name", authorName.trim());
-      } catch (e) {}
+    if (!user) {
+      openAuthModal();
+      return;
     }
 
-    setCommentText("");
-    setIsSubmitting(false);
-    setShowSuccessToast(true);
-    setTimeout(() => setShowSuccessToast(false), 3000);
+    setIsSubmitting(true);
+
+    const productObj = products.find((p) => p.id === targetBook);
+    const bookTitle = productObj ? productObj.title : "ทั่วไป (General Discussion)";
+
+    try {
+      const res = await fetch("/api/comments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-demo-role": profile?.role || "",
+        },
+        body: JSON.stringify({
+          author: profile?.fullName || user.email?.split("@")[0] || "สมาชิก",
+          avatarUrl: profile?.avatarUrl || "",
+          content: commentText.trim(),
+          bookId: targetBook,
+          bookTitle,
+          rating,
+          demoUserId: user?.id,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success && data.comment) {
+        setComments((prev) => [data.comment, ...prev]);
+        setCommentText("");
+        setShowSuccessToast(true);
+        setTimeout(() => setShowSuccessToast(false), 3000);
+      } else {
+        alert(data.error || "เกิดข้อผิดพลาดในการบันทึกความคิดเห็น");
+      }
+    } catch (err) {
+      console.error("Post comment error:", err);
+      alert("ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleLike = (id: string) => {
-    const updated = comments.map((c) => {
-      if (c.id === id) {
-        const currentlyLiked = Boolean(c.likedByMe);
-        return {
-          ...c,
-          likes: currentlyLiked ? c.likes - 1 : c.likes + 1,
-          likedByMe: !currentlyLiked,
-        };
-      }
-      return c;
-    });
-    saveComments(updated);
+  const handleLike = async (id: string) => {
+    const target = comments.find((c) => c.id === id);
+    if (!target) return;
+
+    const newLiked = !target.likedByMe;
+
+    // Optimistic UI update
+    setComments((prev) =>
+      prev.map((c) => {
+        if (c.id === id) {
+          return {
+            ...c,
+            likes: newLiked ? c.likes + 1 : Math.max(0, c.likes - 1),
+            likedByMe: newLiked,
+          };
+        }
+        return c;
+      })
+    );
+
+    try {
+      await fetch("/api/comments", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ commentId: id, increment: newLiked }),
+      });
+    } catch (err) {
+      console.warn("Update like error:", err);
+    }
   };
 
   const filteredComments = useMemo(() => {
@@ -153,12 +187,12 @@ export default function CommunityPage() {
 
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2">
           <span className="bg-gradient-to-b from-white via-[#f5f5f7] to-[#86868b] bg-clip-text text-transparent">
-            VibeBooks Community.
+            Book Sangdai Community.
           </span>
         </h1>
 
         <p className="text-xs sm:text-sm text-[#86868b] max-w-lg leading-relaxed mb-4">
-          พื้นที่แลกเปลี่ยนความคิดเห็น สถาปัตยกรรมซอฟต์แวร์ Python, PyQt6 และผลงานวิจัยเชิงวิศวกรรม
+          พื้นที่แลกเปลี่ยนความคิดเห็น สถาปัตยกรรมซอฟต์แวร์ และรีวิวผลิตภัณฑ์ดิจิทัล Book Sangdai (บุ๊คสั่งได้)
         </p>
 
         <div className="flex items-center gap-4 flex-wrap justify-center text-xs text-[#86868b] font-medium">
@@ -168,115 +202,136 @@ export default function CommunityPage() {
           </span>
           <span className="flex items-center gap-1.5">
             <span className="material-symbols-outlined text-[16px] text-amber-400 fill-current">star</span>
-            <span>คะแนนเฉลี่ย 4.9 / 5.0</span>
+            <span>คะแนนเฉลี่ย 5.0 / 5.0</span>
           </span>
           <span className="flex items-center gap-1.5">
             <span className="material-symbols-outlined text-[16px] text-[#2997ff]">verified</span>
-            <span>Lead Architect: {STUDENT_INFO.name}</span>
+            <span>{STUDENT_INFO.authorFull}</span>
           </span>
         </div>
       </section>
 
-      {/* New Comment Submission Card (Apple Style) */}
-      <div className="rounded-[24px] bg-[#161617] p-5 sm:p-7 border border-white/[0.08] shadow-xl">
-        <div className="flex items-center gap-2.5 mb-5">
-          <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-white font-bold text-xs">
-            +
+      {/* Comment Submission Section: Login Required Guard */}
+      {!user ? (
+        <div className="rounded-[24px] bg-[#161617] p-6 sm:p-8 border border-white/[0.08] shadow-xl text-center space-y-4 animate-fade-in">
+          <div className="w-12 h-12 rounded-2xl bg-white/10 text-white flex items-center justify-center mx-auto shadow-sm">
+            <span className="material-symbols-outlined text-[24px]">lock</span>
           </div>
-          <div>
-            <h2 className="text-sm font-semibold text-[#f5f5f7]">เขียนรีวิวหรือตั้งคำถาม</h2>
-            <p className="text-[11px] text-[#86868b]">ร่วมแลกเปลี่ยนในชุมชน VibeBooks</p>
+          <div className="max-w-md mx-auto">
+            <h2 className="text-base font-bold text-[#f5f5f7]">เข้าสู่ระบบเพื่อร่วมแสดงความคิดเห็น</h2>
+            <p className="text-xs text-[#86868b] mt-1.5 leading-relaxed">
+              กรุณาเข้าสู่ระบบด้วย Google หรือบัญชีอีเมลของคุณ เพื่อโพสต์ข้อความรีวิว แลกเปลี่ยน หรือให้คะแนนผลิตภัณฑ์ในคอมมูนิตี้
+            </p>
           </div>
+          <button
+            onClick={openAuthModal}
+            className="apple-btn-primary px-6 py-2.5 text-xs font-semibold shadow-md inline-flex items-center gap-2 cursor-pointer transition-all active:scale-[0.98]"
+          >
+            <span className="material-symbols-outlined text-[16px]">login</span>
+            <span>เข้าสู่ระบบ / สมัครสมาชิก</span>
+          </button>
         </div>
+      ) : (
+        /* Logged-In User Comment Form */
+        <div className="rounded-[24px] bg-[#161617] p-5 sm:p-7 border border-white/[0.08] shadow-xl animate-fade-in">
+          <div className="flex items-center justify-between gap-3 mb-5 pb-3 border-b border-white/[0.06]">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-secondary/20 border border-secondary/30 flex items-center justify-center text-secondary font-bold text-xs shrink-0">
+                {profile?.fullName?.charAt(0) || user.email?.charAt(0) || "U"}
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-sm font-semibold text-[#f5f5f7]">{profile?.fullName || "สมาชิก"}</h2>
+                  <span className="px-2 py-0.5 rounded-full bg-white/[0.08] text-[10px] font-semibold text-white/70 uppercase">
+                    {profile?.role || "user"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#86868b] truncate">{user.email}</p>
+              </div>
+            </div>
+            <span className="text-[11px] text-accent-emerald flex items-center gap-1 font-medium">
+              <span className="material-symbols-outlined text-[14px]">check_circle</span>
+              <span>เข้าสู่ระบบแล้ว</span>
+            </span>
+          </div>
 
-        <form onSubmit={handlePostComment} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Author Name */}
+          <form onSubmit={handlePostComment} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Target Book / Topic */}
+              <div>
+                <label className="block text-[11px] font-medium text-[#86868b] mb-1.5">
+                  หัวข้อ / ผลิตภัณฑ์ที่ต้องการรีวิว
+                </label>
+                <select
+                  value={targetBook}
+                  onChange={(e) => setTargetBook(e.target.value)}
+                  className="w-full rounded-xl bg-black border border-white/[0.08] px-3.5 py-2.5 text-xs text-[#f5f5f7] outline-none focus:border-white/25 transition-all cursor-pointer"
+                >
+                  <option value="all">🌟 ทั่วไป / ภาพรวมระบบ (General Discussion)</option>
+                  {products.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Star Rating Picker */}
+              <div>
+                <label className="block text-[11px] font-medium text-[#86868b] mb-1.5">
+                  คะแนนความพึงพอใจ
+                </label>
+                <div className="flex items-center gap-1 h-[41px]">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      type="button"
+                      key={star}
+                      onClick={() => setRating(star)}
+                      className="p-1 rounded-lg transition-transform hover:scale-110 focus:outline-none cursor-pointer"
+                    >
+                      <span
+                        className={`material-symbols-outlined text-[22px] transition-colors ${
+                          star <= rating ? "text-amber-400 fill-current" : "text-white/20"
+                        }`}
+                      >
+                        star
+                      </span>
+                    </button>
+                  ))}
+                  <span className="text-xs text-[#f5f5f7] font-semibold ml-2 font-mono">{rating} / 5</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Text Area */}
             <div>
               <label className="block text-[11px] font-medium text-[#86868b] mb-1.5">
-                ชื่อของคุณ หรือ นามแฝง
+                ข้อความความคิดเห็น
               </label>
-              <input
-                type="text"
-                value={authorName}
-                onChange={(e) => setAuthorName(e.target.value)}
-                placeholder="เช่น วิศวกรซอฟต์แวร์, นศ. 643321..."
-                className="w-full rounded-xl bg-black border border-white/[0.08] px-3.5 py-2.5 text-xs text-[#f5f5f7] placeholder:text-[#86868b]/50 outline-none focus:border-white/25 transition-all"
+              <textarea
+                required
+                rows={3}
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="พิมพ์ข้อความรีวิว สถาปัตยกรรมโค้ด หรือข้อสงสัยทางเทคนิคที่นี่..."
+                className="w-full rounded-xl bg-black border border-white/[0.08] p-3 text-xs text-[#f5f5f7] placeholder:text-[#86868b]/50 outline-none focus:border-white/25 transition-all resize-none leading-relaxed"
               />
             </div>
 
-            {/* Target Book / Topic */}
-            <div>
-              <label className="block text-[11px] font-medium text-[#86868b] mb-1.5">
-                หัวข้อ / เล่มหนังสือที่ต้องการรีวิว
-              </label>
-              <select
-                value={targetBook}
-                onChange={(e) => setTargetBook(e.target.value)}
-                className="w-full rounded-xl bg-black border border-white/[0.08] px-3.5 py-2.5 text-xs text-[#f5f5f7] outline-none focus:border-white/25 transition-all cursor-pointer"
+            {/* Submit Button */}
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                disabled={isSubmitting || !commentText.trim()}
+                className="apple-btn-primary px-6 py-2.5 text-xs font-semibold shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50"
               >
-                <option value="all">🌟 ทั่วไป / ภาพรวมระบบ (General Discussion)</option>
-                <option value="media-player-pro">🎵 FastPlayer PRO (Lab 1: Multimedia)</option>
-                <option value="mystic-tarot-altar">🔮 Mystic Tarot 3-Card Oracle (Lab 2: Creative AI)</option>
-                <option value="taskmaster-pro">📋 TaskManagerPRO & Bento (Lab 3 & 4: Productivity)</option>
-              </select>
+                <span>{isSubmitting ? "กำลังส่ง..." : "ส่งความคิดเห็น"}</span>
+                <span className="material-symbols-outlined text-[15px]">send</span>
+              </button>
             </div>
-          </div>
-
-          {/* Star Rating Picker */}
-          <div>
-            <label className="block text-[11px] font-medium text-[#86868b] mb-1.5">
-              คะแนนความพึงพอใจ
-            </label>
-            <div className="flex items-center gap-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  type="button"
-                  key={star}
-                  onClick={() => setRating(star)}
-                  className="p-1 rounded-lg transition-transform hover:scale-110 focus:outline-none cursor-pointer"
-                >
-                  <span
-                    className={`material-symbols-outlined text-[22px] transition-colors ${
-                      star <= rating ? "text-amber-400 fill-current" : "text-white/20"
-                    }`}
-                  >
-                    star
-                  </span>
-                </button>
-              ))}
-              <span className="text-xs text-[#f5f5f7] font-semibold ml-2 font-mono">{rating} / 5</span>
-            </div>
-          </div>
-
-          {/* Text Area */}
-          <div>
-            <label className="block text-[11px] font-medium text-[#86868b] mb-1.5">
-              ข้อความความคิดเห็น
-            </label>
-            <textarea
-              required
-              rows={3}
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              placeholder="พิมพ์ข้อความรีวิว สถาปัตยกรรมโค้ด หรือข้อสงสัยทางเทคนิคที่นี่..."
-              className="w-full rounded-xl bg-black border border-white/[0.08] p-3 text-xs text-[#f5f5f7] placeholder:text-[#86868b]/50 outline-none focus:border-white/25 transition-all resize-none leading-relaxed"
-            />
-          </div>
-
-          {/* Submit Button */}
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={isSubmitting || !commentText.trim()}
-              className="apple-btn-primary px-6 py-2 text-xs font-semibold shadow-sm flex items-center gap-2 cursor-pointer disabled:opacity-50"
-            >
-              <span>{isSubmitting ? "กำลังส่ง..." : "ส่งความคิดเห็น"}</span>
-              <span className="material-symbols-outlined text-[15px]">send</span>
-            </button>
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
+      )}
 
       {/* Filter & Search Bar */}
       <div className="space-y-3">
@@ -316,7 +371,7 @@ export default function CommunityPage() {
           </div>
         </div>
 
-        {/* Topic Filter Chips (Apple Segmented Style) */}
+        {/* Topic Filter Chips */}
         <div className="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none">
           <button
             onClick={() => setSelectedTopic("all")}
@@ -328,47 +383,34 @@ export default function CommunityPage() {
           >
             ทั้งหมด
           </button>
-          <button
-            onClick={() => setSelectedTopic("media-player-pro")}
-            className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 cursor-pointer ${
-              selectedTopic === "media-player-pro"
-                ? "bg-white text-black font-semibold shadow-sm"
-                : "bg-[#161617] text-[#86868b] hover:text-white border border-white/[0.06]"
-            }`}
-          >
-            FastPlayer (Lab 1)
-          </button>
-          <button
-            onClick={() => setSelectedTopic("mystic-tarot-altar")}
-            className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 cursor-pointer ${
-              selectedTopic === "mystic-tarot-altar"
-                ? "bg-white text-black font-semibold shadow-sm"
-                : "bg-[#161617] text-[#86868b] hover:text-white border border-white/[0.06]"
-            }`}
-          >
-            Mystic Tarot (Lab 2)
-          </button>
-          <button
-            onClick={() => setSelectedTopic("taskmaster-pro")}
-            className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 cursor-pointer ${
-              selectedTopic === "taskmaster-pro"
-                ? "bg-white text-black font-semibold shadow-sm"
-                : "bg-[#161617] text-[#86868b] hover:text-white border border-white/[0.06]"
-            }`}
-          >
-            TaskManager (Lab 3 & 4)
-          </button>
+          {products.slice(0, 5).map((p) => (
+            <button
+              key={p.id}
+              onClick={() => setSelectedTopic(p.id)}
+              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all shrink-0 cursor-pointer truncate max-w-[200px] ${
+                selectedTopic === p.id
+                  ? "bg-white text-black font-semibold shadow-sm"
+                  : "bg-[#161617] text-[#86868b] hover:text-white border border-white/[0.06]"
+              }`}
+            >
+              {p.title}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Comments Feed */}
       <div className="space-y-4">
-        {filteredComments.length === 0 ? (
+        {isLoading ? (
+          <div className="py-12 flex justify-center">
+            <div className="w-8 h-8 border-4 border-white/10 border-t-white rounded-full animate-spin" />
+          </div>
+        ) : filteredComments.length === 0 ? (
           <div className="text-center py-12 rounded-[24px] bg-[#161617] border border-white/[0.06]">
             <span className="material-symbols-outlined text-[32px] text-[#86868b] mb-2">
               chat_bubble_outline
             </span>
-            <p className="text-xs text-[#86868b]">ยังไม่พบความคิดเห็นในหมวดนี้ เป็นคนแรกที่ร่วมแสดงความคิดเห็น!</p>
+            <p className="text-xs text-[#86868b]">ยังไม่พบความคิดเห็นในระบบ ร่วมเป็นคนแรกที่ร่วมแสดงความคิดเห็น!</p>
           </div>
         ) : (
           filteredComments.map((comment) => (
@@ -433,7 +475,7 @@ export default function CommunityPage() {
                 {comment.content}
               </p>
 
-              {/* Footer: Likes and Book link */}
+              {/* Footer: Likes and Product Link */}
               <div className="pt-2 flex items-center justify-between border-t border-white/[0.06] text-xs">
                 <button
                   type="button"
@@ -452,10 +494,10 @@ export default function CommunityPage() {
 
                 {comment.bookId && comment.bookId !== "all" && (
                   <Link
-                    href={`/checkout/${comment.bookId}`}
+                    href={`/products/${comment.bookId}`}
                     className="text-[11px] text-[#2997ff] hover:underline flex items-center gap-1"
                   >
-                    <span>ดู E-book เล่มนี้</span>
+                    <span>ดูรายละเอียดสินค้านี้</span>
                     <span className="material-symbols-outlined text-[12px]">arrow_forward</span>
                   </Link>
                 )}

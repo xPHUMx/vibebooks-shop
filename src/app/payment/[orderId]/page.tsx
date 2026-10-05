@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Order } from "@/types";
-import DemoWarningBanner from "@/components/DemoWarningBanner";
+import { getPromptPayQRUrl } from "@/lib/promptpay";
 
 export default function PaymentPage() {
   const params = useParams();
@@ -13,7 +13,6 @@ export default function PaymentPage() {
 
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
-  const [paying, setPaying] = useState(false);
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState(300); // 5 mins demo timer
 
@@ -48,6 +47,9 @@ export default function PaymentPage() {
     return () => clearInterval(timer);
   }, []);
 
+  const [slipPreview, setSlipPreview] = useState<string | null>(null);
+  const [uploadingSlip, setUploadingSlip] = useState(false);
+
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
@@ -60,25 +62,58 @@ export default function PaymentPage() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSimulatePayment = async () => {
-    setPaying(true);
+  const handleSlipFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      alert("กรุณาเลือกไฟล์รูปภาพสลิป (.jpg, .png, .webp)");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      alert("ขนาดไฟล์รูปภาพสลิปต้องไม่เกิน 10MB");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setSlipPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmitSlip = async () => {
+    if (!slipPreview) {
+      alert("กรุณาเลือกรูปภาพสลิปการโอนเงินก่อนกดยืนยัน");
+      return;
+    }
+
+    setUploadingSlip(true);
     try {
-      const res = await fetch("/api/payment/simulate", {
+      const res = await fetch("/api/payment/slip", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId }),
+        body: JSON.stringify({
+          orderId,
+          slipData: slipPreview,
+          autoVerify: false,
+        }),
       });
 
       const data = await res.json();
       if (data.success) {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("vibebooks_last_pending_order_id", orderId);
+        }
         router.push(`/order/${orderId}`);
       } else {
-        alert(data.error || "เกิดข้อผิดพลาดในการยืนยันการชำระเงินจำลอง");
+        alert(data.error || "เกิดข้อผิดพลาดในการแนบสลิป");
       }
-    } catch (err) {
-      alert("ไม่สามารถจำลองการชำระเงินได้");
+    } catch {
+      alert("ไม่สามารถติดต่อเซิร์ฟเวอร์เพื่อแนบสลิปได้");
     } finally {
-      setPaying(false);
+      setUploadingSlip(false);
     }
   };
 
@@ -93,11 +128,12 @@ export default function PaymentPage() {
     );
   }
 
+  const activeStoreName = order?.merchantName || "Book Sangdai Official";
+  const activePromptPay = order?.merchantPromptPay || process.env.NEXT_PUBLIC_DEFAULT_PROMPTPAY || "081-234-5678";
+  const totalAmount = order?.totalAmount || order?.bookPrice || 199;
+
   return (
     <div className="space-y-6 max-w-lg mx-auto animate-fade">
-      {/* Prominent Mandatory DEMO Warning Banner */}
-      <DemoWarningBanner />
-
       {/* Main Payment Gateway Card (Apple Minimalism) */}
       <div className="w-full bg-[#161617] rounded-[24px] p-5 sm:p-6 border border-white/[0.08] shadow-2xl flex flex-col space-y-4">
         {/* PromptPay Header Bar */}
@@ -114,7 +150,7 @@ export default function PaymentPage() {
             <div className="flex flex-col">
               <span className="text-white text-sm font-semibold tracking-tight">PromptPay พร้อมเพย์</span>
               <span className="text-[#86868b] text-[10px] font-medium uppercase tracking-wider">
-                Thai QR Payment · Demo
+                Thai QR Payment
               </span>
             </div>
           </div>
@@ -122,6 +158,36 @@ export default function PaymentPage() {
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
             Ready
           </span>
+        </div>
+
+        {/* Store & Direct PromptPay Target Banner */}
+        <div className="w-full bg-white/5 rounded-[16px] p-3.5 border border-white/[0.08] space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-[#86868b] flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[15px] text-amber-400">storefront</span>
+              ร้านค้าผู้รับโอน:
+            </span>
+            <span className="text-white font-bold">{activeStoreName}</span>
+          </div>
+          <div className="flex items-center justify-between text-xs pt-1.5 border-t border-white/[0.06]">
+            <span className="text-[#86868b] flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[15px] text-emerald-400">contact_phone</span>
+              เบอร์พร้อมเพย์ร้าน:
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-emerald-400 font-bold tracking-wider">{activePromptPay}</span>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(activePromptPay.replace(/[^0-9]/g, ''));
+                  alert(`คัดลอกเบอร์พร้อมเพย์ ${activePromptPay} แล้ว!`);
+                }}
+                className="p-1 rounded bg-white/10 hover:bg-white/20 text-[#86868b] hover:text-white transition-colors"
+                title="คัดลอกเบอร์พร้อมเพย์"
+              >
+                <span className="material-symbols-outlined text-[12px]">content_copy</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Order Summary Strip */}
@@ -144,45 +210,24 @@ export default function PaymentPage() {
           <div className="flex flex-col items-end shrink-0">
             <span className="text-[10px] text-[#86868b] uppercase tracking-wider">Amount Due</span>
             <span className="text-lg font-bold text-[#f5f5f7] tracking-tight font-mono">
-              ฿{order ? order.bookPrice : 199}.00
+              ฿{totalAmount}.00
             </span>
           </div>
         </div>
 
         {/* QR Stage Container */}
         <div className="flex flex-col items-center justify-center p-5 rounded-[18px] bg-black border border-white/[0.06]">
-          <div className="w-44 h-44 bg-white rounded-2xl p-3 flex flex-col items-center justify-center relative shadow-lg">
-            {/* Simulated QR Pattern Graphic */}
-            <svg className="w-full h-full text-black" viewBox="0 0 100 100" fill="currentColor">
-              <rect x="5" y="5" width="25" height="25" fill="black" />
-              <rect x="10" y="10" width="15" height="15" fill="white" />
-              <rect x="13" y="13" width="9" height="9" fill="black" />
-              <rect x="70" y="5" width="25" height="25" fill="black" />
-              <rect x="75" y="10" width="15" height="15" fill="white" />
-              <rect x="78" y="13" width="9" height="9" fill="black" />
-              <rect x="5" y="70" width="25" height="25" fill="black" />
-              <rect x="10" y="75" width="15" height="15" fill="white" />
-              <rect x="13" y="78" width="9" height="9" fill="black" />
-              <rect x="35" y="10" width="10" height="10" fill="black" />
-              <rect x="50" y="15" width="12" height="8" fill="black" />
-              <rect x="35" y="35" width="30" height="30" fill="black" />
-              <rect x="42" y="42" width="16" height="16" fill="white" />
-              <text x="50" y="52" fontSize="6" fontWeight="bold" fill="#0071e3" textAnchor="middle">
-                DEMO
-              </text>
-              <rect x="70" y="35" width="8" height="15" fill="black" />
-              <rect x="10" y="40" width="15" height="8" fill="black" />
-              <rect x="35" y="75" width="15" height="15" fill="black" />
-              <rect x="65" y="70" width="25" height="8" fill="black" />
-              <rect x="75" y="85" width="15" height="10" fill="black" />
-            </svg>
-            <div className="absolute bottom-1 px-2 py-0.5 bg-rose-600 text-white text-[8px] font-bold rounded-full uppercase tracking-wider">
-              TEST QR ONLY
-            </div>
+          <div className="w-52 h-52 bg-white rounded-2xl p-2.5 flex items-center justify-center shadow-lg relative overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={getPromptPayQRUrl(activePromptPay, totalAmount)}
+              alt="PromptPay EMVCo QR Code"
+              className="w-full h-full object-contain"
+            />
           </div>
 
-          <div className="mt-3 text-[11px] text-[#86868b] font-mono">
-            PromptPay ID: 000-000-0000 (Simulated Demo)
+          <div className="mt-3 text-[11px] text-[#86868b] font-mono text-center">
+            สแกนเพื่อโอนเงินตรงเข้าบัญชีร้านค้า ({activePromptPay})
           </div>
 
           <div className="mt-1.5 flex items-center gap-1.5 text-xs text-[#86868b] font-mono">
@@ -192,26 +237,76 @@ export default function PaymentPage() {
           </div>
         </div>
 
-        {/* Action Button: Simulate Payment (Apple Blue Button) */}
-        <button
-          onClick={handleSimulatePayment}
-          disabled={paying}
-          className="apple-btn-primary w-full py-3 text-xs font-semibold shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-        >
-          {paying ? (
-            <>
-              <span className="material-symbols-outlined text-[16px] animate-spin">
-                progress_activity
-              </span>
-              <span>กำลังตรวจสอบยอดเงิน...</span>
-            </>
+        {/* Real Slip Upload Section */}
+        <div className="p-4 rounded-[18px] bg-white/[0.03] border border-white/[0.08] space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-[#f5f5f7] flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px] text-[#2997ff]">receipt_long</span>
+              แนบหลักฐานการโอนเงิน (สลิป)
+            </span>
+            <span className="text-[10px] text-[#86868b]">JPG, PNG, WEBP</span>
+          </div>
+
+          {slipPreview ? (
+            <div className="space-y-2.5">
+              <div className="relative rounded-xl overflow-hidden border border-white/10 bg-black/40 max-h-48 flex items-center justify-center p-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={slipPreview}
+                  alt="Slip Preview"
+                  className="max-h-44 w-auto object-contain rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={() => setSlipPreview(null)}
+                  className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center text-xs"
+                  title="เปลี่ยนรูปภาพ"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSubmitSlip}
+                disabled={uploadingSlip}
+                className="apple-btn-primary w-full py-3 text-xs font-semibold shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {uploadingSlip ? (
+                  <>
+                    <span className="material-symbols-outlined text-[16px] animate-spin">
+                      progress_activity
+                    </span>
+                    <span>กำลังส่งสลิปให้ร้านค้าตรวจสอบ...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[16px]">send</span>
+                    <span>ส่งสลิปให้ร้านค้าตรวจสอบ & รออนุมัติปล่อยไฟล์</span>
+                  </>
+                )}
+              </button>
+            </div>
           ) : (
-            <>
-              <span className="material-symbols-outlined text-[16px]">check_circle</span>
-              <span>จำลองการโอนเงินสำเร็จ (Simulate Pay)</span>
-            </>
+            <label className="border-2 border-dashed border-white/15 hover:border-[#2997ff]/50 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-colors bg-black/20">
+              <span className="material-symbols-outlined text-2xl text-[#86868b] mb-1">
+                add_photo_alternate
+              </span>
+              <span className="text-xs font-semibold text-[#f5f5f7]">
+                คลิกเพื่อเลือกรูปสลิปจากเครื่อง
+              </span>
+              <span className="text-[10px] text-[#86868b] mt-0.5">
+                เลือกสลิปจากแอปธนาคารของคุณ
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleSlipFileSelect}
+                className="hidden"
+              />
+            </label>
           )}
-        </button>
+        </div>
 
         <div className="text-center">
           <Link

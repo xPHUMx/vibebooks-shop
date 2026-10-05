@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getBookById } from "@/lib/booksData";
-import DemoWarningBanner from "@/components/DemoWarningBanner";
 
 export default function CheckoutPage() {
   const params = useParams();
@@ -111,7 +110,7 @@ export default function CheckoutPage() {
               </div>
               <div className="text-right text-[10px] text-[#86868b] space-y-0.5 font-mono">
                 <div>ผู้รับผิดชอบ: {book.curator}</div>
-                <div>{book.specs.pages} หน้า · ภาษาไทย Master Edition</div>
+                <div>{book.specs?.pages || 120} หน้า · ภาษาไทย Master Edition</div>
               </div>
             </div>
           </div>
@@ -166,7 +165,7 @@ export default function CheckoutPage() {
 
           <div>
             <label className="block text-[11px] font-medium text-[#86868b] mb-1.5">
-              อีเมลรับ E-book (จำลองการจัดส่ง)
+              อีเมลรับ E-book และสิทธิ์ดาวน์โหลด
             </label>
             <input
               type="email"
@@ -194,9 +193,6 @@ export default function CheckoutPage() {
           </div>
         </form>
       </section>
-
-      {/* Demo Warning Banner */}
-      <DemoWarningBanner />
     </div>
   );
 }

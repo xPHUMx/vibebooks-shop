@@ -1,12 +1,12 @@
 {
-  "name": "VibeBooks PRO — Architecture & Engineering",
-  "short_name": "VibeBooks",
-  "description": "Minimalist Premium Tech E-book Store by นายเกียรติภูมิ หารศรีนาถ (64332110242-2)",
+  "name": "Book Sangdai (บุ๊คสั่งได้)",
+  "short_name": "Book Sangdai",
+  "description": "Ultra-Refined Digital Store & Creator Vault by นายเกียรติภูมิ หารศรีนาถ (รหัสนักศึกษา: 64332110242-2)",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#fbfbfd",
+  "theme_color": "#fbfbfd",
   "icons": [
     {
       "src": "/prompt-pay-logo.png",
