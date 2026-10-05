@@ -122,6 +122,7 @@ export interface CommunityComment {
   content: string;
   likes: number;
   likedByMe?: boolean;
+  isVerifiedBuyer?: boolean;
   createdAt: string;
 }
 

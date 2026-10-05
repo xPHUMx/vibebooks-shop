@@ -18,6 +18,7 @@ function mapDbCommentToComment(row: any): CommunityComment {
     rating: Number(row.rating || 5),
     content: row.content,
     likes: Number(row.likes || 0),
+    isVerifiedBuyer: row.is_verified_buyer !== undefined ? Boolean(row.is_verified_buyer) : true,
     createdAt: row.created_at,
   };
 }
@@ -68,8 +69,23 @@ export async function POST(req: NextRequest) {
     const admin = createAdminClient();
     const client = admin || serverClient;
 
-    // Check user authentication
-    const { data: { user } } = await serverClient.auth.getUser();
+    // 1. Check user authentication (Bearer token or cookie session)
+    const authHeader = req.headers.get("authorization");
+    const bearerToken = authHeader?.replace(/^Bearer\s+/i, "") || null;
+
+    let user: any = null;
+    if (bearerToken && admin) {
+      try {
+        const { data: tokenUser } = await admin.auth.getUser(bearerToken);
+        if (tokenUser?.user) user = tokenUser.user;
+      } catch (e) {}
+    }
+    if (!user) {
+      try {
+        const { data: cookieUser } = await serverClient.auth.getUser();
+        if (cookieUser?.user) user = cookieUser.user;
+      } catch (e) {}
+    }
 
     const body = await req.json();
     const { author, content, bookId, bookTitle, rating, avatarUrl } = body;
@@ -89,10 +105,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Fetch user profile from database
+    // 2. Fetch user profile from database
     let authorName = author?.trim() || "สมาชิกคอมมูนิตี้";
     let authorAvatar = avatarUrl || "";
     let userRole = "สมาชิกคอมมูนิตี้";
+    let isAdmin = false;
 
     if (user.id) {
       const { data: profile } = await client
@@ -105,6 +122,64 @@ export async function POST(req: NextRequest) {
         authorName = profile.full_name || user.email?.split("@")[0] || authorName;
         authorAvatar = profile.avatar_url || authorAvatar;
         userRole = profile.role === "admin" ? "ผู้ดูแลระบบ (Admin)" : profile.role === "merchant" ? "ผู้ขาย (Merchant)" : "สมาชิกคอมมูนิตี้";
+        if (profile.role === "admin") isAdmin = true;
+      }
+    }
+
+    // 3. Verified Purchase Requirement:
+    // Non-admin users can ONLY review products that they have purchased and paid for
+    const targetBookId = bookId && bookId !== "all" ? bookId : null;
+
+    if (!isAdmin) {
+      if (!targetBookId) {
+        return NextResponse.json(
+          { error: "กรุณาเลือกสินค้าที่คุณสั่งซื้อแล้วเพื่อทำการเขียนรีวิว" },
+          { status: 400 }
+        );
+      }
+
+      // Check if user has an order with status 'PAID' for this bookId
+      let hasPurchased = false;
+
+      // Query paid orders for this user by user_id or email
+      let orderQuery = client.from("orders").select("id, book_id, status").eq("status", "PAID");
+      if (user.id && user.email) {
+        orderQuery = orderQuery.or(`user_id.eq.${user.id},customer_email.eq.${user.email.trim().toLowerCase()}`);
+      } else if (user.id) {
+        orderQuery = orderQuery.eq("user_id", user.id);
+      } else if (user.email) {
+        orderQuery = orderQuery.eq("customer_email", user.email.trim().toLowerCase());
+      }
+
+      const { data: paidOrders } = await orderQuery;
+
+      if (paidOrders && paidOrders.length > 0) {
+        // Direct match on orders.book_id
+        if (paidOrders.some((o: any) => o.book_id === targetBookId)) {
+          hasPurchased = true;
+        } else {
+          // Check order_items table
+          const paidOrderIds = paidOrders.map((o: any) => o.id);
+          const { data: matchingItems } = await client
+            .from("order_items")
+            .select("id")
+            .in("order_id", paidOrderIds)
+            .eq("product_id", targetBookId)
+            .limit(1);
+
+          if (matchingItems && matchingItems.length > 0) {
+            hasPurchased = true;
+          }
+        }
+      }
+
+      if (!hasPurchased) {
+        return NextResponse.json(
+          {
+            error: "ไม่สามารถเขียนรีวิวได้: คุณสามารถรีวิวได้เฉพาะสินค้าที่คุณสั่งซื้อและชำระเงินเรียบร้อยแล้วเท่านั้น (Verified Purchase)",
+          },
+          { status: 403 }
+        );
       }
     }
 
@@ -115,7 +190,7 @@ export async function POST(req: NextRequest) {
       author: authorName,
       avatar_url: authorAvatar,
       role: userRole,
-      book_id: bookId || "all",
+      book_id: targetBookId || "all",
       book_title: bookTitle || "ทั่วไป (General Discussion)",
       rating: Number(rating) || 5,
       content: content.trim(),
@@ -134,13 +209,19 @@ export async function POST(req: NextRequest) {
       // Fallback response with the generated comment
       return NextResponse.json({
         success: true,
-        comment: mapDbCommentToComment(newRow),
+        comment: {
+          ...mapDbCommentToComment(newRow),
+          isVerifiedBuyer: true,
+        },
       });
     }
 
     return NextResponse.json({
       success: true,
-      comment: mapDbCommentToComment(inserted || newRow),
+      comment: {
+        ...mapDbCommentToComment(inserted || newRow),
+        isVerifiedBuyer: true,
+      },
     });
   } catch (error) {
     console.error("Comments POST error:", error);
