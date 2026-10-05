@@ -5,6 +5,8 @@ import { useAuth } from '@/context/AuthContext';
 import { Order, DigitalProduct } from '@/types';
 import Link from 'next/link';
 import ProductPreviewModal from '@/components/ProductPreviewModal';
+import DeleteProductModal from '@/components/DeleteProductModal';
+import { createClient } from '@/lib/supabase/client';
 
 const COVER_PRESETS = [
   { name: 'Apple Glass', url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80' },
@@ -113,9 +115,27 @@ export default function MerchantDashboardPage() {
     }
   };
 
+  const getAuthHeaders = async (): Promise<Record<string, string>> => {
+    try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        return {
+          Authorization: `Bearer ${session.access_token}`,
+        };
+      }
+    } catch {}
+    return {};
+  };
+
   const fetchOrders = async () => {
     try {
-      const res = await fetch('/api/orders?all=true');
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch('/api/orders?all=true', {
+        headers: {
+          ...authHeaders,
+        },
+      });
       const data = await res.json();
       if (data.success && data.orders) {
         setOrders(data.orders);
@@ -443,16 +463,28 @@ export default function MerchantDashboardPage() {
     }
   };
 
-  const handleDeleteProduct = async (productId: string, productTitle: string) => {
-    if (!confirm(`คุณต้องการลบสินค้า "${productTitle}" ออกจากร้านค้าใช่หรือไม่?`)) {
-      return;
-    }
+  const [productToDelete, setProductToDelete] = useState<DigitalProduct | null>(null);
+  const [isDeletingProduct, setIsDeletingProduct] = useState(false);
+
+  const handleDeleteProduct = (productId: string, productTitle: string) => {
+    const prod = products.find((p) => p.id === productId) || ({
+      id: productId,
+      title: productTitle,
+    } as DigitalProduct);
+    setProductToDelete(prod);
+  };
+
+  const handleConfirmDeleteProduct = async () => {
+    if (!productToDelete) return;
+    setIsDeletingProduct(true);
 
     try {
-      const res = await fetch(`/api/products/${productId}`, {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch(`/api/products/${productToDelete.id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
+          ...authHeaders,
           ...(isDemoMerchant ? { 'x-demo-role': 'merchant' } : {}),
         },
       });
@@ -460,13 +492,16 @@ export default function MerchantDashboardPage() {
 
       if (res.ok && data.success) {
         alert(data.message || 'ลบสินค้าเรียบร้อยแล้ว');
-        setProducts((prev) => prev.filter((p) => p.id !== productId));
+        setProducts((prev) => prev.filter((p) => p.id !== productToDelete.id));
+        setProductToDelete(null);
         await fetchMerchantProducts();
       } else {
         alert(data.error || 'ไม่สามารถลบสินค้านี้ได้');
       }
     } catch (err) {
       alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+    } finally {
+      setIsDeletingProduct(false);
     }
   };
 
@@ -1848,6 +1883,15 @@ export default function MerchantDashboardPage() {
           }}
         />
       )}
+
+      {/* DELETE PRODUCT CONFIRMATION MODAL */}
+      <DeleteProductModal
+        isOpen={Boolean(productToDelete)}
+        onClose={() => setProductToDelete(null)}
+        onConfirm={handleConfirmDeleteProduct}
+        product={productToDelete}
+        isDeleting={isDeletingProduct}
+      />
     </div>
   );
 }

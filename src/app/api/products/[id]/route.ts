@@ -115,7 +115,23 @@ export async function PUT(
 
     // 1. Verify user authentication
     const demoRole = req.headers.get('x-demo-role');
-    const { data: { user } } = await serverClient.auth.getUser();
+    const authHeader = req.headers.get('authorization');
+    const bearerToken = authHeader?.replace(/^Bearer\s+/i, '') || null;
+
+    let user: any = null;
+    if (bearerToken && admin) {
+      try {
+        const { data: tokenUser } = await admin.auth.getUser(bearerToken);
+        if (tokenUser?.user) user = tokenUser.user;
+      } catch (e) {}
+    }
+    if (!user) {
+      try {
+        const { data: cookieUser } = await serverClient.auth.getUser();
+        if (cookieUser?.user) user = cookieUser.user;
+      } catch (e) {}
+    }
+
     if (!user && demoRole !== 'admin' && demoRole !== 'merchant') {
       return NextResponse.json(
         { error: 'กรุณาเข้าสู่ระบบก่อนดำเนินการแก้ไขสินค้า' },
@@ -245,7 +261,27 @@ export async function DELETE(
 
     // 1. Verify user authentication
     const demoRole = req.headers.get('x-demo-role');
-    const { data: { user } } = await serverClient.auth.getUser();
+    const authHeader = req.headers.get('authorization');
+    const bearerToken = authHeader?.replace(/^Bearer\s+/i, '') || null;
+
+    let user: any = null;
+    if (bearerToken && admin) {
+      try {
+        const { data: tokenUser } = await admin.auth.getUser(bearerToken);
+        if (tokenUser?.user) user = tokenUser.user;
+      } catch (e) {
+        console.warn('Bearer auth check error:', e);
+      }
+    }
+    if (!user) {
+      try {
+        const { data: cookieUser } = await serverClient.auth.getUser();
+        if (cookieUser?.user) user = cookieUser.user;
+      } catch (e) {
+        console.warn('Cookie auth check error:', e);
+      }
+    }
+
     if (!user && demoRole !== 'admin') {
       return NextResponse.json(
         { error: 'กรุณาเข้าสู่ระบบก่อนดำเนินการลบสินค้า' },

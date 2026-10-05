@@ -142,18 +142,32 @@ export async function GET(req: NextRequest) {
       isAdmin = true;
     }
 
-    // Check Supabase session
+    // Check Supabase session (Bearer token first, then cookie)
     if (!isAdmin) {
       try {
-        const { createClient } = await import("@/lib/supabase/server");
-        const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
+        const authHeader = req.headers.get("authorization");
+        const bearerToken = authHeader?.replace(/^Bearer\s+/i, "") || null;
+        const { createAdminClient, createClient } = await import("@/lib/supabase/server");
+        const adminClient = createAdminClient();
+        const serverClient = createClient();
+
+        let user: any = null;
+        if (bearerToken && adminClient) {
+          const { data: tokenUser } = await adminClient.auth.getUser(bearerToken);
+          user = tokenUser?.user;
+        }
+        if (!user) {
+          const { data: cookieUser } = await serverClient.auth.getUser();
+          user = cookieUser?.user;
+        }
+
         if (user) {
-          const { data: profile } = await supabase
+          const client = adminClient || serverClient;
+          const { data: profile } = await client
             .from("profiles")
             .select("role")
             .eq("id", user.id)
-            .single();
+            .maybeSingle();
           if (profile?.role === "admin" || profile?.role === "merchant") {
             isAdmin = true;
           }

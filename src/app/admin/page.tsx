@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { DIGITAL_PRODUCTS } from '@/lib/productsData';
 import { DigitalProduct, Order } from '@/types';
 import { useAuth } from '@/context/AuthContext';
+import DeleteProductModal from '@/components/DeleteProductModal';
+import { createClient } from '@/lib/supabase/client';
 
 interface AdminUser {
   id: string;
@@ -399,31 +401,48 @@ export default function AdminPage() {
     }
   };
 
+  const [productToDelete, setProductToDelete] = useState<DigitalProduct | null>(null);
+  const [isDeletingProduct, setIsDeletingProduct] = useState(false);
+
   // Delete product with API confirmation
-  const handleDeleteProduct = async (id: string, title: string) => {
-    if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบสินค้า "${title}" ออกจากคลัง?`)) {
-      setDeletingProductId(id);
+  const handleDeleteProduct = (id: string, title: string) => {
+    const prod = products.find((p) => p.id === id) || ({ id, title } as DigitalProduct);
+    setProductToDelete(prod);
+  };
+
+  const handleConfirmDeleteProduct = async () => {
+    if (!productToDelete) return;
+    setIsDeletingProduct(true);
+    try {
+      let authHeaders: Record<string, string> = {};
       try {
-        const res = await fetch(`/api/products/${id}`, {
-          method: 'DELETE',
-          headers: { 'x-demo-role': 'admin' },
-        });
-        const data = await res.json();
-        if (res.ok && data.success) {
-          setProducts((prev) => prev.filter((p) => p.id !== id));
-          alert(data.message || 'ลบผลิตภัณฑ์ออกจากคลังเรียบร้อยแล้ว');
-        } else {
-          // If server returned error, check fallback
-          alert(data.error || 'ไม่สามารถลบผลิตภัณฑ์ได้');
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          authHeaders.Authorization = `Bearer ${session.access_token}`;
         }
-      } catch (e) {
-        console.warn('Delete product API warning:', e);
-        // Optimistic remove for mock fallback
-        setProducts((prev) => prev.filter((p) => p.id !== id));
-        alert('ลบผลิตภัณฑ์เรียบร้อยแล้ว');
-      } finally {
-        setDeletingProductId(null);
+      } catch {}
+
+      const res = await fetch(`/api/products/${productToDelete.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setProducts((prev) => prev.filter((p) => p.id !== productToDelete.id));
+        setProductToDelete(null);
+        alert(data.message || 'ลบผลิตภัณฑ์ออกจากคลังเรียบร้อยแล้ว');
+      } else {
+        alert(data.error || 'ไม่สามารถลบผลิตภัณฑ์ได้');
       }
+    } catch (e) {
+      console.warn('Delete product API warning:', e);
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+    } finally {
+      setIsDeletingProduct(false);
     }
   };
 
@@ -1759,6 +1778,15 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+
+      {/* DELETE PRODUCT CONFIRMATION MODAL */}
+      <DeleteProductModal
+        isOpen={Boolean(productToDelete)}
+        onClose={() => setProductToDelete(null)}
+        onConfirm={handleConfirmDeleteProduct}
+        product={productToDelete}
+        isDeleting={isDeletingProduct}
+      />
     </div>
   );
 }

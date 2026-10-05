@@ -7,6 +7,9 @@ import { useParams, useRouter } from 'next/navigation';
 import { DigitalProduct } from '@/types';
 import { useCart } from '@/context/CartContext';
 import { DIGITAL_PRODUCTS } from '@/lib/productsData';
+import { useAuth } from '@/context/AuthContext';
+import DeleteProductModal from '@/components/DeleteProductModal';
+import { createClient } from '@/lib/supabase/client';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -17,8 +20,11 @@ export default function ProductDetailPage() {
   const [merchant, setMerchant] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [addedToast, setAddedToast] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { addToCart, openCart } = useCart();
+  const { profile } = useAuth();
 
   useEffect(() => {
     if (productId) {
@@ -73,6 +79,49 @@ export default function ProductDetailPage() {
       merchantPromptPay: storePromptPay || product.merchantPromptPay,
     });
     router.push('/checkout');
+  };
+
+  const isOwnerOrAdmin = Boolean(
+    profile &&
+      (profile.role === 'admin' ||
+        (product?.merchantId && profile.id === product.merchantId) ||
+        (profile.storeName &&
+          product?.merchantName &&
+          profile.storeName.trim().toLowerCase() === product.merchantName.trim().toLowerCase()))
+  );
+
+  const handleDeleteProduct = async () => {
+    if (!product) return;
+    setIsDeleting(true);
+    try {
+      let authHeaders: Record<string, string> = {};
+      try {
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          authHeaders.Authorization = `Bearer ${session.access_token}`;
+        }
+      } catch {}
+
+      const res = await fetch(`/api/products/${product.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        alert(data.message || 'ลบสินค้าเรียบร้อยแล้ว');
+        router.push(profile?.role === 'merchant' ? '/merchant' : '/');
+      } else {
+        alert(data.error || 'ไม่สามารถลบสินค้านี้ได้');
+      }
+    } catch (err) {
+      alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   if (isLoading) {
@@ -295,6 +344,33 @@ export default function ProductDetailPage() {
             )}
           </div>
 
+          {/* Owner / Admin Management Card */}
+          {isOwnerOrAdmin && (
+            <div className="p-4 rounded-squircle bg-rose-50 border border-rose-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in shadow-sm">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-rose-500/10 text-rose-600 flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-rose-900 block">
+                    เมนูจัดการสินค้า ({profile?.role === 'admin' ? 'ผู้ดูแลระบบ' : 'ร้านค้าเจ้าของผลงาน'})
+                  </span>
+                  <span className="text-[11px] text-rose-700/80">
+                    รหัสสินค้า: <code className="font-mono font-bold text-rose-600">{product.id}</code>
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="h-9 px-4 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer shrink-0"
+              >
+                <span className="material-symbols-outlined text-[15px]">delete_forever</span>
+                <span>ลบสินค้านี้</span>
+              </button>
+            </div>
+          )}
+
           {/* Description & Highlights */}
           <div className="space-y-4 pt-2">
             <div>
@@ -327,6 +403,15 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* DELETE PRODUCT CONFIRMATION MODAL */}
+      <DeleteProductModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteProduct}
+        product={product}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }
