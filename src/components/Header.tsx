@@ -12,9 +12,23 @@ export default function Header() {
   const { totalItems, openCart } = useCart();
   const { user, profile, openAuthModal, signOut } = useAuth();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  React.useEffect(() => {
+    setIsNavigating(true);
+    const timer = setTimeout(() => setIsNavigating(false), 450);
+    return () => clearTimeout(timer);
+  }, [pathname]);
 
   return (
     <header className="fixed top-0 inset-x-0 z-40 bg-white/80 backdrop-blur-2xl border-b border-black/[0.06] transition-all">
+      {/* Route Change Transition Glow Bar */}
+      <div
+        className={`absolute top-0 inset-x-0 h-[2.5px] bg-gradient-to-r from-secondary via-sky-400 to-accent-emerald transition-all duration-500 ease-out pointer-events-none ${
+          isNavigating ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
+        }`}
+        style={{ transformOrigin: 'left' }}
+      />
       <div className="max-w-6xl mx-auto h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
         {/* Brand Logo & Tagline */}
         <Link href="/" className="flex items-center gap-3 group shrink-0">
@@ -38,51 +52,75 @@ export default function Header() {
         </Link>
 
         {/* Center Navigation Links (Liquid Glass Capsule) */}
-        <nav className="hidden md:flex items-center gap-1 px-3 py-1.5 rounded-full bg-black/[0.03] border border-black/[0.04] text-xs font-medium text-muted-slate">
+        <nav className="hidden md:flex items-center gap-1 p-1 rounded-full bg-black/[0.03] border border-black/[0.05] text-xs font-medium text-muted-slate shadow-inner">
           <Link
             href="/"
-            className={`px-3 py-1 rounded-full transition-all ${
+            className={`group px-3.5 py-1.5 rounded-full transition-all duration-300 ease-out flex items-center gap-1.5 active:scale-95 ${
               pathname === '/'
-                ? 'bg-white text-charcoal font-semibold shadow-level-1'
-                : 'hover:text-charcoal'
+                ? 'bg-white text-charcoal font-semibold shadow-level-1 ring-1 ring-black/[0.04]'
+                : 'hover:text-charcoal hover:bg-white/60'
             }`}
           >
-            แคตตาล็อกสินค้า
+            <span
+              className={`material-symbols-outlined text-[16px] transition-all duration-300 group-hover:scale-110 ${
+                pathname === '/' ? 'text-secondary font-bold scale-105' : 'text-muted-slate/80'
+              }`}
+            >
+              storefront
+            </span>
+            <span>แคตตาล็อกสินค้า</span>
           </Link>
+
           <Link
             href="/library"
-            className={`px-3 py-1 rounded-full transition-all flex items-center gap-1 ${
+            className={`group px-3.5 py-1.5 rounded-full transition-all duration-300 ease-out flex items-center gap-1.5 active:scale-95 ${
               pathname.startsWith('/library')
-                ? 'bg-white text-charcoal font-semibold shadow-level-1'
-                : 'hover:text-charcoal'
+                ? 'bg-white text-charcoal font-semibold shadow-level-1 ring-1 ring-black/[0.04]'
+                : 'hover:text-charcoal hover:bg-white/60'
             }`}
           >
-            <span className="material-symbols-outlined text-[14px]">folder_special</span>
-            คลังของฉัน
+            <span
+              className={`material-symbols-outlined text-[16px] transition-all duration-300 group-hover:scale-110 ${
+                pathname.startsWith('/library') ? 'text-secondary font-bold scale-105' : 'text-muted-slate/80'
+              }`}
+            >
+              folder_special
+            </span>
+            <span>คลังของฉัน</span>
           </Link>
+
           <Link
             href="/community"
-            className={`px-3 py-1 rounded-full transition-all ${
+            className={`group px-3.5 py-1.5 rounded-full transition-all duration-300 ease-out flex items-center gap-1.5 active:scale-95 ${
               pathname.startsWith('/community')
-                ? 'bg-white text-charcoal font-semibold shadow-level-1'
-                : 'hover:text-charcoal'
+                ? 'bg-white text-charcoal font-semibold shadow-level-1 ring-1 ring-black/[0.04]'
+                : 'hover:text-charcoal hover:bg-white/60'
             }`}
           >
-            คอมมูนิตี้
+            <span
+              className={`material-symbols-outlined text-[16px] transition-all duration-300 group-hover:scale-110 ${
+                pathname.startsWith('/community') ? 'text-secondary font-bold scale-105' : 'text-muted-slate/80'
+              }`}
+            >
+              forum
+            </span>
+            <span>คอมมูนิตี้</span>
           </Link>
 
           {/* Merchant Capsule Button (visible for merchant or admin) */}
           {(profile?.role === 'merchant' || profile?.role === 'admin') && (
             <Link
               href="/merchant"
-              className={`px-3 py-1 rounded-full transition-all flex items-center gap-1.5 ${
+              className={`group px-3.5 py-1.5 rounded-full transition-all duration-300 ease-out flex items-center gap-1.5 active:scale-95 ${
                 pathname.startsWith('/merchant')
                   ? 'bg-amber-500 text-white font-semibold shadow-level-1'
-                  : 'text-amber-800 hover:text-amber-950 bg-amber-500/10'
+                  : 'text-amber-800 hover:text-amber-950 bg-amber-500/10 hover:bg-amber-500/20'
               }`}
             >
-              <span className="material-symbols-outlined text-[14px]">storefront</span>
-              แดชบอร์ดพ่อค้า
+              <span className="material-symbols-outlined text-[16px] transition-all duration-300 group-hover:scale-110">
+                store
+              </span>
+              <span>แดชบอร์ดพ่อค้า</span>
             </Link>
           )}
 
@@ -90,14 +128,16 @@ export default function Header() {
           {profile?.role === 'admin' && (
             <Link
               href="/admin"
-              className={`px-3 py-1 rounded-full transition-all flex items-center gap-1.5 ${
+              className={`group px-3.5 py-1.5 rounded-full transition-all duration-300 ease-out flex items-center gap-1.5 active:scale-95 ${
                 pathname.startsWith('/admin')
                   ? 'bg-accent-coral text-white font-semibold shadow-level-1'
-                  : 'text-accent-coral hover:text-red-700 bg-accent-coral/10'
+                  : 'text-accent-coral hover:text-red-700 bg-accent-coral/10 hover:bg-accent-coral/20'
               }`}
             >
-              <span className="material-symbols-outlined text-[14px]">shield_person</span>
-              จัดการระบบ
+              <span className="material-symbols-outlined text-[16px] transition-all duration-300 group-hover:scale-110">
+                shield_person
+              </span>
+              <span>จัดการระบบ</span>
             </Link>
           )}
         </nav>
