@@ -108,7 +108,7 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const id = params.id;
+    const id = decodeURIComponent(params.id);
     const admin = createAdminClient();
     const serverClient = createClient();
     const client = admin || serverClient;
@@ -116,14 +116,22 @@ export async function PUT(
     // 1. Verify user authentication
     const demoRole = req.headers.get('x-demo-role');
     const authHeader = req.headers.get('authorization');
-    const bearerToken = authHeader?.replace(/^Bearer\s+/i, '') || null;
+    const bearerToken = authHeader?.replace(/^Bearer\s+/i, '')?.trim() || null;
 
     let user: any = null;
-    if (bearerToken && admin) {
-      try {
-        const { data: tokenUser } = await admin.auth.getUser(bearerToken);
-        if (tokenUser?.user) user = tokenUser.user;
-      } catch (e) {}
+    if (bearerToken) {
+      if (admin) {
+        try {
+          const { data: tokenUser } = await admin.auth.getUser(bearerToken);
+          if (tokenUser?.user) user = tokenUser.user;
+        } catch (e) {}
+      }
+      if (!user) {
+        try {
+          const { data: tokenUser } = await serverClient.auth.getUser(bearerToken);
+          if (tokenUser?.user) user = tokenUser.user;
+        } catch (e) {}
+      }
     }
     if (!user) {
       try {
@@ -140,13 +148,43 @@ export async function PUT(
     }
 
     // 2. Fetch the target product
-    const { data: product, error: fetchErr } = await client
+    let product: any = null;
+    const { data: dbProduct, error: fetchErr } = await client
       .from('products')
       .select('*')
       .eq('id', id)
       .maybeSingle();
 
-    if (fetchErr || !product) {
+    if (dbProduct) {
+      product = dbProduct;
+    } else {
+      const local = DIGITAL_PRODUCTS.find((p) => p.id === id);
+      if (local) {
+        const initialRow = {
+          id: local.id,
+          title: local.title,
+          subtitle: local.subtitle || '',
+          category_id: local.category || 'ebook',
+          price: local.price,
+          original_price: local.originalPrice,
+          description: local.description,
+          file_name: local.fileName,
+          file_size: local.fileSize,
+          file_format: local.fileFormat,
+          cover_image: local.coverImage,
+          curator: local.curator,
+          badge: local.badge,
+          featured: local.isFeatured,
+          merchant_name: local.merchantName,
+          merchant_promptpay: local.merchantPromptPay,
+          merchant_id: user?.id || null,
+        };
+        const { data: inserted } = await client.from('products').insert(initialRow).select().maybeSingle();
+        product = inserted || initialRow;
+      }
+    }
+
+    if (!product) {
       return NextResponse.json({ error: 'ไม่พบสินค้านี้ในระบบ' }, { status: 404 });
     }
 
@@ -156,16 +194,29 @@ export async function PUT(
     if (user?.id) {
       const { data: userProfile } = await client
         .from('profiles')
-        .select('role, store_name')
+        .select('role, store_name, full_name')
         .eq('id', user.id)
         .maybeSingle();
 
-      if (userProfile?.role === 'admin') isAdmin = true;
+      if (userProfile?.role === 'admin' || user.user_metadata?.role === 'admin') isAdmin = true;
       if (product.merchant_id === user.id) isOwner = true;
       if (
         userProfile?.store_name &&
         product.merchant_name &&
         userProfile.store_name.trim().toLowerCase() === product.merchant_name.trim().toLowerCase()
+      ) {
+        isOwner = true;
+      }
+      if (
+        userProfile?.full_name &&
+        product.curator &&
+        userProfile.full_name.trim().toLowerCase() === product.curator.trim().toLowerCase()
+      ) {
+        isOwner = true;
+      }
+      if (
+        (userProfile?.role === 'merchant' || user.user_metadata?.role === 'merchant') &&
+        (!product.merchant_id || product.merchant_id === user.id)
       ) {
         isOwner = true;
       }
@@ -225,6 +276,7 @@ export async function PUT(
     if (curator !== undefined) updates.curator = curator;
     if (merchantName !== undefined) updates.merchant_name = merchantName;
     if (merchantPromptPay !== undefined) updates.merchant_promptpay = merchantPromptPay;
+    if (!product.merchant_id && user?.id) updates.merchant_id = user.id;
 
     const { data: updated, error: updateErr } = await client
       .from('products')
@@ -262,15 +314,23 @@ export async function DELETE(
     // 1. Verify user authentication
     const demoRole = req.headers.get('x-demo-role');
     const authHeader = req.headers.get('authorization');
-    const bearerToken = authHeader?.replace(/^Bearer\s+/i, '') || null;
+    const bearerToken = authHeader?.replace(/^Bearer\s+/i, '')?.trim() || null;
 
     let user: any = null;
-    if (bearerToken && admin) {
-      try {
-        const { data: tokenUser } = await admin.auth.getUser(bearerToken);
-        if (tokenUser?.user) user = tokenUser.user;
-      } catch (e) {
-        console.warn('Bearer auth check error:', e);
+    if (bearerToken) {
+      if (admin) {
+        try {
+          const { data: tokenUser } = await admin.auth.getUser(bearerToken);
+          if (tokenUser?.user) user = tokenUser.user;
+        } catch (e) {
+          console.warn('Bearer auth check error:', e);
+        }
+      }
+      if (!user) {
+        try {
+          const { data: tokenUser } = await serverClient.auth.getUser(bearerToken);
+          if (tokenUser?.user) user = tokenUser.user;
+        } catch (e) {}
       }
     }
     if (!user) {

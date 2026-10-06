@@ -114,11 +114,26 @@ export default function AdminPage() {
     }
   };
 
+  const getAuthHeaders = async (): Promise<Record<string, string>> => {
+    try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        return { Authorization: `Bearer ${session.access_token}` };
+      }
+    } catch {}
+    return {};
+  };
+
   const fetchMerchants = async () => {
     setIsLoadingMerchants(true);
     try {
+      const authHeaders = await getAuthHeaders();
       const res = await fetch('/api/admin/merchants', {
-        headers: { 'x-demo-role': 'admin' },
+        headers: {
+          ...authHeaders,
+          'x-demo-role': 'admin',
+        },
       });
       const data = await res.json();
       if (data.success && data.applications) {
@@ -134,8 +149,12 @@ export default function AdminPage() {
   const fetchUsers = async () => {
     setIsLoadingUsers(true);
     try {
+      const authHeaders = await getAuthHeaders();
       const res = await fetch('/api/admin/users', {
-        headers: { 'x-demo-role': 'admin' },
+        headers: {
+          ...authHeaders,
+          'x-demo-role': 'admin',
+        },
       });
       const data = await res.json();
       if (data.success && data.users) {
@@ -302,10 +321,12 @@ export default function AdminPage() {
           curator: formCurator,
         };
 
-        const res = await fetch(`/api/products/${editingProduct.id}`, {
+        const authHeaders = await getAuthHeaders();
+        const res = await fetch(`/api/products/${encodeURIComponent(editingProduct.id)}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
+            ...authHeaders,
             'x-demo-role': 'admin',
           },
           body: JSON.stringify(payload),
@@ -376,9 +397,14 @@ export default function AdminPage() {
           merchantPromptPay: formMerchantPromptPay,
         };
 
+        const authHeaders = await getAuthHeaders();
         const res = await fetch('/api/products', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            ...authHeaders,
+            'x-demo-role': 'admin',
+          },
           body: JSON.stringify(newProd),
         });
 

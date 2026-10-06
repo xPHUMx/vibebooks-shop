@@ -175,7 +175,30 @@ export async function POST(req: NextRequest) {
     const serverClient = createClient();
     const client = admin || serverClient;
 
-    const { data: { user } } = await serverClient.auth.getUser();
+    const authHeader = req.headers.get('authorization');
+    const bearerToken = authHeader?.replace(/^Bearer\s+/i, '')?.trim() || null;
+
+    let user: any = null;
+    if (bearerToken) {
+      if (admin) {
+        try {
+          const { data: tokenUser } = await admin.auth.getUser(bearerToken);
+          if (tokenUser?.user) user = tokenUser.user;
+        } catch (e) {}
+      }
+      if (!user) {
+        try {
+          const { data: tokenUser } = await serverClient.auth.getUser(bearerToken);
+          if (tokenUser?.user) user = tokenUser.user;
+        } catch (e) {}
+      }
+    }
+    if (!user) {
+      try {
+        const { data: cookieUser } = await serverClient.auth.getUser();
+        if (cookieUser?.user) user = cookieUser.user;
+      } catch (e) {}
+    }
 
     const body = await req.json();
     const {

@@ -148,10 +148,12 @@ export default function MerchantDashboardPage() {
   const handleApproveOrder = async (orderId: string) => {
     setIsApprovingId(orderId);
     try {
+      const authHeaders = await getAuthHeaders();
       const res = await fetch('/api/orders/approve', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...authHeaders,
         },
         body: JSON.stringify({ orderId, status: 'PAID' }),
       });
@@ -369,9 +371,14 @@ export default function MerchantDashboardPage() {
 
     setIsCreatingProduct(true);
     try {
+      const authHeaders = await getAuthHeaders();
       const res = await fetch('/api/products', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+          ...(isDemoMerchant ? { 'x-demo-role': 'merchant' } : {}),
+        },
         body: JSON.stringify(payload),
       });
       const data = await res.json();
@@ -438,10 +445,12 @@ export default function MerchantDashboardPage() {
         merchantPromptPay: promptPayId.trim() || profile?.promptPayId || editingProduct.merchantPromptPay,
       };
 
-      const res = await fetch(`/api/products/${editingProduct.id}`, {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch(`/api/products/${encodeURIComponent(editingProduct.id)}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          ...authHeaders,
           ...(isDemoMerchant ? { 'x-demo-role': 'merchant' } : {}),
         },
         body: JSON.stringify(payload),
