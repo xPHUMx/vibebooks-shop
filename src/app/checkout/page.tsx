@@ -10,15 +10,16 @@ import { useAuth } from '@/context/AuthContext';
 import { DIGITAL_PRODUCTS } from '@/lib/productsData';
 import { getPromptPayQRUrl } from '@/lib/promptpay';
 import { Order } from '@/types';
+import { createClient } from '@/lib/supabase/client';
 
 export default function CheckoutPage() {
   const router = useRouter();
   const { items, totalAmount, totalItems, clearCart } = useCart();
-  const { user, profile } = useAuth();
+  const { user, profile, openAuthModal } = useAuth();
 
-  const [customerName, setCustomerName] = useState(profile?.fullName || 'เกียรติภูมิ หารศรีนาถ');
-  const [customerEmail, setCustomerEmail] = useState(user?.email || 'kiatphum.h@example.com');
-  const [customerPhone, setCustomerPhone] = useState('089-123-4567');
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
 
   const [step, setStep] = useState<'info' | 'payment' | 'success'>('info');
   const [submitting, setSubmitting] = useState(false);
@@ -46,10 +47,27 @@ export default function CheckoutPage() {
       ? totalAmount
       : DIGITAL_PRODUCTS[0].price;
 
+  const getAuthHeaders = async (): Promise<Record<string, string>> => {
+    try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        return { Authorization: `Bearer ${session.access_token}` };
+      }
+    } catch {}
+    return {};
+  };
+
   // Sync profile details when auth changes
   useEffect(() => {
-    if (profile?.fullName) setCustomerName(profile.fullName);
-    if (user?.email) setCustomerEmail(user.email);
+    if (user) {
+      setCustomerEmail(user.email || '');
+      setCustomerName(profile?.fullName || user.user_metadata?.full_name || '');
+      if (profile?.phone) setCustomerPhone(profile.phone);
+    } else {
+      setCustomerEmail('');
+      setCustomerName('');
+    }
   }, [profile, user]);
 
   // Countdown timer for PromptPay step
@@ -66,7 +84,10 @@ export default function CheckoutPage() {
     if (step !== 'success' || !createdOrder || createdOrder.status === 'PAID') return;
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(`/api/orders?orderId=${createdOrder.id}`);
+        const authHeaders = await getAuthHeaders();
+        const res = await fetch(`/api/orders?orderId=${createdOrder.id}`, {
+          headers: authHeaders,
+        });
         const data = await res.json();
         if (data.success && data.order && data.order.status === 'PAID') {
           setCreatedOrder(data.order);
@@ -91,19 +112,30 @@ export default function CheckoutPage() {
 
   const handleCreateOrder = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!user) {
+      setErrorMessage('กรุณาเข้าสู่ระบบก่อนดำเนินการชำระเงินหรือสร้างคำสั่งซื้อ');
+      openAuthModal('signin');
+      return;
+    }
+
     setSubmitting(true);
     setErrorMessage('');
 
     try {
+      const authHeaders = await getAuthHeaders();
       const res = await fetch('/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
         body: JSON.stringify({
           items: displayItems,
-          customerName,
-          customerEmail,
+          customerName: customerName || user.user_metadata?.full_name || 'ลูกค้าผู้สั่งซื้อ',
+          customerEmail: user.email || customerEmail,
           customerPhone,
-          userId: user?.id,
+          userId: user.id,
         }),
       });
 
@@ -111,12 +143,15 @@ export default function CheckoutPage() {
       if (data.success && data.order) {
         setCreatedOrder(data.order);
         if (typeof window !== 'undefined') {
-          localStorage.setItem('vibebooks_customer_email', customerEmail.trim());
+          localStorage.setItem('vibebooks_customer_email', (user.email || customerEmail).trim());
           localStorage.setItem('vibebooks_last_order_id', data.order.id);
           localStorage.setItem('vibebooks_last_pending_order_id', data.order.id);
         }
         setStep('payment');
       } else {
+        if (data.requireLogin) {
+          openAuthModal('signin');
+        }
         setErrorMessage(data.error || 'เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ');
       }
     } catch (err) {
@@ -154,7 +189,10 @@ export default function CheckoutPage() {
     if (!createdOrder) return;
     setCheckingApproval(true);
     try {
-      const res = await fetch(`/api/orders?orderId=${createdOrder.id}`);
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch(`/api/orders?orderId=${createdOrder.id}`, {
+        headers: authHeaders,
+      });
       const data = await res.json();
       if (data.success && data.order) {
         setCreatedOrder(data.order);
@@ -178,9 +216,13 @@ export default function CheckoutPage() {
     if (!createdOrder || !slipPreview) return;
     setUploadingSlip(true);
     try {
+      const authHeaders = await getAuthHeaders();
       const res = await fetch('/api/payment/slip', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
         body: JSON.stringify({
           orderId: createdOrder.id,
           slipData: slipPreview,
@@ -357,9 +399,42 @@ export default function CheckoutPage() {
               <div>
                 <h2 className="text-lg font-bold text-charcoal">ข้อมูลผู้สั่งซื้อ</h2>
                 <p className="text-xs text-muted-slate mt-0.5">
-                  ระบุชื่อและอีเมลสำหรับรับหลักฐานและสิทธิ์การเข้าถึงไฟล์ Master
+                  ระบุชื่อและตรวจสอบอีเมลสำหรับรับหลักฐานและสิทธิ์การเข้าถึงไฟล์ Master
                 </p>
               </div>
+
+              {/* Login Requirement Banner */}
+              {!user ? (
+                <div className="p-4 sm:p-5 rounded-2xl bg-amber-500/[0.08] border border-amber-500/25 text-charcoal space-y-3">
+                  <div className="flex items-center gap-2.5 text-amber-700 font-bold text-sm">
+                    <span className="material-symbols-outlined text-[22px] text-amber-600">lock</span>
+                    <span>กรุณาเข้าสู่ระบบก่อนดำเนินการชำระเงิน</span>
+                  </div>
+                  <p className="text-xs text-muted-slate leading-relaxed">
+                    ระบบต้องบันทึกประวัติคำสั่งซื้อและสิทธิ์การเข้าถึงไฟล์ดิจิทัล (Master Files) ผูกกับบัญชีของคุณโดยอัตโนมัติ เพื่อให้สามารถเปิดอ่านและดาวน์โหลดซ้ำได้ตลอดเวลา
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => openAuthModal('signin')}
+                    className="w-full sm:w-auto px-5 py-2.5 rounded-full bg-black text-white hover:bg-charcoal text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition-all active:scale-[0.98]"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">login</span>
+                    <span>เข้าสู่ระบบด้วย Google ทันที</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="p-3.5 rounded-xl bg-accent-emerald/10 border border-accent-emerald/20 text-[#248a3d] text-xs flex items-center justify-between">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="material-symbols-outlined text-[18px] shrink-0">verified_user</span>
+                    <span className="truncate">
+                      เข้าสู่ระบบแล้ว: <strong>{user.email}</strong>
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-semibold bg-[#248a3d]/15 px-2 py-0.5 rounded-full shrink-0">
+                    ผูกบัญชีแล้ว
+                  </span>
+                </div>
+              )}
 
               {errorMessage && (
                 <div className="p-3 rounded-xl bg-accent-coral/10 border border-accent-coral/20 text-accent-coral text-xs flex items-center gap-2">
@@ -384,16 +459,26 @@ export default function CheckoutPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-charcoal mb-1.5">
-                    อีเมลสำหรับรับสิทธิ์ดาวน์โหลด (ส่งมอบไฟล์อัตโนมัติ)
+                  <label className="block text-xs font-semibold text-charcoal mb-1.5 flex items-center justify-between">
+                    <span>อีเมลสำหรับรับสิทธิ์ดาวน์โหลด (ส่งมอบไฟล์อัตโนมัติ)</span>
+                    {user && (
+                      <span className="text-[10px] text-muted-slate font-normal">
+                        ผูกกับบัญชีล็อกอิน
+                      </span>
+                    )}
                   </label>
                   <input
                     type="email"
                     required
-                    value={customerEmail}
-                    onChange={(e) => setCustomerEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className="w-full h-11 rounded-full bg-porcelain border border-black/[0.08] px-4 text-xs sm:text-sm text-charcoal outline-none focus:border-secondary transition-all"
+                    readOnly={!!user}
+                    value={user ? (user.email || '') : customerEmail}
+                    onChange={(e) => !user && setCustomerEmail(e.target.value)}
+                    placeholder={user ? user.email || '' : "กรุณาเข้าสู่ระบบก่อน"}
+                    className={`w-full h-11 rounded-full border px-4 text-xs sm:text-sm outline-none transition-all ${
+                      user
+                        ? 'bg-black/[0.03] border-black/[0.08] text-charcoal font-medium cursor-not-allowed'
+                        : 'bg-porcelain border-black/[0.08] text-muted-slate'
+                    }`}
                   />
                 </div>
 
@@ -411,14 +496,25 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="pt-4 border-t border-black/[0.06]">
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="w-full h-12 rounded-full bg-black text-white hover:bg-charcoal text-sm font-semibold flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98] disabled:opacity-50"
-                  >
-                    <span>{submitting ? 'กำลังจัดเตรียมคำสั่งซื้อ...' : 'ต่อไป: สแกน PromptPay QR'}</span>
-                    <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                  </button>
+                  {!user ? (
+                    <button
+                      type="button"
+                      onClick={() => openAuthModal('signin')}
+                      className="w-full h-12 rounded-full bg-black text-white hover:bg-charcoal text-sm font-semibold flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">lock</span>
+                      <span>เข้าสู่ระบบก่อนเพื่อดำเนินการชำระเงิน</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="w-full h-12 rounded-full bg-black text-white hover:bg-charcoal text-sm font-semibold flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98] disabled:opacity-50"
+                    >
+                      <span>{submitting ? 'กำลังจัดเตรียมคำสั่งซื้อ...' : 'ต่อไป: สแกน PromptPay QR'}</span>
+                      <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                    </button>
+                  )}
                 </div>
               </form>
             </div>

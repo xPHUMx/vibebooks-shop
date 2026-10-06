@@ -4,6 +4,42 @@ import { createAdminClient } from '@/lib/supabase/server';
 
 export async function POST(req: NextRequest) {
   try {
+    const authHeader = req.headers.get("authorization");
+    const bearerToken = authHeader?.replace(/^Bearer\s+/i, "")?.trim() || null;
+
+    let currentUser: any = null;
+    const { createAdminClient: getAdminClient, createClient: getServerClient } = await import("@/lib/supabase/server");
+    const adminClient = getAdminClient();
+    const serverClient = getServerClient();
+
+    if (bearerToken) {
+      if (adminClient) {
+        try {
+          const { data: tokenUser } = await adminClient.auth.getUser(bearerToken);
+          if (tokenUser?.user) currentUser = tokenUser.user;
+        } catch (e) {}
+      }
+      if (!currentUser) {
+        try {
+          const { data: tokenUser } = await serverClient.auth.getUser(bearerToken);
+          if (tokenUser?.user) currentUser = tokenUser.user;
+        } catch (e) {}
+      }
+    }
+    if (!currentUser) {
+      try {
+        const { data: cookieUser } = await serverClient.auth.getUser();
+        if (cookieUser?.user) currentUser = cookieUser.user;
+      } catch (e) {}
+    }
+
+    if (!currentUser) {
+      return NextResponse.json(
+        { error: "กรุณาเข้าสู่ระบบก่อนดำเนินการชำระเงินหรือแนบสลิป", requireLogin: true },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
     const { orderId, slipData, autoVerify } = body;
 
@@ -14,6 +50,30 @@ export async function POST(req: NextRequest) {
     const order = await getOrderById(orderId);
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
+    }
+
+    // Verify ownership: customer who placed order or admin
+    const isOwner =
+      order.userId === currentUser.id ||
+      (order.customerEmail && currentUser.email && order.customerEmail.toLowerCase() === currentUser.email.toLowerCase());
+    
+    // Check if admin
+    let isAdmin = false;
+    try {
+      const client = adminClient || serverClient;
+      const { data: prof } = await client
+        .from('profiles')
+        .select('role')
+        .eq('id', currentUser.id)
+        .maybeSingle();
+      if (prof?.role === 'admin') isAdmin = true;
+    } catch {}
+
+    if (!isOwner && !isAdmin) {
+      return NextResponse.json(
+        { error: 'คุณไม่มีสิทธิ์แนบสลิปสำหรับคำสั่งซื้อนี้' },
+        { status: 403 }
+      );
     }
 
     let finalSlipUrl = slipData || '';

@@ -105,6 +105,7 @@ export interface UserProfile {
   storeDescription?: string;
   promptPayId?: string;
   storeLogoUrl?: string;
+  phone?: string;
   createdAt?: string;
 }
 

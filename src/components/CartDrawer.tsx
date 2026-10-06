@@ -3,9 +3,13 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function CartDrawer() {
+  const router = useRouter();
+  const { user, openAuthModal } = useAuth();
   const { items, isCartOpen, closeCart, removeFromCart, updateQuantity, totalAmount, totalItems } =
     useCart();
 
@@ -127,14 +131,23 @@ export default function CartDrawer() {
             </div>
 
             {/* Checkout Action Button */}
-            <Link
-              href="/checkout"
-              onClick={closeCart}
+            <button
+              type="button"
+              onClick={() => {
+                closeCart();
+                if (!user) {
+                  openAuthModal('signin');
+                } else {
+                  router.push('/checkout');
+                }
+              }}
               className="w-full h-12 rounded-full bg-black text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-md hover:bg-charcoal transition-all active:scale-[0.98]"
             >
-              <span className="material-symbols-outlined text-[18px]">qr_code_2</span>
-              ชำระเงินด้วย PromptPay QR
-            </Link>
+              <span className="material-symbols-outlined text-[18px]">
+                {user ? 'qr_code_2' : 'lock'}
+              </span>
+              <span>{user ? 'ชำระเงินด้วย PromptPay QR' : 'เข้าสู่ระบบเพื่อชำระเงิน'}</span>
+            </button>
 
             <p className="text-[10px] text-center text-muted-slate">
               รับลิงก์ดาวน์โหลดที่ปลอดภัยและไฟล์ Master ทันทีหลังยืนยันยอด

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { DigitalProduct } from '@/types';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface ProductModalProps {
   product: DigitalProduct | null;
@@ -15,6 +16,7 @@ interface ProductModalProps {
 export default function ProductModal({ product, onClose, onOpenPdfReader }: ProductModalProps) {
   const router = useRouter();
   const { addToCart } = useCart();
+  const { user, openAuthModal } = useAuth();
 
   if (!product) return null;
 
@@ -25,7 +27,11 @@ export default function ProductModal({ product, onClose, onOpenPdfReader }: Prod
   const handleBuyNow = () => {
     addToCart(product, 1);
     onClose();
-    router.push('/checkout');
+    if (!user) {
+      openAuthModal('signin');
+    } else {
+      router.push('/checkout');
+    }
   };
 
   return (

@@ -1,20 +1,44 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { getBookById } from "@/lib/booksData";
+import { useAuth } from "@/context/AuthContext";
+import { createClient } from "@/lib/supabase/client";
 
 export default function CheckoutPage() {
   const params = useParams();
   const router = useRouter();
   const bookId = params?.bookId as string;
   const book = getBookById(bookId);
+  const { user, profile, openAuthModal } = useAuth();
 
-  const [customerName, setCustomerName] = useState("นายเกียรติภูมิ หารศรีนาถ");
-  const [customerEmail, setCustomerEmail] = useState("kiatphum.h@example.com");
+  const [customerName, setCustomerName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      setCustomerEmail(user.email || "");
+      setCustomerName(profile?.fullName || user.user_metadata?.full_name || "");
+    } else {
+      setCustomerEmail("");
+      setCustomerName("");
+    }
+  }, [user, profile]);
+
+  const getAuthHeaders = async (): Promise<Record<string, string>> => {
+    try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        return { Authorization: `Bearer ${session.access_token}` };
+      }
+    } catch {}
+    return {};
+  };
 
   if (!book) {
     return (
@@ -36,17 +60,29 @@ export default function CheckoutPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!user) {
+      setErrorMessage("กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ");
+      openAuthModal("signin");
+      return;
+    }
+
     setSubmitting(true);
     setErrorMessage("");
 
     try {
+      const authHeaders = await getAuthHeaders();
       const res = await fetch("/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders,
+        },
         body: JSON.stringify({
           bookId: book.id,
-          customerName,
-          customerEmail,
+          customerName: customerName || user.user_metadata?.full_name || "ลูกค้าผู้สั่งซื้อ",
+          customerEmail: user.email || customerEmail,
+          userId: user.id,
         }),
       });
 
@@ -54,6 +90,9 @@ export default function CheckoutPage() {
       if (data.success && data.order) {
         router.push(`/payment/${data.order.id}`);
       } else {
+        if (data.requireLogin) {
+          openAuthModal("signin");
+        }
         setErrorMessage(data.error || "เกิดข้อผิดพลาดในการสร้างคำสั่งซื้อ");
       }
     } catch (err) {
@@ -142,6 +181,35 @@ export default function CheckoutPage() {
           <span className="text-[10px] text-[#86868b]">Instant Delivery</span>
         </div>
 
+        {/* Login Requirement Banner */}
+        {!user ? (
+          <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-white space-y-2">
+            <div className="flex items-center gap-2 text-amber-400 font-bold text-xs">
+              <span className="material-symbols-outlined text-[18px]">lock</span>
+              <span>กรุณาเข้าสู่ระบบก่อนดำเนินการชำระเงิน</span>
+            </div>
+            <p className="text-[11px] text-[#86868b] leading-relaxed">
+              ระบบจำเป็นต้องบันทึกประวัติการสั่งซื้อและสิทธิ์ดาวน์โหลดไฟล์ผูกกับบัญชีของคุณ เพื่อให้เข้าถึงไฟล์ได้ถาวร
+            </p>
+            <button
+              type="button"
+              onClick={() => openAuthModal("signin")}
+              className="mt-1 px-4 py-2 rounded-full bg-white text-black hover:bg-neutral-200 text-xs font-semibold flex items-center gap-1.5 transition-all"
+            >
+              <span className="material-symbols-outlined text-[15px]">login</span>
+              <span>เข้าสู่ระบบด้วย Google</span>
+            </button>
+          </div>
+        ) : (
+          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs flex items-center justify-between">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="material-symbols-outlined text-[16px] shrink-0">verified_user</span>
+              <span className="truncate">เข้าสู่ระบบแล้ว: <strong>{user.email}</strong></span>
+            </div>
+            <span className="text-[10px] bg-emerald-500/20 px-2 py-0.5 rounded-full shrink-0">ผูกบัญชีแล้ว</span>
+          </div>
+        )}
+
         {errorMessage && (
           <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
             <span className="material-symbols-outlined text-[16px]">error</span>
@@ -164,15 +232,22 @@ export default function CheckoutPage() {
           </div>
 
           <div>
-            <label className="block text-[11px] font-medium text-[#86868b] mb-1.5">
-              อีเมลรับ E-book และสิทธิ์ดาวน์โหลด
+            <label className="block text-[11px] font-medium text-[#86868b] mb-1.5 flex items-center justify-between">
+              <span>อีเมลรับ E-book และสิทธิ์ดาวน์โหลด</span>
+              {user && <span className="text-[10px] text-[#86868b]">ผูกกับบัญชีล็อกอิน</span>}
             </label>
             <input
               type="email"
               required
-              value={customerEmail}
-              onChange={(e) => setCustomerEmail(e.target.value)}
-              className="w-full rounded-xl bg-black border border-white/[0.08] px-3.5 py-2.5 text-xs text-[#f5f5f7] placeholder:text-[#86868b]/40 outline-none focus:border-white/25 transition-all"
+              readOnly={!!user}
+              value={user ? (user.email || "") : customerEmail}
+              onChange={(e) => !user && setCustomerEmail(e.target.value)}
+              placeholder={user ? user.email || "" : "กรุณาเข้าสู่ระบบก่อน"}
+              className={`w-full rounded-xl border px-3.5 py-2.5 text-xs outline-none transition-all ${
+                user
+                  ? "bg-white/[0.04] border-white/[0.08] text-white/80 cursor-not-allowed"
+                  : "bg-black border-white/[0.08] text-[#f5f5f7]"
+              }`}
             />
           </div>
 
@@ -182,14 +257,25 @@ export default function CheckoutPage() {
               <span className="text-xl font-bold text-[#f5f5f7] font-mono">฿{book.price}.00</span>
             </div>
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="apple-btn-primary px-6 py-2.5 text-xs font-semibold flex items-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
-            >
-              <span>{submitting ? "กำลังสร้างคำสั่งซื้อ..." : "ไปยังหน้าชำระเงิน"}</span>
-              <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
-            </button>
+            {!user ? (
+              <button
+                type="button"
+                onClick={() => openAuthModal("signin")}
+                className="apple-btn-primary px-6 py-2.5 text-xs font-semibold flex items-center gap-2 shadow-sm cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[15px]">lock</span>
+                <span>เข้าสู่ระบบก่อนเพื่อสั่งซื้อ</span>
+              </button>
+            ) : (
+              <button
+                type="submit"
+                disabled={submitting}
+                className="apple-btn-primary px-6 py-2.5 text-xs font-semibold flex items-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
+              >
+                <span>{submitting ? "กำลังสร้างคำสั่งซื้อ..." : "ไปยังหน้าชำระเงิน"}</span>
+                <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
+              </button>
+            )}
           </div>
         </form>
       </section>

@@ -5,21 +5,38 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Order } from "@/types";
 import { getPromptPayQRUrl } from "@/lib/promptpay";
+import { useAuth } from "@/context/AuthContext";
+import { createClient } from "@/lib/supabase/client";
 
 export default function PaymentPage() {
   const params = useParams();
   const router = useRouter();
   const orderId = params?.orderId as string;
+  const { user, openAuthModal } = useAuth();
 
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [countdown, setCountdown] = useState(300); // 5 mins demo timer
 
+  const getAuthHeaders = async (): Promise<Record<string, string>> => {
+    try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        return { Authorization: `Bearer ${session.access_token}` };
+      }
+    } catch {}
+    return {};
+  };
+
   useEffect(() => {
     async function fetchOrder() {
       try {
-        const res = await fetch(`/api/orders?orderId=${orderId}`);
+        const authHeaders = await getAuthHeaders();
+        const res = await fetch(`/api/orders?orderId=${orderId}`, {
+          headers: authHeaders,
+        });
         const data = await res.json();
         if (data.success && data.order) {
           setOrder(data.order);
@@ -84,6 +101,12 @@ export default function PaymentPage() {
   };
 
   const handleSubmitSlip = async () => {
+    if (!user) {
+      alert("กรุณาเข้าสู่ระบบก่อนทำการแนบสลิปชำระเงิน");
+      openAuthModal("signin");
+      return;
+    }
+
     if (!slipPreview) {
       alert("กรุณาเลือกรูปภาพสลิปการโอนเงินก่อนกดยืนยัน");
       return;
@@ -91,9 +114,13 @@ export default function PaymentPage() {
 
     setUploadingSlip(true);
     try {
+      const authHeaders = await getAuthHeaders();
       const res = await fetch("/api/payment/slip", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeaders,
+        },
         body: JSON.stringify({
           orderId,
           slipData: slipPreview,
@@ -108,6 +135,9 @@ export default function PaymentPage() {
         }
         router.push(`/order/${orderId}`);
       } else {
+        if (data.requireLogin) {
+          openAuthModal("signin");
+        }
         alert(data.error || "เกิดข้อผิดพลาดในการแนบสลิป");
       }
     } catch {
@@ -247,7 +277,25 @@ export default function PaymentPage() {
             <span className="text-[10px] text-[#86868b]">JPG, PNG, WEBP</span>
           </div>
 
-          {slipPreview ? (
+          {!user ? (
+            <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center space-y-2.5">
+              <div className="flex items-center justify-center gap-2 text-amber-400 font-bold text-xs">
+                <span className="material-symbols-outlined text-[18px]">lock</span>
+                <span>กรุณาเข้าสู่ระบบก่อนแนบสลิปชำระเงิน</span>
+              </div>
+              <p className="text-[11px] text-[#86868b] leading-relaxed">
+                จำเป็นต้องเข้าสู่ระบบเพื่อให้สลิปและสิทธิ์การรับไฟล์ผูกกับบัญชีของคุณอย่างถูกต้อง
+              </p>
+              <button
+                type="button"
+                onClick={() => openAuthModal("signin")}
+                className="px-5 py-2.5 rounded-full bg-white text-black hover:bg-neutral-200 text-xs font-semibold inline-flex items-center gap-1.5 shadow-sm transition-all"
+              >
+                <span className="material-symbols-outlined text-[15px]">login</span>
+                <span>เข้าสู่ระบบด้วย Google</span>
+              </button>
+            </div>
+          ) : slipPreview ? (
             <div className="space-y-2.5">
               <div className="relative rounded-xl overflow-hidden border border-white/10 bg-black/40 max-h-48 flex items-center justify-center p-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}

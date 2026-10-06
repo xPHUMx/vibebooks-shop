@@ -3,8 +3,66 @@ import { saveOrder, getOrderById, lookupOrders, getAllOrders, getOrdersByUser, g
 import { getProductById } from "@/lib/productsData";
 import { Order, OrderItem } from "@/types";
 
+async function getAuthenticatedUser(req: NextRequest) {
+  const authHeader = req.headers.get("authorization");
+  const bearerToken = authHeader?.replace(/^Bearer\s+/i, "")?.trim() || null;
+
+  let currentUser: any = null;
+  let currentProfile: any = null;
+
+  const { createAdminClient, createClient } = await import("@/lib/supabase/server");
+  const adminClient = createAdminClient();
+  const serverClient = createClient();
+  const client = adminClient || serverClient;
+
+  if (bearerToken) {
+    if (adminClient) {
+      try {
+        const { data: tokenUser } = await adminClient.auth.getUser(bearerToken);
+        if (tokenUser?.user) currentUser = tokenUser.user;
+      } catch (e) {}
+    }
+    if (!currentUser) {
+      try {
+        const { data: tokenUser } = await serverClient.auth.getUser(bearerToken);
+        if (tokenUser?.user) currentUser = tokenUser.user;
+      } catch (e) {}
+    }
+  }
+  if (!currentUser) {
+    try {
+      const { data: cookieUser } = await serverClient.auth.getUser();
+      if (cookieUser?.user) currentUser = cookieUser.user;
+    } catch (e) {}
+  }
+
+  if (currentUser?.id) {
+    try {
+      const { data: prof } = await client
+        .from("profiles")
+        .select("id, role, store_name, email, full_name")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+      currentProfile = prof;
+    } catch (e) {}
+  }
+
+  return { currentUser, currentProfile, client };
+}
+
 export async function POST(req: NextRequest) {
   try {
+    const { currentUser, currentProfile, client } = await getAuthenticatedUser(req);
+    if (!currentUser) {
+      return NextResponse.json(
+        {
+          error: "กรุณาเข้าสู่ระบบก่อนดำเนินการชำระเงินหรือสั่งซื้อสินค้า",
+          requireLogin: true,
+        },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
     const { items, bookId, customerName, customerEmail, customerPhone, userId } = body;
 
@@ -71,9 +129,6 @@ export async function POST(req: NextRequest) {
     // Always fetch latest merchant profile info from database if merchantId is available
     if (merchantId) {
       try {
-        const { createAdminClient, createClient: createServerClient } = await import("@/lib/supabase/server");
-        const admin = createAdminClient();
-        const client = admin || createServerClient();
         const { data: mProfile } = await client
           .from("profiles")
           .select("store_name, promptpay_id")
@@ -95,9 +150,9 @@ export async function POST(req: NextRequest) {
 
     const newOrder: Order = {
       id: orderId,
-      userId: userId || undefined,
+      userId: currentUser.id,
       customerName: customerName.trim(),
-      customerEmail: customerEmail.trim(),
+      customerEmail: (currentUser.email || customerEmail).trim(),
       customerPhone: customerPhone ? customerPhone.trim() : undefined,
       totalAmount,
       status: "PENDING",
@@ -135,48 +190,8 @@ export async function GET(req: NextRequest) {
 
   const adminKey = req.headers.get("x-admin-key");
   const demoRole = req.headers.get("x-demo-role");
-  const authHeader = req.headers.get("authorization");
-  const bearerToken = authHeader?.replace(/^Bearer\s+/i, "")?.trim() || null;
 
-  let currentUser: any = null;
-  let currentProfile: any = null;
-
-  const { createAdminClient, createClient } = await import("@/lib/supabase/server");
-  const adminClient = createAdminClient();
-  const serverClient = createClient();
-  const client = adminClient || serverClient;
-
-  if (bearerToken) {
-    if (adminClient) {
-      try {
-        const { data: tokenUser } = await adminClient.auth.getUser(bearerToken);
-        if (tokenUser?.user) currentUser = tokenUser.user;
-      } catch (e) {}
-    }
-    if (!currentUser) {
-      try {
-        const { data: tokenUser } = await serverClient.auth.getUser(bearerToken);
-        if (tokenUser?.user) currentUser = tokenUser.user;
-      } catch (e) {}
-    }
-  }
-  if (!currentUser) {
-    try {
-      const { data: cookieUser } = await serverClient.auth.getUser();
-      if (cookieUser?.user) currentUser = cookieUser.user;
-    } catch (e) {}
-  }
-
-  if (currentUser?.id) {
-    try {
-      const { data: prof } = await client
-        .from("profiles")
-        .select("id, role, store_name, email, full_name")
-        .eq("id", currentUser.id)
-        .maybeSingle();
-      currentProfile = prof;
-    } catch (e) {}
-  }
+  const { currentUser, currentProfile, client } = await getAuthenticatedUser(req);
 
   const isAdmin =
     (adminKey && adminKey === process.env.SUPABASE_SERVICE_ROLE_KEY) ||

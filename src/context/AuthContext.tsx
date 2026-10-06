@@ -11,7 +11,7 @@ interface AuthContextType {
   isRealUser: boolean;
   canSwitchRoles: boolean;
   isAuthModalOpen: boolean;
-  openAuthModal: () => void;
+  openAuthModal: (tab?: any) => void;
   closeAuthModal: () => void;
   signInWithGoogle: (redirectTo?: string) => Promise<void>;
   signUpWithEmail: (fullName: string, email: string, password: string) => Promise<{ success: boolean; error?: string; requiresEmailConfirmation?: boolean }>;
@@ -373,7 +373,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isRealUser: !!user,
         canSwitchRoles: profile?.role === 'admin',
         isAuthModalOpen,
-        openAuthModal: () => setIsAuthModalOpen(true),
+        openAuthModal: (_tab?: 'signin' | 'signup') => setIsAuthModalOpen(true),
         closeAuthModal: () => setIsAuthModalOpen(false),
         signInWithGoogle,
         signUpWithEmail,

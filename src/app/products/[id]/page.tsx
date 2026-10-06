@@ -24,7 +24,7 @@ export default function ProductDetailPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const { addToCart, openCart } = useCart();
-  const { profile } = useAuth();
+  const { user, profile, openAuthModal } = useAuth();
 
   useEffect(() => {
     if (productId) {
@@ -78,7 +78,11 @@ export default function ProductDetailPage() {
       merchantName: storeDisplayName,
       merchantPromptPay: storePromptPay || product.merchantPromptPay,
     });
-    router.push('/checkout');
+    if (!user) {
+      openAuthModal('signin');
+    } else {
+      router.push('/checkout');
+    }
   };
 
   const isOwnerOrAdmin = Boolean(
