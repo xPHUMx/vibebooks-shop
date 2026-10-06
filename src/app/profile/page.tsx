@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Order } from '@/types';
 import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
 
 export default function ProfilePage() {
   const { user, profile, isRealUser, isLoading, updateProfile, signOut, signInWithGoogle, openAuthModal } = useAuth();
@@ -62,7 +63,20 @@ export default function ProfilePage() {
 
   const fetchUserOrders = async (email: string) => {
     try {
-      const res = await fetch(`/api/orders?email=${encodeURIComponent(email)}`);
+      let authHeaders: Record<string, string> = {};
+      try {
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          authHeaders.Authorization = `Bearer ${session.access_token}`;
+        }
+      } catch {}
+
+      const res = await fetch(`/api/orders?email=${encodeURIComponent(email)}`, {
+        headers: {
+          ...authHeaders,
+        },
+      });
       const data = await res.json();
       if (data.success && data.orders) {
         setUserOrders(data.orders);

@@ -180,36 +180,53 @@ export async function getAllOrders(): Promise<Order[]> {
     try {
       const { data, error } = await client
         .from('orders')
-        .select('*')
+        .select('*, order_items(*)')
         .order('created_at', { ascending: false });
 
       if (!error && data && data.length > 0) {
-        return data.map((d: any) => ({
-          id: d.id,
-          userId: d.user_id,
-          customerName: d.customer_name,
-          customerEmail: d.customer_email,
-          customerPhone: d.customer_phone,
-          totalAmount: Number(d.total_amount || d.book_price || 0),
-          status: d.status,
-          promptpayRef: d.promptpay_ref,
-          slipUrl: d.slip_url,
-          merchantId: d.merchant_id,
-          items: [
-            {
-              productId: d.book_id || 'product',
-              title: d.book_title || 'Digital Product',
-              price: Number(d.book_price || d.total_amount || 0),
-              fileName: d.file_name || 'download.pdf',
-            },
-          ],
-          createdAt: d.created_at,
-          paidAt: d.paid_at,
-          bookId: d.book_id,
-          bookTitle: d.book_title,
-          bookPrice: Number(d.book_price || 0),
-          fileName: d.file_name,
-        }));
+        return data.map((d: any) => {
+          let items: OrderItem[] = [];
+          if (Array.isArray(d.order_items) && d.order_items.length > 0) {
+            items = d.order_items.map((it: any) => ({
+              id: it.id,
+              productId: it.product_id,
+              title: it.title,
+              price: Number(it.price || 0),
+              fileName: it.file_name,
+            }));
+          } else {
+            items = [
+              {
+                productId: d.book_id || 'product',
+                title: d.book_title || 'Digital Product',
+                price: Number(d.book_price || d.total_amount || 0),
+                fileName: d.file_name || 'download.pdf',
+              },
+            ];
+          }
+
+          return {
+            id: d.id,
+            userId: d.user_id,
+            customerName: d.customer_name,
+            customerEmail: d.customer_email,
+            customerPhone: d.customer_phone,
+            totalAmount: Number(d.total_amount || d.book_price || 0),
+            status: d.status,
+            promptpayRef: d.promptpay_ref,
+            slipUrl: d.slip_url,
+            merchantId: d.merchant_id,
+            merchantName: d.merchant_name,
+            merchantPromptPay: d.merchant_promptpay,
+            items,
+            createdAt: d.created_at,
+            paidAt: d.paid_at,
+            bookId: d.book_id,
+            bookTitle: d.book_title,
+            bookPrice: Number(d.book_price || 0),
+            fileName: d.file_name,
+          };
+        });
       }
     } catch (err) {
       console.warn('Supabase getAllOrders error:', err);
@@ -219,12 +236,25 @@ export async function getAllOrders(): Promise<Order[]> {
   return Array.from(localOrders.values()).reverse();
 }
 
-export async function getOrdersByUser(email?: string, userId?: string): Promise<Order[]> {
+export async function getOrdersByMerchant(merchantId?: string, storeName?: string): Promise<Order[]> {
   const allOrders = await getAllOrders();
-  if (!email && !userId) return allOrders;
+  if (!merchantId && !storeName) return [];
+  const normalizedStore = storeName?.trim().toLowerCase();
 
   return allOrders.filter((o) => {
-    const matchEmail = email && o.customerEmail.toLowerCase().trim() === email.toLowerCase().trim();
+    if (merchantId && o.merchantId === merchantId) return true;
+    if (normalizedStore && o.merchantName && o.merchantName.trim().toLowerCase() === normalizedStore) return true;
+    return false;
+  });
+}
+
+export async function getOrdersByUser(email?: string, userId?: string): Promise<Order[]> {
+  const allOrders = await getAllOrders();
+  if (!email && !userId) return [];
+
+  const normEmail = email?.toLowerCase().trim();
+  return allOrders.filter((o) => {
+    const matchEmail = normEmail && o.customerEmail.toLowerCase().trim() === normEmail;
     const matchUser = userId && o.userId === userId;
     return matchEmail || matchUser;
   });

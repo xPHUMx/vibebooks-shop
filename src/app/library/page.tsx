@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { Order, OrderItem } from '@/types';
 import ApplePdfReader from '@/components/ApplePdfReader';
 import confetti from 'canvas-confetti';
+import { createClient } from '@/lib/supabase/client';
 
 export default function MyLibraryPage() {
   const { user, profile, openAuthModal } = useAuth();
@@ -28,12 +29,25 @@ export default function MyLibraryPage() {
     setLoading(true);
     try {
       const storedGuestEmail = typeof window !== 'undefined' ? localStorage.getItem('vibebooks_customer_email') : null;
-      const targetEmail = emailOverride || profile?.email || user?.email || storedGuestEmail || '';
+      const targetEmail = user?.email || profile?.email || emailOverride || storedGuestEmail || '';
+
+      let authHeaders: Record<string, string> = {};
+      try {
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          authHeaders.Authorization = `Bearer ${session.access_token}`;
+        }
+      } catch {}
 
       let fetchedOrders: Order[] = [];
 
       if (targetEmail) {
-        const res = await fetch(`/api/orders?email=${encodeURIComponent(targetEmail)}`);
+        const res = await fetch(`/api/orders?email=${encodeURIComponent(targetEmail)}`, {
+          headers: {
+            ...authHeaders,
+          },
+        });
         const data = await res.json();
         if (data.success && data.orders) {
           fetchedOrders = data.orders;

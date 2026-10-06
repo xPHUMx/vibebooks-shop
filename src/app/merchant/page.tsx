@@ -131,14 +131,24 @@ export default function MerchantDashboardPage() {
   const fetchOrders = async () => {
     try {
       const authHeaders = await getAuthHeaders();
-      const res = await fetch('/api/orders?all=true', {
+      const currentStore = storeName.trim() || profile?.storeName || '';
+      const res = await fetch(`/api/orders?merchant=true${user?.id ? `&merchantId=${encodeURIComponent(user.id)}` : ''}`, {
         headers: {
           ...authHeaders,
+          ...(isDemoMerchant ? { 'x-demo-role': 'merchant' } : {}),
         },
       });
       const data = await res.json();
-      if (data.success && data.orders) {
-        setOrders(data.orders);
+      if (data.success && Array.isArray(data.orders)) {
+        // Strict merchant isolation: only show orders belonging to this merchant's store
+        const myStoreNormalized = currentStore.toLowerCase();
+        const myOrders = data.orders.filter((o: Order) => {
+          if (user?.id && o.merchantId === user.id) return true;
+          if (myStoreNormalized && o.merchantName && o.merchantName.trim().toLowerCase() === myStoreNormalized) return true;
+          if (user?.id && o.items?.some((it: any) => it.merchantId === user.id)) return true;
+          return false;
+        });
+        setOrders(myOrders);
       }
     } catch (err) {
       console.warn('Failed to fetch merchant orders:', err);

@@ -17,6 +17,66 @@ export async function GET(
       return NextResponse.json({ error: "Slip not found for this order" }, { status: 404 });
     }
 
+    // Verify viewer permissions: Buyer, Merchant of order, or Admin
+    const authHeader = req.headers.get("authorization");
+    const bearerToken = authHeader?.replace(/^Bearer\s+/i, "")?.trim() || null;
+    const { createClient } = await import("@/lib/supabase/server");
+    const serverClient = createClient();
+    const adminClient = createAdminClient();
+
+    let currentUser: any = null;
+    let currentProfile: any = null;
+
+    if (bearerToken) {
+      if (adminClient) {
+        try {
+          const { data: tokenUser } = await adminClient.auth.getUser(bearerToken);
+          if (tokenUser?.user) currentUser = tokenUser.user;
+        } catch (e) {}
+      }
+      if (!currentUser) {
+        try {
+          const { data: tokenUser } = await serverClient.auth.getUser(bearerToken);
+          if (tokenUser?.user) currentUser = tokenUser.user;
+        } catch (e) {}
+      }
+    }
+    if (!currentUser) {
+      try {
+        const { data: cookieUser } = await serverClient.auth.getUser();
+        if (cookieUser?.user) currentUser = cookieUser.user;
+      } catch (e) {}
+    }
+
+    if (currentUser?.id) {
+      try {
+        const client = adminClient || serverClient;
+        const { data: prof } = await client
+          .from("profiles")
+          .select("id, role, store_name, email")
+          .eq("id", currentUser.id)
+          .maybeSingle();
+        currentProfile = prof;
+      } catch (e) {}
+    }
+
+    if (currentUser) {
+      const isAdmin = currentProfile?.role === "admin";
+      const isBuyer =
+        (order.userId && order.userId === currentUser.id) ||
+        (order.customerEmail && order.customerEmail.toLowerCase().trim() === (currentUser.email || "").toLowerCase().trim());
+      const isMerchant =
+        (order.merchantId && order.merchantId === currentUser.id) ||
+        (currentProfile?.store_name && order.merchantName && order.merchantName.trim().toLowerCase() === currentProfile.store_name.trim().toLowerCase());
+
+      if (!isAdmin && !isBuyer && !isMerchant) {
+        return NextResponse.json(
+          { error: "คุณไม่มีสิทธิ์เข้าถึงสลิปโอนเงินนี้ (เฉพาะผู้ซื้อ ร้านค้าเจ้าของผลงาน หรือผู้ดูแลระบบเท่านั้น)" },
+          { status: 403 }
+        );
+      }
+    }
+
     const slipUrl = order.slipUrl;
 
     // Case 1: Base64 Data URL -> Return image buffer directly

@@ -85,10 +85,25 @@ export default function AdminPage() {
     }
   }, [profile, isDemoAdmin]);
 
+  const getAuthHeaders = async (): Promise<Record<string, string>> => {
+    try {
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.access_token) {
+        return { Authorization: `Bearer ${session.access_token}` };
+      }
+    } catch {}
+    return {};
+  };
+
   const fetchOrders = async () => {
     try {
+      const authHeaders = await getAuthHeaders();
       const res = await fetch('/api/orders?all=true', {
-        headers: { 'x-demo-role': 'admin' },
+        headers: {
+          ...authHeaders,
+          'x-demo-role': 'admin',
+        },
       });
       const data = await res.json();
       if (data.success && data.orders) {
@@ -112,17 +127,6 @@ export default function AdminPage() {
     } finally {
       setIsLoadingProducts(false);
     }
-  };
-
-  const getAuthHeaders = async (): Promise<Record<string, string>> => {
-    try {
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.access_token) {
-        return { Authorization: `Bearer ${session.access_token}` };
-      }
-    } catch {}
-    return {};
   };
 
   const fetchMerchants = async () => {
