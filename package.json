@@ -16,7 +16,8 @@
     "cap:add:android": "cap add android",
     "cap:add:ios": "cap add ios",
     "cap:open:android": "cap open android",
-    "cap:open:ios": "cap open ios"
+    "cap:open:ios": "cap open ios",
+    "report:docx": "node scripts/generate_diagram_images.js && node scripts/build_full_project_report.js"
   },
   "dependencies": {
     "@capacitor/core": "^8.5.3",

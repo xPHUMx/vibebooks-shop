@@ -39,6 +39,7 @@
 | **FEAT-CLEANUP-01** | **Legacy VibeBooks & MIT App Inventor Decommissioning** | ถอนการติดตั้งและลบไฟล์ เอกสาร สคริปต์ และโค้ดทั้งหมดที่เกี่ยวข้องกับ vibebooks และ MIT App Inventor ออกจากระบบอย่างสมบูรณ์แบบ รีแบรนด์เป็น Book Sangdai ทั้งหมด 100% | ✅ Released |
 | **FEAT-ARCH-01** | **System Architecture & UML Diagrams** | จัดทำแผนภาพสถาปัตยกรรมระบบ 6 รูปแบบ (Use Case, Activity, ER, Sequence, Class, Site Map / UI Flow) ในไฟล์ `docs/SYSTEM_DIAGRAMS.md` ด้วย Mermaid Markdown | ✅ Released |
 | **FEAT-HYBRID-01** | **Capacitor Mobile & Electron Desktop Apps Setup** | พัฒนาและติดตั้งระบบแปลงเว็บเป็น Mobile App (Capacitor สำหรับ iOS/Android) และ Desktop App (Electron สำหรับ Windows/macOS) เชื่อมต่อโดเมน `https://booksangdai.vercel.app` พร้อมคำสั่งรันและคู่มือใน `docs/MOBILE_AND_DESKTOP_GUIDE.md` | ✅ Released |
+| **FEAT-REPORT-05** | **5-Chapter Academic Project Report (.docx)** | จัดทำเอกสารรายงานโครงงานคอมพิวเตอร์ฉบับสมบูรณ์ 5 บท ตามรูปแบบมาตรฐานวิชาการ ในไฟล์ `รายงานมินิโปรเจ็ค_BOOK_SANGDAI_บุ๊คสั่งได้.docx` โดย นายเกียรติภูมิ หารศรีนาถ 64332110242-2 วิชา ECP4N พร้อมรูปภาพ Diagrams และ UI Screenshots | ✅ Released |
 
 
 ---
@@ -137,6 +138,12 @@
 - **As a:** ผู้ใช้งานทุกแพลตฟอร์ม (Mobile & PC)
 - **I want to:** ใช้งาน Book Sangdai ผ่านแอปพลิเคชันมือถือ (Android/iOS) และแอปคอมพิวเตอร์ (Windows/macOS) ได้อย่างสะดวก
 - **So that:** เข้าถึงคลังหนังสือ, อ่าน E-book, และรับการอัปเดตแบบเรียลไทม์ผ่านคลาวด์ Vercel โดยตรง
+
+### US-DOCX-01: การจัดทำเอกสารรายงาน 5 บท สำหรับมินิโปรเจ็ค (ECP4N)
+- **As a:** นักศึกษาผู้พัฒนา (นายเกียรติภูมิ หารศรีนาถ 64332110242-2) และอาจารย์ผู้สอน
+- **I want to:** มีไฟล์รายงานโครงงานวิชาการ 5 บทฉบับสมบูรณ์ในรูปแบบ `.docx` ที่มีเนื้อหาครบถ้วนตามหลักสูตร ECP4N พร้อมรูปภาพประกอบ Diagrams และ UI หน้าจอระบบจริง
+- **So that:** นำไปใช้ส่งรายงานวิชา หัวข้อเลือกสรรทางคอมพิวเตอร์ซอฟต์แวร์ และเป็นคู่มืออ้างอิงของระบบ Book Sangdai
+
 
 
 
