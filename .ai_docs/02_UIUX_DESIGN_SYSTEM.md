@@ -194,6 +194,11 @@
   - `w-4 h-4 rounded border-black/20 text-black focus:ring-black accent-black cursor-pointer`
   - Label: `text-[12px] text-charcoal/80 group-hover:text-charcoal transition-colors font-medium`
 
+### 4.11 Complete Site Map & UI Flow Architecture
+- แผนผังสถาปัตยกรรมหน้าจอและการเชื่อมโยง User Journey ทั้งหมดได้รับการจัดทำเป็น Mermaid Flowchart ใน [docs/SYSTEM_DIAGRAMS.md](file:///c:/Users/Phums/.gemini/antigravity/scratch/ebook_shop/docs/SYSTEM_DIAGRAMS.md#6-site-map--ui-flow-แผนผังเว็บไซต์และการเชื่อมโยงหน้าจอ)
+- รองรับการเดินทางของ User จากหน้าแรก (Storefront) -> เลือกลงตะกร้า -> เช็คเอาต์ -> ชำระเงิน PromptPay QR -> ส่งสลิป -> ปลดล็อกใน My Library พร้อมทางเชื่อมต่อไปยัง Merchant Portal และ Admin Portal อย่างครบวงจร
+
+
 
 
 

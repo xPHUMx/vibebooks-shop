@@ -163,3 +163,10 @@ FOR DELETE USING (
 - **Status:** Schema Unchanged (No SQL Migration Needed)
 - **Rationale:** โครงสร้างข้อมูลสินค้า (`DigitalProduct`) ในระบบมีฟิลด์ `price`, `originalPrice`, และ `category` อยู่แล้ว และข้อมูล Category Metadata ถูกจัดการเป็น Constant Structure ฝั่ง Frontend พร้อม Material Symbols Icons จึงไม่ส่งผลกระทบต่อสคริปต์ SQL เดิมใน Supabase Editor
 
+---
+
+## 5. Entity-Relationship (ER) & Sequence Flow Diagrams
+- **ER Diagram:** โครงสร้างตารางและความสัมพันธ์ระหว่าง `profiles`, `products`, `orders`, `order_items`, `email_otps`, และ `community_comments` ได้รับการจัดทำเป็น Mermaid ER Diagram ใน [docs/SYSTEM_DIAGRAMS.md](file:///c:/Users/Phums/.gemini/antigravity/scratch/ebook_shop/docs/SYSTEM_DIAGRAMS.md#3-entity-relationship-er-diagram-แผนภาพความสัมพันธ์ข้อมูล)
+- **Sequence Diagram:** ลำดับการรับส่งข้อมูลการสร้าง Order, การอัปโหลดสลิปสู่ Supabase Storage, การตรวจสอบสลิปของร้านค้า และการส่งไฟล์ดิจิทัลมาสเตอร์ ได้รับการบันทึกใน [docs/SYSTEM_DIAGRAMS.md](file:///c:/Users/Phums/.gemini/antigravity/scratch/ebook_shop/docs/SYSTEM_DIAGRAMS.md#4-sequence-diagram-แผนภาพลำดับขั้นตอนการทำงาน)
+
+

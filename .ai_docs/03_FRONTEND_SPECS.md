@@ -192,6 +192,10 @@ src/
     - เปลี่ยนคีย์ LocalStorage จาก `vibebooks_*` เป็น `booksangdai_*` ทั้งหมด (`booksangdai_customer_email`, `booksangdai_last_pending_order_id`, `booksangdai_remembered_email`, `booksangdai_remember_me`)
     - อัปเดต Copywriting ใน `LegalDocumentModal.tsx`, `terms/page.tsx`, `privacy/page.tsx` และ `commentsData.ts` เป็น `Book Sangdai` ทั้งหมด
 
+- **Class & Architecture Diagrams:**
+  - โครงสร้าง TypeScript Types, Context Providers (`AuthContext`, `CartContext`), และ Services ได้รับการสรุปเป็น Class Diagram ใน [docs/SYSTEM_DIAGRAMS.md](file:///c:/Users/Phums/.gemini/antigravity/scratch/ebook_shop/docs/SYSTEM_DIAGRAMS.md#5-class-diagram-แผนภาพโครงสร้างคลาสและออบเจกต์)
+
+
 
 
 

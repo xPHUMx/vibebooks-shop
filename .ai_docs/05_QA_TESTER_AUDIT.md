@@ -136,6 +136,16 @@
 | **TC-CLN-04** | ค้นหา `AppInventor` และ `mit_app` ในซอร์สโค้ดและคอมเมนต์ | ไม่พบโค้ดหรือคอมเมนต์ที่ตกค้างใน Client/Server routes | ✅ PASS |
 | **TC-CLN-05** | ทดสอบ TypeScript Compilation (`npx tsc --noEmit`) | ผ่านสมบูรณ์ 0 errors | ✅ PASS |
 
+### Test Suite 11: System Architecture & UML Diagrams Audit
+| ID | คำอธิบายการทดสอบ | ผลลัพธ์ที่คาดหวัง | ผลการทดสอบจริง |
+|:---|:---|:---|:---:|
+| **TC-DIA-01** | ตรวจสอบไฟล์ `docs/SYSTEM_DIAGRAMS.md` | มีแผนภาพครบทั้ง 6 หมวดหมู่ (Use Case, Activity, ER, Sequence, Class, Site Map) | ✅ PASS |
+| **TC-DIA-02** | ตรวจสอบไวยากรณ์ Mermaid Markdown | ไวยากรณ์ถูกต้อง ไม่มีการใช้เครื่องหมายวงเล็บผิดรูปแบบ เรนเดอร์ได้สมบูรณ์ | ✅ PASS |
+| **TC-DIA-03** | ตรวจสอบความถูกต้องของ Entity และ Database Schema | ฟิลด์ใน ER Diagram ตรงกับ PostgreSQL Schema ใน `04_BACKEND_DATABASE_SQL.md` 100% | ✅ PASS |
+| **TC-DIA-04** | ตรวจสอบลำดับ Flow ใน Sequence Diagram | สะท้อนกระบวนการสั่งซื้อ, ชำระเงิน, ตรวจสลิป, และปลดล็อกคลังจริงของระบบ | ✅ PASS |
+| **TC-DIA-05** | ตรวจสอบ Site Map & UI Flow | แสดงเส้นทาง Route ทุกหน้าตั้งแต่หน้าแรกไปจนถึง Merchant & Admin Portal | ✅ PASS |
+
+
 
 
 

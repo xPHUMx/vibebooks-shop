@@ -37,6 +37,7 @@
 | **FEAT-CATALOG-04** | **Category Icons & Card Discount Badges** | เพิ่ม Material Symbol Icon ประจำแต่ละหมวดหมู่บนปุ่มเลือกหมวดหมู่หน้าแรก และคำนวณพร้อมแสดงป้ายลดราคาเป็นเปอร์เซ็นต์ (ลด X% / -X%) บนการ์ดสินค้าทุกชิ้นที่ลดราคา | ✅ Released |
 | **FEAT-CATALOG-05** | **Clean Compact Discount Badges & Vertical Category Cards** | จัดเลย์เอาต์หมวดหมู่ผลงานแบบกล่องไอคอนสี่เหลี่ยมโค้งมน (Vertical Cards) พร้อมป้ายชื่อด้านล่าง และปรับป้ายลดราคาบนการ์ดสินค้าให้มีขนาดกะทัดรัด คลีน สไตล์แคปซูลสีแดง (-X%) มุมบนซ้าย และตัดความซ้ำซ้อนบริเวณราคาออก | ✅ Released |
 | **FEAT-CLEANUP-01** | **Legacy VibeBooks & MIT App Inventor Decommissioning** | ถอนการติดตั้งและลบไฟล์ เอกสาร สคริปต์ และโค้ดทั้งหมดที่เกี่ยวข้องกับ vibebooks และ MIT App Inventor ออกจากระบบอย่างสมบูรณ์แบบ รีแบรนด์เป็น Book Sangdai ทั้งหมด 100% | ✅ Released |
+| **FEAT-ARCH-01** | **System Architecture & UML Diagrams** | จัดทำแผนภาพสถาปัตยกรรมระบบ 6 รูปแบบ (Use Case, Activity, ER, Sequence, Class, Site Map / UI Flow) ในไฟล์ `docs/SYSTEM_DIAGRAMS.md` ด้วย Mermaid Markdown | ✅ Released |
 
 
 ---
@@ -125,6 +126,12 @@
 - **As a:** เจ้าของแพลตฟอร์มและทีมพัฒนา
 - **I want to:** ลบโฟลเดอร์ `mit_app_inventor/`, ไฟล์เอกสารคู่มือ `.docx`, `.aia`, โฟลเดอร์ mockups `design_stitch/`, ไฟล์รูปภาพ assets ใน `public/docs_assets/`, รวมถึงคีย์ localStorage และข้อความที่อ้างอิงถึง vibebooks / MIT App Inventor ออกจากซอร์สโค้ดทั้งหมด
 - **So that:** โปรเจกต์สะอาด ปราศจากโค้ดและไฟล์ legacy ที่ไม่ได้ใช้งาน และรีแบรนด์เป็น Book Sangdai (บุ๊คสั่งได้) 100%
+
+### US-ARCH-01: การจัดทำแผนภาพสถาปัตยกรรมระบบ 6 รูปแบบ (System Architecture & UML Diagrams)
+- **As a:** ทีมพัฒนา, ผู้ดูแลระบบ, และผู้ตรวจประเมิน
+- **I want to:** มีแผนภาพสถาปัตยกรรมระบบและ UML ครบทั้ง 6 รูปแบบ (Use Case, Activity, ER, Sequence, Class, Site Map / UI Flow) จัดเก็บในไฟล์ `docs/SYSTEM_DIAGRAMS.md`
+- **So that:** ทุกฝ่ายเข้าใจภาพรวมการทำงาน, โครงสร้างข้อมูล, โฟลว์การสั่งซื้อและตรวจสอบสลิป, ลำดับการเรียกใช้ API, และการเชื่อมโยงหน้าจออย่างเป็นรูปธรรม
+
 
 
 
