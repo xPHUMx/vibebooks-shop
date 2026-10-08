@@ -38,6 +38,7 @@
 | **FEAT-CATALOG-05** | **Clean Compact Discount Badges & Vertical Category Cards** | จัดเลย์เอาต์หมวดหมู่ผลงานแบบกล่องไอคอนสี่เหลี่ยมโค้งมน (Vertical Cards) พร้อมป้ายชื่อด้านล่าง และปรับป้ายลดราคาบนการ์ดสินค้าให้มีขนาดกะทัดรัด คลีน สไตล์แคปซูลสีแดง (-X%) มุมบนซ้าย และตัดความซ้ำซ้อนบริเวณราคาออก | ✅ Released |
 | **FEAT-CLEANUP-01** | **Legacy VibeBooks & MIT App Inventor Decommissioning** | ถอนการติดตั้งและลบไฟล์ เอกสาร สคริปต์ และโค้ดทั้งหมดที่เกี่ยวข้องกับ vibebooks และ MIT App Inventor ออกจากระบบอย่างสมบูรณ์แบบ รีแบรนด์เป็น Book Sangdai ทั้งหมด 100% | ✅ Released |
 | **FEAT-ARCH-01** | **System Architecture & UML Diagrams** | จัดทำแผนภาพสถาปัตยกรรมระบบ 6 รูปแบบ (Use Case, Activity, ER, Sequence, Class, Site Map / UI Flow) ในไฟล์ `docs/SYSTEM_DIAGRAMS.md` ด้วย Mermaid Markdown | ✅ Released |
+| **FEAT-HYBRID-01** | **Capacitor Mobile & Electron Desktop Apps Setup** | พัฒนาและติดตั้งระบบแปลงเว็บเป็น Mobile App (Capacitor สำหรับ iOS/Android) และ Desktop App (Electron สำหรับ Windows/macOS) เชื่อมต่อโดเมน `https://booksangdai.vercel.app` พร้อมคำสั่งรันและคู่มือใน `docs/MOBILE_AND_DESKTOP_GUIDE.md` | ✅ Released |
 
 
 ---
@@ -131,6 +132,12 @@
 - **As a:** ทีมพัฒนา, ผู้ดูแลระบบ, และผู้ตรวจประเมิน
 - **I want to:** มีแผนภาพสถาปัตยกรรมระบบและ UML ครบทั้ง 6 รูปแบบ (Use Case, Activity, ER, Sequence, Class, Site Map / UI Flow) จัดเก็บในไฟล์ `docs/SYSTEM_DIAGRAMS.md`
 - **So that:** ทุกฝ่ายเข้าใจภาพรวมการทำงาน, โครงสร้างข้อมูล, โฟลว์การสั่งซื้อและตรวจสอบสลิป, ลำดับการเรียกใช้ API, และการเชื่อมโยงหน้าจออย่างเป็นรูปธรรม
+
+### US-HYBRID-01: การต่อยอดสู่ Mobile App (Capacitor) และ Desktop App (Electron)
+- **As a:** ผู้ใช้งานทุกแพลตฟอร์ม (Mobile & PC)
+- **I want to:** ใช้งาน Book Sangdai ผ่านแอปพลิเคชันมือถือ (Android/iOS) และแอปคอมพิวเตอร์ (Windows/macOS) ได้อย่างสะดวก
+- **So that:** เข้าถึงคลังหนังสือ, อ่าน E-book, และรับการอัปเดตแบบเรียลไทม์ผ่านคลาวด์ Vercel โดยตรง
+
 
 
 

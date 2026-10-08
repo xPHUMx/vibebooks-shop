@@ -195,6 +195,19 @@ src/
 - **Class & Architecture Diagrams:**
   - โครงสร้าง TypeScript Types, Context Providers (`AuthContext`, `CartContext`), และ Services ได้รับการสรุปเป็น Class Diagram ใน [docs/SYSTEM_DIAGRAMS.md](file:///c:/Users/Phums/.gemini/antigravity/scratch/ebook_shop/docs/SYSTEM_DIAGRAMS.md#5-class-diagram-แผนภาพโครงสร้างคลาสและออบเจกต์)
 
+- **Mobile (Capacitor) & Desktop (Electron) Multi-Platform Specs:**
+  - **Capacitor Configuration (`capacitor.config.ts`):**
+    - `appId`: `store.booksangdai.app`
+    - `server.url`: `https://booksangdai.vercel.app`
+    - Plugins: `@capacitor/status-bar` และ `@capacitor/splash-screen` (Dark background `#0a0a0c`)
+    - รันด้วยสคริปต์ `npm run cap:sync`, `npm run cap:open:android`, `npm run cap:open:ios`
+  - **Electron Configuration (`desktop/main.js` & `desktop/preload.js`):**
+    - Window dimensions: 1366x860, min 1024x700, Dark Theme `#0a0a0c`, `icon.png`
+    - Sandbox security enabled, external links routed via `shell.openExternal`
+    - Native Menu bar with Thai labels, offline graceful fallback screen
+    - รันด้วยสคริปต์ `npm run desktop`
+
+
 
 
 

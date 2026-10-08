@@ -49,4 +49,5 @@ graph LR
 - [04_BACKEND_DATABASE_SQL.md](./04_BACKEND_DATABASE_SQL.md) — Database Schema & **คำสั่ง SQL สำหรับรันใน Supabase SQL Editor**
 - [05_QA_TESTER_AUDIT.md](./05_QA_TESTER_AUDIT.md) — Test Cases, Gatekeeping Checklist, Bug Tracker
 - [SYSTEM_DIAGRAMS.md](../docs/SYSTEM_DIAGRAMS.md) — **UML & Architecture Diagrams (Use Case, Activity, ER, Sequence, Class, Site Map / UI Flow)**
+- [MOBILE_AND_DESKTOP_GUIDE.md](../docs/MOBILE_AND_DESKTOP_GUIDE.md) — **Mobile (Capacitor) & Desktop (Electron) Multi-Platform Guide**
 

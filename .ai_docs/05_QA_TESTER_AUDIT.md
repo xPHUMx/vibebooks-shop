@@ -145,6 +145,17 @@
 | **TC-DIA-04** | ตรวจสอบลำดับ Flow ใน Sequence Diagram | สะท้อนกระบวนการสั่งซื้อ, ชำระเงิน, ตรวจสลิป, และปลดล็อกคลังจริงของระบบ | ✅ PASS |
 | **TC-DIA-05** | ตรวจสอบ Site Map & UI Flow | แสดงเส้นทาง Route ทุกหน้าตั้งแต่หน้าแรกไปจนถึง Merchant & Admin Portal | ✅ PASS |
 
+### Test Suite 12: Mobile (Capacitor) & Desktop (Electron) Multi-Platform Audit
+| ID | คำอธิบายการทดสอบ | ผลลัพธ์ที่คาดหวัง | ผลการทดสอบจริง |
+|:---|:---|:---|:---:|
+| **TC-MOB-01** | ตรวจสอบการติดตั้ง Capacitor Core & CLI | ติดตั้ง `@capacitor/core`, `@capacitor/cli`, `@capacitor/android`, `@capacitor/ios` ครบถ้วน | ✅ PASS |
+| **TC-MOB-02** | ตรวจสอบไฟล์ `capacitor.config.ts` | กำหนด `appId: store.booksangdai.app`, `server.url: https://booksangdai.vercel.app` ถูกต้อง | ✅ PASS |
+| **TC-DSK-01** | ตรวจสอบการติดตั้ง Electron | ติดตั้ง `electron` และมีไฟล์ entry point `desktop/main.js` พร้อม preload | ✅ PASS |
+| **TC-DSK-02** | ตรวจสอบการจัดการความปลอดภัย Electron | เปิดใช้ `contextIsolation: true`, `sandbox: true`, `nodeIntegration: false` | ✅ PASS |
+| **TC-DSK-03** | ตรวจสอบสคริปต์ใน `package.json` | มีคำสั่ง `npm run desktop`, `npm run cap:sync`, `npm run cap:open:android` ใช้งานได้ | ✅ PASS |
+| **TC-DOC-01** | ตรวจสอบคู่มือ `docs/MOBILE_AND_DESKTOP_GUIDE.md` | มีคำแนะนำการติดตั้ง, รัน, และ build APK/.exe ละเอียดครบถ้วน | ✅ PASS |
+
+
 
 
 
