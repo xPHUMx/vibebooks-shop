@@ -142,25 +142,38 @@ src/
   - **API Layer (`src/app/api/products/route.ts` & `[id]/route.ts`):**
     - `mapDbProductToDigitalProduct` แมป `categoryNameTh: row.category_name_th || getCategoryName(cat)` สอดคล้องกันทั้งฝั่ง Database และ Mock data
 
-- **Official Brand Icon Integration (`Icon Production.jpg`):**
-  - **Asset Location:**
-    - `public/icon.jpg` และ `public/icon-production.jpg` (Static asset served directly at `/icon.jpg`)
-    - `public/favicon.ico` สำหรับ legacy browser support
-  - **App Metadata Configuration (`src/app/layout.tsx`):**
+- **Official Brand Icon & Vercel Framework Configuration (`Icon Production.jpg`):**
+  - **Asset Locations in `public/`:**
+    - `public/favicon.ico`: 32x32 Standard Favicon
+    - `public/icon.png`: 512x512 High-Res PNG
+    - `public/apple-touch-icon.png`: 180x180 iOS Touch Icon
+    - `public/icon-192.png`: 192x192 PWA Icon
+    - `public/icon-512.png`: 512x512 PWA Icon
+    - `public/icon.jpg`: 512x512 Original JPEG
+  - **Framework App Metadata (`src/app/layout.tsx`):**
     ```ts
     icons: {
-      icon: "/icon.jpg",
-      shortcut: "/icon.jpg",
-      apple: "/icon.jpg",
+      icon: [
+        { url: "/favicon.ico", sizes: "any" },
+        { url: "/icon.png", type: "image/png" },
+        { url: "/icon.jpg", type: "image/jpeg" },
+      ],
+      shortcut: ["/favicon.ico"],
+      apple: [
+        { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+        { url: "/icon.png" },
+      ],
     }
     ```
+  - **Explicit `<head>` Link Fallbacks:**
+    - `<link rel="icon" href="/favicon.ico" sizes="any" />`
+    - `<link rel="icon" type="image/png" href="/icon.png" />`
+    - `<link rel="apple-touch-icon" href="/apple-touch-icon.png" />`
   - **PWA Manifest (`public/manifest.json`):**
-    - ชี้ `src: "/icon.jpg"` ความละเอียดรองรับทั้ง mobile launcher และ browser shortcut
-  - **UI Brand Components:**
-    - `Header.tsx`: นำภาพ `/icon.jpg` มาแสดงเป็นไอคอนแบรนด์ด้านบนซ้าย
-    - `AuthModal.tsx` & `ConsentReaderModal.tsx`: โลโก้โมดัลแสดงภาพ `/icon.jpg`
-    - `src/app/auth/login/page.tsx`: โลโก้หน้า Login หลักแสดงภาพ `/icon.jpg`
-    - `src/lib/productsData.ts`: เพิ่ม `logoUrl: "/icon.jpg"` ใน `STORE_INFO`
+    - กำหนดทั้ง `/icon-192.png` และ `/icon-512.png` พร้อม maskable purpose
+  - **Vercel Deployment Compatibility:**
+    - ไฟล์ทั้งหมดอยู่ใน `public/` โดยไม่ชนกับ dynamic App Router metadata route เพื่อป้องกัน 500 error บน Vercel Edge/Serverless functions
+
 
 
 

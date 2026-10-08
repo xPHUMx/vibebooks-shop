@@ -22,9 +22,16 @@ export const metadata: Metadata = {
   description: `ศูนย์รวมหนังสือและผลงานดิจิทัลคุณภาพ ลิขสิทธิ์แท้ 100% โดย ${STORE_INFO.curatorFull}`,
   manifest: "/manifest.json",
   icons: {
-    icon: "/icon.jpg",
-    shortcut: "/icon.jpg",
-    apple: "/icon.jpg",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png" },
+      { url: "/icon.jpg", type: "image/jpeg" },
+    ],
+    shortcut: ["/favicon.ico"],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/icon.png" },
+    ],
   },
   appleWebApp: {
     capable: true,
@@ -44,6 +51,9 @@ export default function RootLayout({
   return (
     <html lang="th" className="bg-[#fbfbfd]">
       <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" type="image/png" href="/icon.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

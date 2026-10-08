@@ -118,10 +118,12 @@
 | **TC-CAT-08** | เพิ่มสินค้าใหม่ในฝั่ง Merchant (`/merchant`) | ตัวเลือก `<select>` แสดงครบทั้ง 8 หมวดหมู่ และบันทึก `categoryNameTh` ได้ตรงกัน | ✅ PASS |
 | **TC-CAT-09** | แก้ไขสินค้าในฝั่ง Merchant (`/merchant`) | ตัวเลือก `<select>` โหลดหมวดหมู่ปัจจุบันและมีตัวเลือกครบ 8 หมวดหมู่ตรงกับ Dashboard | ✅ PASS |
 | **TC-CAT-10** | เพิ่มสินค้าในฝั่ง Admin (`/admin`) | Dropdown หมวดหมู่ดึงจาก `CATEGORIES` ทั้ง 8 หมวดหมู่ตรงกันทุกประการ | ✅ PASS |
-| **TC-ICON-01** | ตรวจสอบไฟล์ Asset ในโปรเจกต์ | พบ `public/icon.jpg`, `public/icon-production.jpg` และ `public/favicon.ico` ให้บริการ HTTP 200 อย่างถูกต้อง | ✅ PASS |
-| **TC-ICON-02** | ตรวจสอบ Favicon / Browser Tab Icon | Next.js Metadata `icons` ให้บริการ `/icon.jpg` บน browser tab อย่างคมชัด | ✅ PASS |
+| **TC-ICON-01** | ตรวจสอบไฟล์ Asset ในโปรเจกต์ | พบ `public/icon.png`, `public/apple-touch-icon.png`, `public/favicon.ico`, `public/icon-192.png`, `public/icon-512.png` ครบทุกฟอร์แมต | ✅ PASS |
+| **TC-ICON-02** | ตรวจสอบ Favicon / Browser Tab Icon | Next.js Metadata `icons` และ `<link>` ใน Header ให้บริการ `/favicon.ico` และ `/icon.png` 200 OK | ✅ PASS |
 | **TC-ICON-03** | ตรวจสอบ Header Brand Logo | แถบ Header แสดงภาพไอคอนร้านค้าขนาด 36x36px ขอบมนสวยงาม | ✅ PASS |
 | **TC-ICON-04** | ตรวจสอบ Modal & Login Page Brand Logo | Auth Modal, Consent Modal, และ `/auth/login` แสดงโลโก้ใหม่ตรงกันทั้งหมด | ✅ PASS |
+| **TC-ICON-05** | Vercel Deployment & PWA Compatibility | ไอคอนทุกขนาดให้บริการผ่าน static server ไม่พึ่งพา sharp dynamic metadata เพื่อการ Deploy บน Vercel ได้ราบรื่น 100% | ✅ PASS |
+
 
 
 
