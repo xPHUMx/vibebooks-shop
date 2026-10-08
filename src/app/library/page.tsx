@@ -31,7 +31,9 @@ export default function MyLibraryPage() {
   const fetchUserOrders = async (emailOverride?: string) => {
     setLoading(true);
     try {
-      const storedGuestEmail = typeof window !== 'undefined' ? localStorage.getItem('vibebooks_customer_email') : null;
+      const storedGuestEmail = typeof window !== 'undefined'
+        ? localStorage.getItem('booksangdai_customer_email')
+        : null;
       const targetEmail = user?.email || profile?.email || emailOverride || storedGuestEmail || '';
 
       let authHeaders: Record<string, string> = {};
@@ -58,7 +60,9 @@ export default function MyLibraryPage() {
       }
 
       // Check if there's a recent pending order in localStorage that wasn't included yet
-      const lastPendingId = typeof window !== 'undefined' ? localStorage.getItem('vibebooks_last_pending_order_id') : null;
+      const lastPendingId = typeof window !== 'undefined'
+        ? localStorage.getItem('booksangdai_last_pending_order_id')
+        : null;
       if (lastPendingId && !fetchedOrders.some(o => o.id === lastPendingId)) {
         try {
           const res = await fetch(`/api/orders?orderId=${lastPendingId}`);
@@ -128,7 +132,9 @@ export default function MyLibraryPage() {
         }
       } catch {}
 
-      const storedGuestEmail = typeof window !== 'undefined' ? localStorage.getItem('vibebooks_customer_email') : null;
+      const storedGuestEmail = typeof window !== 'undefined'
+        ? localStorage.getItem('booksangdai_customer_email')
+        : null;
       const email = user?.email || profile?.email || storedGuestEmail || undefined;
 
       const res = await fetch('/api/orders', {
@@ -165,9 +171,9 @@ export default function MyLibraryPage() {
       });
 
       if (typeof window !== 'undefined') {
-        const lastPendingId = localStorage.getItem('vibebooks_last_pending_order_id');
+        const lastPendingId = localStorage.getItem('booksangdai_last_pending_order_id');
         if (lastPendingId === deletingItem.orderId) {
-          localStorage.removeItem('vibebooks_last_pending_order_id');
+          localStorage.removeItem('booksangdai_last_pending_order_id');
         }
       }
 

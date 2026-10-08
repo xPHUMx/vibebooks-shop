@@ -156,9 +156,9 @@ export default function CheckoutPage() {
       if (data.success && data.order) {
         setCreatedOrder(data.order);
         if (typeof window !== 'undefined') {
-          localStorage.setItem('vibebooks_customer_email', (user.email || customerEmail).trim());
-          localStorage.setItem('vibebooks_last_order_id', data.order.id);
-          localStorage.setItem('vibebooks_last_pending_order_id', data.order.id);
+          localStorage.setItem('booksangdai_customer_email', (user.email || customerEmail).trim());
+          localStorage.setItem('booksangdai_last_order_id', data.order.id);
+          localStorage.setItem('booksangdai_last_pending_order_id', data.order.id);
         }
         setStep('payment');
       } else {

@@ -127,6 +127,16 @@
 | **TC-OTP-02** | ตรวจสอบอายุรหัส OTP Backend | กำหนด `expires_at` เท่ากับ 2 นาที (120 วินาที) หลังสร้าง | ✅ PASS |
 | **TC-AUTH-03** | ช่อง "จดจำฉันไว้ในระบบ" (Remember Me) | ปรากฏในทั้ง AuthModal และ `/auth/login` จำอีเมลลง `localStorage` และ Auto-fill ครั้งต่อไปได้อย่างถูกต้อง | ✅ PASS |
 
+### Test Suite 10: Legacy VibeBooks & MIT App Inventor Cleanup Audit
+| ID | คำอธิบายการทดสอบ | ผลลัพธ์ที่คาดหวัง | ผลการทดสอบจริง |
+|:---|:---|:---|:---:|
+| **TC-CLN-01** | ตรวจสอบโฟลเดอร์ `mit_app_inventor/` | โฟลเดอร์และไฟล์ทั้งหมดถูกลบออกจากโปรเจกต์ 100% | ✅ PASS |
+| **TC-CLN-02** | ตรวจสอบไฟล์ `.aia`, `.docx` และ mockups `design_stitch/` | ไฟล์และโฟลเดอร์เหล่านี้ถูกลบออกจาก repository 100% | ✅ PASS |
+| **TC-CLN-03** | ค้นหาคำว่า `vibebook` ในโค้ดทั้งหมด (ยกเว้น Git Remote URL) | ไม่พบการใช้งานชื่อแบรนด์เก่า หรือ fallback key ในโค้ด | ✅ PASS |
+| **TC-CLN-04** | ค้นหา `AppInventor` และ `mit_app` ในซอร์สโค้ดและคอมเมนต์ | ไม่พบโค้ดหรือคอมเมนต์ที่ตกค้างใน Client/Server routes | ✅ PASS |
+| **TC-CLN-05** | ทดสอบ TypeScript Compilation (`npx tsc --noEmit`) | ผ่านสมบูรณ์ 0 errors | ✅ PASS |
+
+
 
 
 

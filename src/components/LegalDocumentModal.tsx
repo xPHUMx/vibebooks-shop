@@ -47,7 +47,7 @@ export default function LegalDocumentModal({
                 {isTerms ? 'ข้อตกลงและเงื่อนไขการใช้งาน' : 'นโยบายความเป็นส่วนตัว'}
               </h3>
               <p className="text-[11px] text-muted-slate">
-                {isTerms ? 'Terms of Service & EULA' : 'PDPA Privacy Policy'} • VIBEBooks Platform
+                {isTerms ? 'Terms of Service & EULA' : 'PDPA Privacy Policy'} • Book Sangdai Platform
               </p>
             </div>
           </div>
@@ -64,7 +64,7 @@ export default function LegalDocumentModal({
           {isTerms ? (
             <>
               <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-indigo-900 text-xs font-medium">
-                💡 ข้อตกลงนี้มีผลผูกพันทางกฎหมายระหว่างผู้ใช้งานกับ VIBEBooks โปรดอ่านก่อนกดยอมรับ
+                💡 ข้อตกลงนี้มีผลผูกพันทางกฎหมายระหว่างผู้ใช้งานกับ Book Sangdai โปรดอ่านก่อนกดยอมรับ
               </div>
 
               <div>
@@ -95,7 +95,7 @@ export default function LegalDocumentModal({
           ) : (
             <>
               <div className="p-3 bg-emerald-50 border border-emerald-100 rounded-xl text-emerald-900 text-xs font-medium">
-                🛡️ VIBEBooks ปฏิบัติตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA) อย่างเคร่งครัด
+                🛡️ Book Sangdai ปฏิบัติตาม พ.ร.บ. คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA) อย่างเคร่งครัด
               </div>
 
               <div>
@@ -115,7 +115,7 @@ export default function LegalDocumentModal({
 
               <div>
                 <h4 className="font-bold text-charcoal mb-1">4. สิทธิของเจ้าของข้อมูล (PDPA Rights)</h4>
-                <p className="text-muted-slate">ท่านมีสิทธิขอเข้าถึง แก้ไข ลบ ถอนความยินยอม หรือขอสำเนาข้อมูลส่วนบุคคลของท่านได้ตลอดเวลาผ่านระบบหรือติดต่อ DPO: privacy@vibebooks.com</p>
+                <p className="text-muted-slate">ท่านมีสิทธิขอเข้าถึง แก้ไข ลบ ถอนความยินยอม หรือขอสำเนาข้อมูลส่วนบุคคลของท่านได้ตลอดเวลาผ่านระบบหรือติดต่อ DPO: support@booksangdai.store</p>
               </div>
 
               <div>

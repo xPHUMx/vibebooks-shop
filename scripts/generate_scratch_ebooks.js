@@ -28,7 +28,7 @@ const STUDENT = {
   nameEn: "Kiatphum Hansrinath",
   studentId: "64332110242-2",
   department: "Information Technology & Advanced Software Engineering",
-  brand: "VibeBooks PRO (Digital Master Edition)"
+  brand: "Book Sangdai PRO (Digital Master Edition)"
 };
 
 // Helper to draw a modern page frame
@@ -143,7 +143,7 @@ async function buildFastPlayerPdf() {
 
     page.drawRectangle({ x: 40, y: height - 120, width: width - 80, height: 4, color: themePurple });
 
-    page.drawText("VIBEBOOKS DIGITAL MASTER EDITION - LAB 1 ENGINEERING", {
+    page.drawText("BOOK SANGDAI DIGITAL MASTER EDITION - LAB 1 ENGINEERING", {
       x: 40, y: height - 150, size: 10, font: fontBold, color: themeCyan,
     });
 
@@ -501,7 +501,7 @@ async function buildTarotAppPdf() {
     page.drawRectangle({ x: 0, y: 0, width, height, color: rgb(0.08, 0.06, 0.12) });
     page.drawRectangle({ x: 40, y: height - 120, width: width - 80, height: 4, color: themeGold });
 
-    page.drawText("VIBEBOOKS DIGITAL MASTER EDITION - LAB 2 CREATIVE AI", {
+    page.drawText("BOOK SANGDAI DIGITAL MASTER EDITION - LAB 2 CREATIVE AI", {
       x: 40, y: height - 150, size: 10, font: fontBold, color: themeCyan,
     });
 
@@ -751,7 +751,7 @@ async function buildTaskManagerPdf() {
     page.drawRectangle({ x: 0, y: 0, width, height, color: rgb(0.06, 0.07, 0.12) });
     page.drawRectangle({ x: 40, y: height - 120, width: width - 80, height: 4, color: themeCyan });
 
-    page.drawText("VIBEBOOKS DIGITAL MASTER EDITION - LAB 3 & 4 PRODUCTIVITY", {
+    page.drawText("BOOK SANGDAI DIGITAL MASTER EDITION - LAB 3 & 4 PRODUCTIVITY", {
       x: 40, y: height - 150, size: 10, font: fontBold, color: themeCyan,
     });
 

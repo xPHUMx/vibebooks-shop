@@ -29,7 +29,7 @@ const STUDENT = {
   nameEn: "Kiatphum Hansrinath",
   studentId: "64332110242-2",
   department: "สาขาวิชาเทคโนโลยีสารสนเทศและวิศวกรรมซอฟต์แวร์",
-  brand: "VibeBooks PRO (Digital Master Edition)",
+  brand: "Book Sangdai PRO (Digital Master Edition)",
 };
 
 // Helper: Setup Thai fonts
@@ -155,7 +155,7 @@ async function buildFastPlayerPdf() {
     page.drawRectangle({ x: 0, y: 0, width, height, color: rgb(0.07, 0.05, 0.11) });
     page.drawRectangle({ x: 40, y: height - 120, width: width - 80, height: 4, color: themePurple });
 
-    page.drawText("VIBEBOOKS DIGITAL MASTER EDITION • ใบงานที่ 1 ซีรีส์วิศวกรรมมัลติมีเดีย", {
+    page.drawText("BOOK SANGDAI DIGITAL MASTER EDITION • ใบงานที่ 1 ซีรีส์วิศวกรรมมัลติมีเดีย", {
       x: 40, y: height - 148, size: 10, font: fontBold, color: themeCyan,
     });
 
@@ -512,7 +512,7 @@ async function buildTarotAppPdf() {
     page.drawRectangle({ x: 0, y: 0, width, height, color: rgb(0.08, 0.06, 0.12) });
     page.drawRectangle({ x: 40, y: height - 120, width: width - 80, height: 4, color: themeGold });
 
-    page.drawText("VIBEBOOKS DIGITAL MASTER EDITION • ใบงานที่ 2 ซีรีส์ปัญญาประดิษฐ์เชิงสร้างสรรค์", {
+    page.drawText("BOOK SANGDAI DIGITAL MASTER EDITION • ใบงานที่ 2 ซีรีส์ปัญญาประดิษฐ์เชิงสร้างสรรค์", {
       x: 40, y: height - 148, size: 10, font: fontBold, color: themeCyan,
     });
 
@@ -761,7 +761,7 @@ async function buildTaskManagerPdf() {
     page.drawRectangle({ x: 0, y: 0, width, height, color: rgb(0.06, 0.07, 0.12) });
     page.drawRectangle({ x: 40, y: height - 120, width: width - 80, height: 4, color: themeCyan });
 
-    page.drawText("VIBEBOOKS DIGITAL MASTER EDITION • ใบงานที่ 3 & 4 ซีรีส์ระบบเพิ่มผลผลิตองค์กร", {
+    page.drawText("BOOK SANGDAI DIGITAL MASTER EDITION • ใบงานที่ 3 & 4 ซีรีส์ระบบเพิ่มผลผลิตองค์กร", {
       x: 40, y: height - 148, size: 10, font: fontBold, color: themeCyan,
     });
 

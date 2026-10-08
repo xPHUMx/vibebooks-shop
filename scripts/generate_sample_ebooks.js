@@ -30,7 +30,7 @@ async function createEbook(title, subtitle, lab, category, filename) {
   });
 
   // Series tag
-  page1.drawText(`VIBEBOOKS DIGITAL MASTER EDITION - LAB ${lab}`, {
+  page1.drawText(`BOOK SANGDAI DIGITAL MASTER EDITION - LAB ${lab}`, {
     x: 50,
     y: height - 100,
     size: 11,
@@ -118,7 +118,7 @@ async function createEbook(title, subtitle, lab, category, filename) {
   });
 
   // Footer License
-  page1.drawText("CONFIDENTIAL & LICENSED SINGLE-USER COPY - VERIFIED VIBEBOOKS VAULT", {
+  page1.drawText("CONFIDENTIAL & LICENSED SINGLE-USER COPY - VERIFIED BOOK SANGDAI VAULT", {
     x: 50,
     y: 50,
     size: 8,

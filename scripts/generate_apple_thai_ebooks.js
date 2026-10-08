@@ -29,7 +29,7 @@ const STUDENT = {
   name: "นายเกียรติภูมิ หารศรีนาถ",
   nameEn: "Kiatphum Hansrinath",
   studentId: "64332110242-2",
-  brand: "VibeBooks PRO · Technical Master Edition",
+  brand: "Book Sangdai PRO · Technical Master Edition",
 };
 
 // Helper: Setup Thai fonts
@@ -184,7 +184,7 @@ async function buildFastPlayerPdf() {
 
     // Apple Pill Eyebrow
     page.drawRectangle({ x: 40, y: height - 100, width: 235, height: 22, color: rgb(0.94, 0.95, 0.99), borderColor: rgb(0.85, 0.88, 0.96), borderWidth: 0.75 });
-    page.drawText("VIBEBOOKS PRO · ARCHITECTURE SERIES", { x: 50, y: height - 93, size: 8, font: fontBold, color: appleBlue });
+    page.drawText("BOOK SANGDAI PRO · ARCHITECTURE SERIES", { x: 50, y: height - 93, size: 8, font: fontBold, color: appleBlue });
 
     page.drawText("FastPlayer PRO", {
       x: 40, y: height - 150, size: 28, font: fontBold, color: textBlack,
@@ -476,7 +476,7 @@ async function buildMysticTarotPdf() {
     page.drawRectangle({ x: 0, y: 0, width, height, color: rgb(0.99, 0.99, 1.0) });
 
     page.drawRectangle({ x: 40, y: height - 100, width: 235, height: 22, color: rgb(0.99, 0.97, 0.92), borderColor: rgb(0.94, 0.90, 0.82), borderWidth: 0.75 });
-    page.drawText("VIBEBOOKS PRO · CREATIVE AI SERIES", { x: 50, y: height - 93, size: 8, font: fontBold, color: appleGold });
+    page.drawText("BOOK SANGDAI PRO · CREATIVE AI SERIES", { x: 50, y: height - 93, size: 8, font: fontBold, color: appleGold });
 
     page.drawText("Mystic Tarot: 3-Card Oracle", {
       x: 40, y: height - 150, size: 28, font: fontBold, color: textBlack,
@@ -686,7 +686,7 @@ async function buildTaskManagerPdf() {
     page.drawRectangle({ x: 0, y: 0, width, height, color: rgb(0.99, 0.99, 1.0) });
 
     page.drawRectangle({ x: 40, y: height - 100, width: 235, height: 22, color: rgb(0.92, 0.98, 0.99), borderColor: rgb(0.82, 0.93, 0.95), borderWidth: 0.75 });
-    page.drawText("VIBEBOOKS PRO · PRODUCTIVITY SYSTEMS", { x: 50, y: height - 93, size: 8, font: fontBold, color: appleCyan });
+    page.drawText("BOOK SANGDAI PRO · PRODUCTIVITY SYSTEMS", { x: 50, y: height - 93, size: 8, font: fontBold, color: appleCyan });
 
     page.drawText("TaskManagerPRO", {
       x: 40, y: height - 150, size: 28, font: fontBold, color: textBlack,

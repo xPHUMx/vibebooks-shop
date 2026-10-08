@@ -83,16 +83,7 @@ export default function OrderDeliveryPage() {
 
       setDirectDownloadUrl(targetUrl);
 
-      // 1. MIT App Inventor WebViewer Bridge (ActivityStarter trigger)
-      if (typeof window !== "undefined" && (window as any).AppInventor) {
-        try {
-          (window as any).AppInventor.setWebViewString(targetUrl);
-        } catch (e) {
-          console.log("AppInventor bridge message:", e);
-        }
-      }
-
-      // 2. Try copying to clipboard automatically
+      // 1. Try copying to clipboard automatically
       try {
         await navigator.clipboard.writeText(targetUrl);
         setCopiedLink(true);
@@ -114,7 +105,7 @@ export default function OrderDeliveryPage() {
         // standard download fallback
       }
 
-      // 4. Open Mobile & MIT App Download Assistant modal
+      // 4. Open Mobile Download Assistant modal
       setDownloadModalOpen(true);
     } catch (err) {
       console.error("Download handling exception:", err);
@@ -433,7 +424,7 @@ export default function OrderDeliveryPage() {
         </div>
       </div>
 
-      {/* Download Assistant Modal (For MIT App Inventor & Mobile Browsers) */}
+      {/* Download Assistant Modal (For Mobile Browsers & Direct Downloads) */}
       {downloadModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-2xl flex items-center justify-center p-4 animate-fade">
           <div className="w-full max-w-md bg-[#161617] rounded-[24px] border border-white/10 p-5 sm:p-6 shadow-2xl space-y-4">
@@ -443,7 +434,7 @@ export default function OrderDeliveryPage() {
                   download_for_offline
                 </span>
                 <h3 className="text-sm font-bold text-white">
-                  ดาวน์โหลด E-Book บนมือถือ & MIT App
+                  ดาวน์โหลด E-Book & ไฟล์ดิจิทัล
                 </h3>
               </div>
               <button
@@ -460,7 +451,7 @@ export default function OrderDeliveryPage() {
             </div>
 
             <p className="text-xs text-[#86868b] leading-relaxed">
-              สำหรับผู้ใช้งานผ่าน <strong>MIT App Inventor</strong> คุณสามารถเข้าถึงหนังสือได้ง่ายๆ 3 วิธีดังนี้:
+              ท่านสามารถเข้าถึงและดาวน์โหลดหนังสือได้ง่ายๆ 3 วิธีดังนี้:
             </p>
 
             <div className="space-y-2.5">

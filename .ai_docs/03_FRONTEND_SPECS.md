@@ -183,6 +183,16 @@ src/
     - Components: `AuthModal.tsx` และ `src/app/auth/login/page.tsx`
     - Auto-fill อีเมลที่จำไว้โดยอัตโนมัติเมื่อเปิดหน้าหรือโมดัล
 
+- **Legacy Decommissioning & Full Book Sangdai Rebranding:**
+  - **Removed Artifacts & Code:**
+    - ลบโฟลเดอร์ `mit_app_inventor/` ทั้งหมด
+    - ลบไฟล์ `.aia`, `.docx` และรูปภาพประกอบใน `public/docs_assets/` และโฟลเดอร์ mockups `design_stitch/`
+    - นำ `window.AppInventor` WebViewer bridge และข้อความอ้างอิงถึง MIT App Inventor ออกจาก `src/app/order/[orderId]/page.tsx`
+  - **Storage Keys Migration:**
+    - เปลี่ยนคีย์ LocalStorage จาก `vibebooks_*` เป็น `booksangdai_*` ทั้งหมด (`booksangdai_customer_email`, `booksangdai_last_pending_order_id`, `booksangdai_remembered_email`, `booksangdai_remember_me`)
+    - อัปเดต Copywriting ใน `LegalDocumentModal.tsx`, `terms/page.tsx`, `privacy/page.tsx` และ `commentsData.ts` เป็น `Book Sangdai` ทั้งหมด
+
+
 
 
 

@@ -1,5 +1,5 @@
 # คู่มือการเชื่อมต่อฐานข้อมูล Supabase และระบบ API จริง
-**โครงงาน**: VibeBooks PRO (Vibe Coding E-book Platform)  
+**โครงงาน**: Book Sangdai (บุ๊คสั่งได้)  
 **ผู้จัดทำ**: นายเกียรติภูมิ หารศรีนาถ (64332110242-2)  
 
 ---
@@ -10,7 +10,7 @@
 1. เข้าไปที่ [https://supabase.com](https://supabase.com) แล้วเข้าสู่ระบบ (Sign In with GitHub ได้)
 2. กดปุ่ม **"New Project"**
 3. กรอกข้อมูล:
-   - **Name**: `vibebooks-platform`
+   - **Name**: `booksangdai-platform`
    - **Database Password**: ตั้งรหัสผ่านที่ปลอดภัย (และจดจำไว้)
    - **Region**: เลือก `Singapore (ap-southeast-1)` (ใกล้ไทยที่สุดและเร็วที่สุด)
 4. กด **"Create new project"** และรอระบบ Provisioning ประมาณ 1-2 นาที

@@ -143,7 +143,7 @@ export default function PaymentPage() {
       const data = await res.json();
       if (data.success) {
         if (typeof window !== "undefined") {
-          localStorage.setItem("vibebooks_last_pending_order_id", orderId);
+          localStorage.setItem("booksangdai_last_pending_order_id", orderId);
         }
         router.push(`/order/${orderId}`);
       } else {

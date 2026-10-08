@@ -36,6 +36,7 @@
 | **FEAT-MERCHANT-04** | **Merchant Transaction Deletion Gate** | เพิ่มระบบลบยอดขายหรือรายการธุรกรรมฝั่งร้านค้า โดยมีโมดอลยืนยันความปลอดภัยที่บังคับให้กรอกรหัส Order ID สีแดงให้ตรงกันก่อนลบถาวร | ✅ Released |
 | **FEAT-CATALOG-04** | **Category Icons & Card Discount Badges** | เพิ่ม Material Symbol Icon ประจำแต่ละหมวดหมู่บนปุ่มเลือกหมวดหมู่หน้าแรก และคำนวณพร้อมแสดงป้ายลดราคาเป็นเปอร์เซ็นต์ (ลด X% / -X%) บนการ์ดสินค้าทุกชิ้นที่ลดราคา | ✅ Released |
 | **FEAT-CATALOG-05** | **Clean Compact Discount Badges & Vertical Category Cards** | จัดเลย์เอาต์หมวดหมู่ผลงานแบบกล่องไอคอนสี่เหลี่ยมโค้งมน (Vertical Cards) พร้อมป้ายชื่อด้านล่าง และปรับป้ายลดราคาบนการ์ดสินค้าให้มีขนาดกะทัดรัด คลีน สไตล์แคปซูลสีแดง (-X%) มุมบนซ้าย และตัดความซ้ำซ้อนบริเวณราคาออก | ✅ Released |
+| **FEAT-CLEANUP-01** | **Legacy VibeBooks & MIT App Inventor Decommissioning** | ถอนการติดตั้งและลบไฟล์ เอกสาร สคริปต์ และโค้ดทั้งหมดที่เกี่ยวข้องกับ vibebooks และ MIT App Inventor ออกจากระบบอย่างสมบูรณ์แบบ รีแบรนด์เป็น Book Sangdai ทั้งหมด 100% | ✅ Released |
 
 
 ---
@@ -119,6 +120,12 @@
 - **As a:** ผู้ใช้งานที่เข้าสู่ระบบ
 - **I want to:** ติ๊กเลือก "จดจำฉันไว้ในระบบ" ในหน้าเข้าสู่ระบบและ Auth Modal
 - **So that:** ไม่ต้องพิมพ์อีเมลใหม่ทุกครั้งที่กลับมาใช้งานบนเบราว์เซอร์เดิม
+
+### US-CLEANUP-01: การลบส่วนที่เกี่ยวกับ VibeBooks และ MIT App Inventor ทั้งหมดออกจากโปรเจกต์
+- **As a:** เจ้าของแพลตฟอร์มและทีมพัฒนา
+- **I want to:** ลบโฟลเดอร์ `mit_app_inventor/`, ไฟล์เอกสารคู่มือ `.docx`, `.aia`, โฟลเดอร์ mockups `design_stitch/`, ไฟล์รูปภาพ assets ใน `public/docs_assets/`, รวมถึงคีย์ localStorage และข้อความที่อ้างอิงถึง vibebooks / MIT App Inventor ออกจากซอร์สโค้ดทั้งหมด
+- **So that:** โปรเจกต์สะอาด ปราศจากโค้ดและไฟล์ legacy ที่ไม่ได้ใช้งาน และรีแบรนด์เป็น Book Sangdai (บุ๊คสั่งได้) 100%
+
 
 
 

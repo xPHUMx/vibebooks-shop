@@ -125,7 +125,7 @@ export default function TermsPage() {
         {/* Footer actions */}
         <div className="mt-10 pt-6 border-t border-black/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-slate">
-            มีคำถามเพิ่มเติมเกี่ยวกับข้อตกลงการใช้งาน? ติดต่อทีมงานที่ support@vibebooks.com
+            มีคำถามเพิ่มเติมเกี่ยวกับข้อตกลงการใช้งาน? ติดต่อทีมงานที่ support@booksangdai.store
           </p>
           <Link
             href="/privacy"
