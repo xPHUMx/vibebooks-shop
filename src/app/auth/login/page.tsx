@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -25,12 +25,47 @@ function LoginForm() {
   const [errorMsg, setErrorMsg] = useState(errorParam || '');
   const [successMsg, setSuccessMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+
+  // Load remembered email on component mount
+  useEffect(() => {
+    try {
+      const savedEmail = localStorage.getItem('booksangdai_remembered_email');
+      const isRemembered = localStorage.getItem('booksangdai_remember_me') !== 'false';
+      if (savedEmail && isRemembered) {
+        setEmail(savedEmail);
+        setRememberMe(true);
+      }
+    } catch {}
+  }, []);
+
+  const handleSaveRememberMe = (targetEmail: string) => {
+    try {
+      if (rememberMe && targetEmail) {
+        localStorage.setItem('booksangdai_remembered_email', targetEmail);
+        localStorage.setItem('booksangdai_remember_me', 'true');
+      } else {
+        localStorage.removeItem('booksangdai_remembered_email');
+        localStorage.setItem('booksangdai_remember_me', 'false');
+      }
+    } catch {}
+  };
 
   const resetForm = () => {
     setErrorMsg('');
     setSuccessMsg('');
     setFullName('');
-    setEmail('');
+    try {
+      const savedEmail = localStorage.getItem('booksangdai_remembered_email');
+      const isRemembered = localStorage.getItem('booksangdai_remember_me') !== 'false';
+      if (savedEmail && isRemembered) {
+        setEmail(savedEmail);
+      } else {
+        setEmail('');
+      }
+    } catch {
+      setEmail('');
+    }
     setPassword('');
     setConfirmPassword('');
   };
@@ -49,6 +84,8 @@ function LoginForm() {
       setErrorMsg('กรุณากรอกอีเมลและรหัสผ่านให้ครบถ้วน');
       return;
     }
+
+    handleSaveRememberMe(email.trim());
 
     if (tab === 'signup') {
       if (!fullName.trim()) {
@@ -246,6 +283,23 @@ function LoginForm() {
                   className="w-full h-11 px-3.5 rounded-xl border border-black/10 bg-porcelain text-xs text-charcoal focus:bg-white focus:outline-none focus:ring-2 focus:ring-black/20 transition-all"
                 />
               </div>
+
+              {/* Remember Me Checkbox (จดจำฉันไว้ในระบบ) for Sign In */}
+              {tab === 'signin' && (
+                <div className="flex items-center justify-between text-xs pt-0.5 px-0.5">
+                  <label className="flex items-center gap-2 cursor-pointer select-none group">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="w-4 h-4 rounded border-black/20 text-black focus:ring-black accent-black cursor-pointer"
+                    />
+                    <span className="text-[12px] text-charcoal/80 group-hover:text-charcoal transition-colors font-medium">
+                      จดจำฉันไว้ในระบบ
+                    </span>
+                  </label>
+                </div>
+              )}
 
               {tab === 'signup' && (
                 <div>

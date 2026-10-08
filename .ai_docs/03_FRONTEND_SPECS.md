@@ -174,6 +174,16 @@ src/
   - **Vercel Deployment Compatibility:**
     - ไฟล์ทั้งหมดอยู่ใน `public/` โดยไม่ชนกับ dynamic App Router metadata route เพื่อป้องกัน 500 error บน Vercel Edge/Serverless functions
 
+- **Minimalist OTP Delivery & Remember Me Specification:**
+  - **OTP Expiration:**
+    - `src/app/api/auth/send-otp/route.ts`: ปรับ `expiresAt = new Date(Date.now() + 2 * 60 * 1000)`
+    - Header & Email: แสดงโลโก้ `Icon Production.jpg` ผ่าน raw GitHub URL และแสดงตัวเลข 6 หลักแบบ Minimalist tiles
+  - **Remember Me Logic:**
+    - LocalStorage Keys: `booksangdai_remembered_email` และ `booksangdai_remember_me`
+    - Components: `AuthModal.tsx` และ `src/app/auth/login/page.tsx`
+    - Auto-fill อีเมลที่จำไว้โดยอัตโนมัติเมื่อเปิดหน้าหรือโมดัล
+
+
 
 
 

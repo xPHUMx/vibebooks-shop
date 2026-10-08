@@ -123,6 +123,10 @@
 | **TC-ICON-03** | ตรวจสอบ Header Brand Logo | แถบ Header แสดงภาพไอคอนร้านค้าขนาด 36x36px ขอบมนสวยงาม | ✅ PASS |
 | **TC-ICON-04** | ตรวจสอบ Modal & Login Page Brand Logo | Auth Modal, Consent Modal, และ `/auth/login` แสดงโลโก้ใหม่ตรงกันทั้งหมด | ✅ PASS |
 | **TC-ICON-05** | Vercel Deployment & PWA Compatibility | ไอคอนทุกขนาดให้บริการผ่าน static server ไม่พึ่งพา sharp dynamic metadata เพื่อการ Deploy บน Vercel ได้ราบรื่น 100% | ✅ PASS |
+| **TC-OTP-01** | ตรวจสอบอีเมล OTP ใน Gmail | แสดง Brand Icon Production แทนหนังสือ และตัวเลข 6 หลักแบบ Minimalist Tiles พร้อมป้ายกำกับหมดอายุ 2 นาที | ✅ PASS |
+| **TC-OTP-02** | ตรวจสอบอายุรหัส OTP Backend | กำหนด `expires_at` เท่ากับ 2 นาที (120 วินาที) หลังสร้าง | ✅ PASS |
+| **TC-AUTH-03** | ช่อง "จดจำฉันไว้ในระบบ" (Remember Me) | ปรากฏในทั้ง AuthModal และ `/auth/login` จำอีเมลลง `localStorage` และ Auto-fill ครั้งต่อไปได้อย่างถูกต้อง | ✅ PASS |
+
 
 
 

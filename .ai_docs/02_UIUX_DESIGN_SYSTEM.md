@@ -184,6 +184,17 @@
   - **Consent Modal:** `w-12 h-12 rounded-2xl bg-charcoal border border-black/10 overflow-hidden shadow-sm`
   - **Aspect & Object Fit:** `w-full h-full object-cover` preserving visual fidelity.
 
+### 4.10 Minimalist OTP Email & Remember Me Form Controls
+- **Email Typography & Palette:**
+  - Card: `#ffffff` background with `24px` border-radius and subtle `0 8px 30px rgba(0,0,0,0.06)` shadow.
+  - Header: Pitch black (`#111111`) with rounded Icon Production artwork (`56x56px`, `15px` radius).
+  - Digit Tiles: Modern Apple typography (`SF Pro Display`), individual white tiles (`40x48px`, `10px` radius, `#dcdcde` border) displayed via HTML table.
+  - Expiry Pill: Soft red badge `⏱ รหัสมีอายุ 2 นาที` (`#fef2f2` bg, `#fee2e2` border, `#dc2626` text).
+- **Remember Me Checkbox Token:**
+  - `w-4 h-4 rounded border-black/20 text-black focus:ring-black accent-black cursor-pointer`
+  - Label: `text-[12px] text-charcoal/80 group-hover:text-charcoal transition-colors font-medium`
+
+
 
 
 

@@ -20,14 +20,49 @@ export default function AuthModal() {
   const [canResend, setCanResend] = useState(false);
   const [showSignupConsent, setShowSignupConsent] = useState(false);
   const [signupConsentAccepted, setSignupConsentAccepted] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
 
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Load remembered email on component mount
+  useEffect(() => {
+    try {
+      const savedEmail = localStorage.getItem('booksangdai_remembered_email');
+      const isRemembered = localStorage.getItem('booksangdai_remember_me') !== 'false';
+      if (savedEmail && isRemembered) {
+        setEmail(savedEmail);
+        setRememberMe(true);
+      }
+    } catch {}
+  }, []);
+
+  const handleSaveRememberMe = (targetEmail: string) => {
+    try {
+      if (rememberMe && targetEmail) {
+        localStorage.setItem('booksangdai_remembered_email', targetEmail);
+        localStorage.setItem('booksangdai_remember_me', 'true');
+      } else {
+        localStorage.removeItem('booksangdai_remembered_email');
+        localStorage.setItem('booksangdai_remember_me', 'false');
+      }
+    } catch {}
+  };
+
   const resetAll = () => {
     setView('signin');
     setFullName('');
-    setEmail('');
+    try {
+      const savedEmail = localStorage.getItem('booksangdai_remembered_email');
+      const isRemembered = localStorage.getItem('booksangdai_remember_me') !== 'false';
+      if (savedEmail && isRemembered) {
+        setEmail(savedEmail);
+      } else {
+        setEmail('');
+      }
+    } catch {
+      setEmail('');
+    }
     setOtpDigits(['', '', '', '', '', '']);
     setErrorMsg('');
     setSuccessMsg('');
@@ -103,6 +138,8 @@ export default function AuthModal() {
       setErrorMsg('กรุณากรอกอีเมลให้ถูกต้อง');
       return;
     }
+
+    handleSaveRememberMe(email.trim());
 
     if (view === 'signup') {
       if (!fullName.trim()) {
@@ -215,6 +252,8 @@ export default function AuthModal() {
       setErrorMsg(res.error || 'รหัส OTP ไม่ถูกต้อง กรุณาลองใหม่');
       return;
     }
+
+    handleSaveRememberMe(email.trim());
 
     setSuccessMsg(res.isNewUser ? 'สร้างบัญชีสำเร็จ' : 'เข้าสู่ระบบสำเร็จ');
     setTimeout(() => {
@@ -341,6 +380,23 @@ export default function AuthModal() {
                   />
                 </div>
 
+                {/* Remember Me Checkbox (จดจำฉันไว้ในระบบ) for Sign In */}
+                {view === 'signin' && (
+                  <div className="flex items-center justify-between text-xs pt-0.5 px-0.5">
+                    <label className="flex items-center gap-2 cursor-pointer select-none group">
+                      <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="w-4 h-4 rounded border-black/20 text-black focus:ring-black accent-black cursor-pointer"
+                      />
+                      <span className="text-[12px] text-charcoal/80 group-hover:text-charcoal transition-colors font-medium">
+                        จดจำฉันไว้ในระบบ
+                      </span>
+                    </label>
+                  </div>
+                )}
+
                 {/* Terms agreement link notice for signup */}
                 {view === 'signup' && (
                   <p className="text-[11px] text-muted-slate text-center leading-relaxed">
@@ -436,6 +492,10 @@ export default function AuthModal() {
                   ส่งรหัส OTP 6 หลักไปยัง<br />
                   <strong className="text-charcoal font-semibold">{email}</strong>
                 </p>
+                <div className="mt-2 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-red-500/10 text-red-600 text-[11px] font-semibold">
+                  <span className="material-symbols-outlined text-[13px]">schedule</span>
+                  <span>รหัสมีอายุ 2 นาที</span>
+                </div>
               </div>
 
               {/* OTP Input Grid */}

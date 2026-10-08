@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     }
 
     const otpCode = generateOTP();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const expiresAt = new Date(Date.now() + 2 * 60 * 1000); // 2 minutes
 
     // Delete old unused OTPs for this email
     await supabaseAdmin
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
     const { error: emailError } = await resend.emails.send({
       from: 'Book Sangdai <onboarding@resend.dev>',
       to: [email],
-      subject: `${otpCode} - รหัส OTP สำหรับเข้าสู่ระบบ Book Sangdai`,
+      subject: `${otpCode} - รหัส OTP สำหรับเข้าสู่ระบบ Book Sangdai (หมดอายุใน 2 นาที)`,
       html: `
 <!DOCTYPE html>
 <html lang="th">
@@ -99,49 +99,70 @@ export async function POST(req: NextRequest) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-  <div style="max-width:480px;margin:40px auto;background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-    <!-- Header -->
-    <div style="background:#111111;padding:32px 32px 24px;text-align:center;">
-      <div style="width:52px;height:52px;background:rgba(255,255,255,0.12);border-radius:14px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
-        <span style="font-size:26px;">📚</span>
+<body style="margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;">
+  <div style="max-width:480px;margin:36px auto;background:#ffffff;border-radius:24px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.06);border:1px solid #ededf0;">
+    <!-- Header with Brand Icon Production -->
+    <div style="background:#111111;padding:32px 32px 26px;text-align:center;">
+      <div style="width:56px;height:56px;border-radius:15px;margin:0 auto 14px;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.2);background:#000000;">
+        <img src="https://raw.githubusercontent.com/xPHUMx/vibebooks-shop/main/public/icon.jpg" width="56" height="56" alt="Book Sangdai Icon" style="width:56px;height:56px;object-fit:cover;display:block;" />
       </div>
-      <h1 style="color:white;font-size:22px;font-weight:700;margin:0;">Book Sangdai</h1>
-      <p style="color:rgba(255,255,255,0.6);font-size:13px;margin:6px 0 0;">Digital Library & E-Book Store</p>
+      <h1 style="color:#ffffff;font-size:21px;font-weight:700;margin:0;letter-spacing:-0.02em;">Book Sangdai</h1>
+      <p style="color:rgba(255,255,255,0.65);font-size:12px;margin:5px 0 0;font-weight:400;">Ultra-Refined Digital Store & Creator Vault</p>
     </div>
     
     <!-- Body -->
-    <div style="padding:32px;">
-      <h2 style="color:#1a1a2e;font-size:18px;font-weight:700;margin:0 0 8px;">
-        ${isPurposeSignup ? '🎉 ยืนยันการสมัครสมาชิก' : '🔐 รหัสยืนยันตัวตน'}
+    <div style="padding:32px 28px 28px;">
+      <h2 style="color:#111111;font-size:17px;font-weight:700;margin:0 0 8px;letter-spacing:-0.01em;">
+        ${isPurposeSignup ? '🎉 ยืนยันการสมัครสมาชิกใหม่' : '🔐 รหัสยืนยันตัวตน (OTP)'}
       </h2>
-      <p style="color:#6b7280;font-size:14px;margin:0 0 24px;line-height:1.6;">
-        ${isPurposeSignup ? `สวัสดีคุณ <strong>${fullName || email}</strong>,<br/>กรอกรหัส OTP ด้านล่างเพื่อสร้างบัญชีและเริ่มใช้งาน Book Sangdai` : 'กรอกรหัส OTP ด้านล่างเพื่อเข้าสู่ระบบบัญชีของคุณ'}
+      <p style="color:#666668;font-size:13px;margin:0 0 22px;line-height:1.6;">
+        ${isPurposeSignup ? `สวัสดีคุณ <strong>${fullName || email}</strong>,<br/>กรอกรหัสยืนยันด้านล่างเพื่อเปิดใช้งานบัญชีของคุณ` : 'กรอกรหัสยืนยัน 6 หลักด้านล่างเพื่อเข้าสู่ระบบ Book Sangdai'}
       </p>
       
-      <!-- OTP Code Box -->
-      <div style="background:#f8f8fa;border:2px dashed #e5e7eb;border-radius:16px;padding:24px;text-align:center;margin:0 0 24px;">
-        <p style="color:#9ca3af;font-size:12px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin:0 0 10px;">รหัส OTP ของคุณ</p>
-        <div style="font-size:40px;font-weight:800;letter-spacing:12px;color:#111111;font-family:'Courier New',monospace;">${otpCode}</div>
-        <p style="color:#ef4444;font-size:12px;font-weight:600;margin:12px 0 0;">⏱ หมดอายุใน 10 นาที</p>
+      <!-- Minimalist OTP Number Card -->
+      <div style="background:#fafafc;border:1px solid #e8e8ed;border-radius:18px;padding:24px 16px;text-align:center;margin:0 0 22px;">
+        <p style="color:#86868b;font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;margin:0 0 16px;">
+          รหัส OTP ของคุณ
+        </p>
+
+        <!-- Clean Individual Digit Tiles -->
+        <table align="center" border="0" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+          <tr>
+            ${otpCode.split('').map(digit => `
+              <td style="padding:0 3px;">
+                <div style="width:40px;height:48px;line-height:48px;background:#ffffff;border:1px solid #dcdcde;border-radius:10px;font-size:24px;font-weight:700;color:#111111;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+                  ${digit}
+                </div>
+              </td>
+            `).join('')}
+          </tr>
+        </table>
+
+        <!-- 2-Minute Expiry Pill -->
+        <div style="margin-top:16px;">
+          <span style="display:inline-block;padding:4px 12px;background:#fef2f2;border:1px solid #fecaca;border-radius:9999px;color:#dc2626;font-size:11px;font-weight:600;">
+            ⏱ รหัสมีอายุ 2 นาที
+          </span>
+        </div>
       </div>
       
-      <!-- Warning -->
-      <div style="background:#fff7ed;border-left:4px solid #f97316;border-radius:8px;padding:14px 16px;margin:0 0 24px;">
-        <p style="color:#92400e;font-size:12px;margin:0;line-height:1.6;">
-          ⚠️ <strong>อย่าแชร์รหัสนี้กับผู้อื่น</strong> — ทีมงาน Book Sangdai จะไม่มีวันขอรหัส OTP จากคุณ
+      <!-- Security Notice -->
+      <div style="background:#fdf8f6;border-left:3px solid #f97316;border-radius:6px;padding:12px 14px;margin:0 0 22px;">
+        <p style="color:#9a3412;font-size:12px;margin:0;line-height:1.5;">
+          🛡️ <strong>โปรดรักษาความปลอดภัย:</strong> ห้ามส่งต่อรหัสนี้ให้ผู้อื่น ทีมงานจะไม่ติดต่อขอรหัส OTP จากท่าน
         </p>
       </div>
       
-      <p style="color:#9ca3af;font-size:12px;margin:0;line-height:1.6;">
-        หากคุณไม่ได้ร้องขอรหัสนี้ กรุณาเพิกเฉยต่ออีเมลนี้ได้เลย<br/>
-        บัญชีของคุณจะยังคงปลอดภัย
+      <p style="color:#999999;font-size:11px;margin:0;line-height:1.5;text-align:center;">
+        หากท่านไม่ได้เป็นผู้ทำรายการนี้ สามารถละเว้นอีเมลฉบับนี้ได้ทันที
       </p>
     </div>
     
     <!-- Footer -->
-    <div style="background:#f8f8fa;padding:20px 32px;text-align:center;border-top:1px solid #f0f0f0;">
-      <p style="color:#9ca3af;font-size:11px;margin:0;">© 2026 Book Sangdai (บุ๊คสร้างได้)</p>
+    <div style="background:#fafafc;padding:18px 24px;text-align:center;border-top:1px solid #eeeeef;">
+      <p style="color:#999999;font-size:11px;margin:0;">
+        © 2026 Book Sangdai (บุ๊คสั่งได้) • All Rights Reserved.
+      </p>
     </div>
   </div>
 </body>
@@ -159,7 +180,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ 
       success: true, 
-      message: `ส่งรหัส OTP ไปยัง ${email} เรียบร้อยแล้ว (หมดอายุใน 10 นาที)` 
+      message: `ส่งรหัส OTP ไปยัง ${email} เรียบร้อยแล้ว (หมดอายุใน 2 นาที)` 
     });
 
   } catch (err: any) {
