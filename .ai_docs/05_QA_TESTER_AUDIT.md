@@ -153,7 +153,10 @@
 | **TC-DSK-01** | ตรวจสอบการติดตั้ง Electron | ติดตั้ง `electron` และมีไฟล์ entry point `desktop/main.js` พร้อม preload | ✅ PASS |
 | **TC-DSK-02** | ตรวจสอบการจัดการความปลอดภัย Electron | เปิดใช้ `contextIsolation: true`, `sandbox: true`, `nodeIntegration: false` | ✅ PASS |
 | **TC-DSK-03** | ตรวจสอบสคริปต์ใน `package.json` | มีคำสั่ง `npm run desktop`, `npm run cap:sync`, `npm run cap:open:android` ใช้งานได้ | ✅ PASS |
+| **TC-DSK-04** | คอมไพล์ตัวติดตั้ง Windows Installer (`npm run desktop:dist`) | สร้างไฟล์ `dist-desktop/Book Sangdai Setup 2.0.0.exe` (184 MB) สมบูรณ์ | ✅ PASS |
+| **TC-DSK-05** | คอมไพล์โปรแกรมแบบ Portable EXE (`npm run desktop:dist`) | สร้างไฟล์ `dist-desktop/Book Sangdai 2.0.0.exe` (184 MB) ดับเบิลคลิกเปิดได้ทันที | ✅ PASS |
 | **TC-DOC-01** | ตรวจสอบคู่มือ `docs/MOBILE_AND_DESKTOP_GUIDE.md` | มีคำแนะนำการติดตั้ง, รัน, และ build APK/.exe ละเอียดครบถ้วน | ✅ PASS |
+
 
 
 

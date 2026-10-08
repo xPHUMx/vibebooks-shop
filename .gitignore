@@ -44,3 +44,5 @@ yarn-error.log*
 # Scratch and temporary working files
 scratch/
 ~$*
+dist-desktop/
+

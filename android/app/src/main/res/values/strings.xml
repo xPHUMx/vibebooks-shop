@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Book Sangdai</string>
+    <string name="title_activity_main">Book Sangdai</string>
+    <string name="package_name">store.booksangdai.app</string>
+    <string name="custom_url_scheme">store.booksangdai.app</string>
+</resources>

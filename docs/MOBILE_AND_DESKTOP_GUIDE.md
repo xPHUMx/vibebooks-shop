@@ -53,12 +53,18 @@ npm run desktop
 $env:ELECTRON_DEV="1"; npm run desktop
 ```
 
-### 📦 การแพ็กเป็นไฟล์ติดตั้ง (.exe / .dmg):
-สามารถใช้ `electron-builder` สำหรับคอมไพล์เป็นไฟล์ติดตั้งแจกจ่ายให้ผู้ใช้ได้:
+### 📦 การแพ็กเป็นไฟล์ติดตั้ง Windows (.exe):
+รันคำสั่งแพ็กเกจแบบง่าย:
 ```bash
-npx electron-builder --win   # สร้างตัวติดตั้ง Windows .exe
-npx electron-builder --mac   # สร้างตัวติดตั้ง macOS .dmg
+npm run desktop:dist           # สร้างทั้งตัวติดตั้ง Installer (.exe) และ Portable (.exe)
+npm run desktop:dist:portable  # สร้างเฉพาะ Portable (.exe)
 ```
+
+**ไฟล์ผลลัพธ์ที่ได้ (อยู่ในโฟลเดอร์ `dist-desktop/`):**
+1. **`Book Sangdai Setup 2.0.0.exe`** (Installer) — ตัวติดตั้งมาตรฐานพร้อมตัวเลือกเลือกโฟลเดอร์ และสร้าง Shortcut บน Desktop / Start Menu
+2. **`Book Sangdai 2.0.0.exe`** (Portable) — ไฟล์โปรแกรมเดี่ยว ดับเบิลคลิกเปิดใช้งานได้ทันทีโดยไม่ต้องผ่านขั้นตอนติดตั้ง
+3. **`win-unpacked/`** — โฟลเดอร์โปรแกรมแบบ Standalone สามารถเปิด `Book Sangdai.exe` ภายในโฟลเดอร์ได้ทันที
+
 
 ---
 
