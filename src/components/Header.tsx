@@ -32,8 +32,8 @@ export default function Header() {
       <div className="max-w-6xl mx-auto h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
         {/* Brand Logo & Tagline */}
         <Link href="/" className="flex items-center gap-3 group shrink-0">
-          <div className="w-9 h-9 rounded-xl bg-black flex items-center justify-center text-white shadow-sm transition-transform group-hover:scale-105">
-            <span className="material-symbols-outlined text-[20px]">local_library</span>
+          <div className="w-9 h-9 rounded-xl bg-black flex items-center justify-center text-white shadow-sm transition-transform group-hover:scale-105 overflow-hidden border border-black/10">
+            <img src="/icon.jpg" alt={STORE_INFO.brand} className="w-full h-full object-cover" />
           </div>
 
           <div className="flex flex-col">

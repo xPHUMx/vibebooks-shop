@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import CartDrawer from "@/components/CartDrawer";
 import AuthModal from "@/components/AuthModal";
+import FirstTimeConsentModal from "@/components/FirstTimeConsentModal";
 import { AppProviders } from "@/providers/AppProviders";
 import { STORE_INFO } from "@/lib/productsData";
 
@@ -20,6 +21,11 @@ export const metadata: Metadata = {
   title: `${STORE_INFO.brand} (${STORE_INFO.brandTh}) — แพลตฟอร์มจำหน่ายผลงานดิจิทัลและอีบุ๊กคุณภาพ`,
   description: `ศูนย์รวมหนังสือและผลงานดิจิทัลคุณภาพ ลิขสิทธิ์แท้ 100% โดย ${STORE_INFO.curatorFull}`,
   manifest: "/manifest.json",
+  icons: {
+    icon: "/icon.jpg",
+    shortcut: "/icon.jpg",
+    apple: "/icon.jpg",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -74,6 +80,9 @@ export default function RootLayout({
 
           {/* Auth Modal */}
           <AuthModal />
+
+          {/* First Time Visitor Legal Consent Modal */}
+          <FirstTimeConsentModal />
 
           {/* Mobile Bottom Nav */}
           <BottomNav />

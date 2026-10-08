@@ -3,10 +3,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { DIGITAL_PRODUCTS } from '@/lib/productsData';
+import { DIGITAL_PRODUCTS, CATEGORIES, getCategoryName } from '@/lib/productsData';
 import { DigitalProduct, Order } from '@/types';
 import { useAuth } from '@/context/AuthContext';
 import DeleteProductModal from '@/components/DeleteProductModal';
+import DeleteOrderModal from '@/components/DeleteOrderModal';
 import { createClient } from '@/lib/supabase/client';
 
 interface AdminUser {
@@ -39,7 +40,8 @@ export default function AdminPage() {
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
   const [updatingUserId, setUpdatingUserId] = useState<string | null>(null);
 
-  const [activeTab, setActiveTab] = useState<'analytics' | 'products' | 'orders' | 'merchants' | 'users'>('analytics');
+  const [activeTab, setActiveTab] = useState<'analytics' | 'products' | 'orders' | 'merchants' | 'users' | 'reports'>('analytics');
+  const [reportTimeframe, setReportTimeframe] = useState<'all' | '30d' | '7d' | 'today'>('all');
   
   // Store-by-store filtering & search
   const [selectedStore, setSelectedStore] = useState<string>('all');
@@ -374,16 +376,7 @@ export default function AdminPage() {
           title: formTitle,
           subtitle: formSubtitle || `${formFormat} Edition`,
           category: formCategory,
-          categoryNameTh:
-            formCategory === 'ebook'
-              ? 'อีบุ๊ค & คู่มือ'
-              : formCategory === 'figma'
-              ? 'ดีไซน์ซิสเต็ม & Figma'
-              : formCategory === 'notion'
-              ? 'เทมเพลต Notion'
-              : formCategory === 'code'
-              ? 'ซอร์สโค้ด SaaS'
-              : 'กราฟิก 3D',
+          categoryNameTh: getCategoryName(formCategory),
           price: Number(formPrice),
           originalPrice: Number(formOriginalPrice),
           rating: 5.0,
@@ -473,6 +466,50 @@ export default function AdminPage() {
       alert('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
     } finally {
       setIsDeletingProduct(false);
+    }
+  };
+
+  // Admin Order / Transaction Delete State
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
+  const [isDeletingOrder, setIsDeletingOrder] = useState(false);
+
+  const handleConfirmDeleteOrder = async () => {
+    if (!orderToDelete) return;
+    setIsDeletingOrder(true);
+    try {
+      let authHeaders: Record<string, string> = {};
+      try {
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          authHeaders.Authorization = `Bearer ${session.access_token}`;
+        }
+      } catch {}
+
+      const res = await fetch('/api/orders', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify({
+          orderId: orderToDelete.id,
+          isMerchantDelete: true, // admin has authorization to delete orders
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'ไม่สามารถลบรายการธุรกรรมได้');
+      }
+
+      setOrders((prev) => prev.filter((o) => o.id !== orderToDelete.id));
+      setOrderToDelete(null);
+      alert('✅ ลบรายการธุรกรรมออกจากระบบเรียบร้อยแล้ว');
+    } catch (err: any) {
+      alert(err?.message || 'เกิดข้อผิดพลาดในการลบรายการ');
+    } finally {
+      setIsDeletingOrder(false);
     }
   };
 
@@ -651,6 +688,128 @@ export default function AdminPage() {
     }
   };
 
+  // Pending merchants count
+  const pendingMerchantsCount = merchantApps.filter((a) => a.merchant_status === 'PENDING').length;
+
+  // Revenue Metrics
+  const totalRevenue = orders
+    .filter((o) => o.status === 'PAID')
+    .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+  const paidOrdersCount = orders.filter((o) => o.status === 'PAID').length;
+  const avgOrderValue = paidOrdersCount > 0 ? Math.round(totalRevenue / paidOrdersCount) : 0;
+
+  // Report Center calculations
+  const filteredReportOrders = useMemo(() => {
+    const now = new Date();
+    return orders.filter((o) => {
+      if (reportTimeframe === 'all') return true;
+      const orderDate = o.createdAt ? new Date(o.createdAt) : new Date();
+      const diffMs = now.getTime() - orderDate.getTime();
+      const diffDays = diffMs / (1000 * 60 * 60 * 24);
+      if (reportTimeframe === 'today') return diffDays < 1;
+      if (reportTimeframe === '7d') return diffDays <= 7;
+      if (reportTimeframe === '30d') return diffDays <= 30;
+      return true;
+    });
+  }, [orders, reportTimeframe]);
+
+  const reportPaidOrders = useMemo(() => filteredReportOrders.filter((o) => o.status === 'PAID'), [filteredReportOrders]);
+  const reportPendingOrders = useMemo(() => filteredReportOrders.filter((o) => o.status === 'PENDING'), [filteredReportOrders]);
+  const reportRevenue = useMemo(() => reportPaidOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0), [reportPaidOrders]);
+  const reportAov = useMemo(() => reportPaidOrders.length > 0 ? Math.round(reportRevenue / reportPaidOrders.length) : 0, [reportPaidOrders, reportRevenue]);
+  const reportConversionRate = useMemo(() => {
+    return filteredReportOrders.length > 0
+      ? ((reportPaidOrders.length / filteredReportOrders.length) * 100).toFixed(1)
+      : '100.0';
+  }, [filteredReportOrders, reportPaidOrders]);
+
+  // Store performance aggregation for admin report center
+  const storePerformanceList = useMemo(() => {
+    const map: Record<string, {
+      storeName: string;
+      promptPay: string;
+      merchantName: string;
+      productCount: number;
+      orderCount: number;
+      revenue: number;
+      status: string;
+    }> = {};
+
+    // 1. Populate from users
+    users.filter((u) => u.role === 'merchant' || u.store_name).forEach((u) => {
+      const sName = u.store_name || `ร้านของ ${u.full_name}`;
+      map[sName] = {
+        storeName: sName,
+        promptPay: u.promptpay_id || '-',
+        merchantName: u.full_name,
+        productCount: 0,
+        orderCount: 0,
+        revenue: 0,
+        status: u.merchant_status || (u.role === 'merchant' ? 'APPROVED' : 'NONE'),
+      };
+    });
+
+    // 2. Populate from products
+    products.forEach((p) => {
+      const sName = p.merchantName || 'Book Sangdai Official';
+      if (!map[sName]) {
+        map[sName] = {
+          storeName: sName,
+          promptPay: p.merchantPromptPay || '-',
+          merchantName: p.curator || 'ร้านค้าทางการ',
+          productCount: 0,
+          orderCount: 0,
+          revenue: 0,
+          status: 'APPROVED',
+        };
+      }
+      map[sName].productCount += 1;
+    });
+
+    // 3. Populate from orders
+    reportPaidOrders.forEach((o) => {
+      const sName = o.merchantName || 'Book Sangdai Official';
+      if (!map[sName]) {
+        map[sName] = {
+          storeName: sName,
+          promptPay: o.merchantPromptPay || '-',
+          merchantName: 'ร้านค้าสมาชิก',
+          productCount: 0,
+          orderCount: 0,
+          revenue: 0,
+          status: 'APPROVED',
+        };
+      }
+      map[sName].orderCount += 1;
+      map[sName].revenue += (o.totalAmount || 0);
+    });
+
+    return Object.values(map).sort((a, b) => b.revenue - a.revenue);
+  }, [users, products, reportPaidOrders]);
+
+  const handleExportAdminCsv = () => {
+    const headers = ['Order ID', 'Date', 'Customer Name', 'Customer Email', 'Store Name', 'Product', 'Amount (THB)', 'Status'];
+    const rows = filteredReportOrders.map((o) => [
+      `"${o.id}"`,
+      `"${o.createdAt ? new Date(o.createdAt).toLocaleString('th-TH') : '-'}"`,
+      `"${(o.customerName || '').replace(/"/g, '""')}"`,
+      `"${(o.customerEmail || '').replace(/"/g, '""')}"`,
+      `"${(o.merchantName || 'Book Sangdai Official').replace(/"/g, '""')}"`,
+      `"${(o.bookTitle || o.title || '-').replace(/"/g, '""')}"`,
+      o.totalAmount || 0,
+      `"${o.status}"`
+    ]);
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `platform-admin-report-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // RBAC ACCESS CONTROL: If not authenticated or not an admin, show restricted screen
   if ((!profile || profile.role !== 'admin') && !isDemoAdmin) {
     return (
@@ -729,16 +888,6 @@ export default function AdminPage() {
       </div>
     );
   }
-
-  // Pending merchants count
-  const pendingMerchantsCount = merchantApps.filter((a) => a.merchant_status === 'PENDING').length;
-
-  // Revenue Metrics
-  const totalRevenue = orders
-    .filter((o) => o.status === 'PAID')
-    .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
-  const paidOrdersCount = orders.filter((o) => o.status === 'PAID').length;
-  const avgOrderValue = paidOrdersCount > 0 ? Math.round(totalRevenue / paidOrdersCount) : 0;
 
   return (
     <div className="space-y-8 pb-20 animate-fade-in">
@@ -847,6 +996,18 @@ export default function AdminPage() {
           ) : (
             <span className="text-[11px] text-muted-slate">({merchantApps.length})</span>
           )}
+        </button>
+
+        <button
+          onClick={() => setActiveTab('reports')}
+          className={`px-5 py-2 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            activeTab === 'reports'
+              ? 'bg-black text-white shadow-sm'
+              : 'text-muted-slate hover:text-charcoal'
+          }`}
+        >
+          <span className="material-symbols-outlined text-[15px] text-amber-500">assessment</span>
+          <span>ศูนย์รายงานระบบ (Report Center)</span>
         </button>
       </div>
 
@@ -1385,12 +1546,21 @@ export default function AdminPage() {
                         </span>
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => handleToggleOrderStatus(o.id, o.status)}
-                          className="px-3 py-1 rounded-full border border-black/10 hover:bg-black hover:text-white transition-all text-[11px] font-semibold"
-                        >
-                          {o.status === 'PAID' ? 'ตั้งเป็น PENDING' : 'อนุมัติ PAID'}
-                        </button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => handleToggleOrderStatus(o.id, o.status)}
+                            className="px-3 py-1 rounded-full border border-black/10 hover:bg-black hover:text-white transition-all text-[11px] font-semibold cursor-pointer"
+                          >
+                            {o.status === 'PAID' ? 'ตั้งเป็น PENDING' : 'อนุมัติ PAID'}
+                          </button>
+                          <button
+                            onClick={() => setOrderToDelete(o)}
+                            className="w-7 h-7 rounded-full border border-rose-200 hover:bg-rose-50 text-rose-600 inline-flex items-center justify-center transition-all cursor-pointer"
+                            title="ลบคำสั่งซื้อและธุรกรรมนี้ออกจากระบบ"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">delete</span>
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -1517,6 +1687,309 @@ export default function AdminPage() {
         </div>
       )}
 
+      {/* TAB: PLATFORM REPORT CENTER & AUDIT */}
+      {activeTab === 'reports' && (
+        <div className="space-y-6 animate-fade-in">
+          {/* Controls Bar */}
+          <div className="p-5 sm:p-6 rounded-squircle bg-white border border-black/[0.06] shadow-level-1 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 rounded-lg bg-amber-500/10 text-amber-600 material-symbols-outlined text-[20px]">
+                  assessment
+                </span>
+                <h2 className="text-lg sm:text-xl font-bold text-charcoal">
+                  ศูนย์รายงาน & ตรวจสอบระบบส่วนกลาง (Platform Report Center)
+                </h2>
+              </div>
+              <p className="text-xs text-muted-slate mt-1">
+                สรุปภาพรวมยอดธุรกรรม GMV ผลการดำเนินงานแยกตามร้านค้า และบันทึกธุรกรรมทั้งระบบ
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+              {/* Timeframe Selector */}
+              <div className="flex items-center bg-porcelain p-1 rounded-full border border-black/[0.06] text-xs">
+                {(
+                  [
+                    { key: 'all', label: 'ทั้งหมด' },
+                    { key: '30d', label: '30 วัน' },
+                    { key: '7d', label: '7 วัน' },
+                    { key: 'today', label: 'วันนี้' },
+                  ] as const
+                ).map((tf) => (
+                  <button
+                    key={tf.key}
+                    onClick={() => setReportTimeframe(tf.key)}
+                    className={`px-3 py-1 rounded-full font-semibold transition-all ${
+                      reportTimeframe === tf.key
+                        ? 'bg-black text-white shadow-sm'
+                        : 'text-muted-slate hover:text-charcoal'
+                    }`}
+                  >
+                    {tf.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Master CSV Export */}
+              <button
+                type="button"
+                onClick={handleExportAdminCsv}
+                className="h-8 px-3 rounded-full bg-white hover:bg-black/[0.04] text-charcoal border border-black/10 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+                title="ส่งออกรายงานแพลตฟอร์มเป็นไฟล์ CSV"
+              >
+                <span className="material-symbols-outlined text-[15px] text-emerald-600">download</span>
+                <span>ส่งออก Master CSV</span>
+              </button>
+
+              {/* Print Summary */}
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="h-8 px-3 rounded-full bg-white hover:bg-black/[0.04] text-charcoal border border-black/10 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+                title="พิมพ์เอกสารรายงานสรุป"
+              >
+                <span className="material-symbols-outlined text-[15px]">print</span>
+                <span>พิมพ์รายงาน</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Platform KPI Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-6 gap-3.5">
+            <div className="bg-white rounded-squircle border border-black/[0.06] p-4 shadow-level-1 col-span-2 sm:col-span-1 lg:col-span-2">
+              <div className="flex items-center justify-between text-muted-slate mb-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider">Platform GMV รวม</span>
+                <span className="material-symbols-outlined text-[18px] text-emerald-600">account_balance</span>
+              </div>
+              <div className="text-2xl sm:text-3xl font-extrabold text-charcoal mt-1">
+                ฿{reportRevenue.toLocaleString()}
+              </div>
+              <div className="text-[11px] text-accent-emerald font-semibold mt-1 flex items-center gap-1">
+                <span className="material-symbols-outlined text-[13px]">verified</span>
+                <span>มูลค่าธุรกรรมชำระสำเร็จผ่านระบบ</span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-squircle border border-black/[0.06] p-4 shadow-level-1">
+              <div className="flex items-center justify-between text-muted-slate mb-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider">ออเดอร์สำเร็จ</span>
+                <span className="material-symbols-outlined text-[18px] text-emerald-600">check_circle</span>
+              </div>
+              <div className="text-xl sm:text-2xl font-bold text-charcoal mt-1">
+                {reportPaidOrders.length}
+              </div>
+              <div className="text-[10px] text-muted-slate mt-1">
+                จากทั้งหมด {filteredReportOrders.length} รายการ
+              </div>
+            </div>
+
+            <div className="bg-white rounded-squircle border border-black/[0.06] p-4 shadow-level-1">
+              <div className="flex items-center justify-between text-muted-slate mb-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider">รอยืนยันสลิป</span>
+                <span className="material-symbols-outlined text-[18px] text-amber-600">hourglass_top</span>
+              </div>
+              <div className="text-xl sm:text-2xl font-bold text-amber-600 mt-1">
+                {reportPendingOrders.length}
+              </div>
+              <div className="text-[10px] text-muted-slate mt-1">
+                รอร้านค้าอนุมัติ
+              </div>
+            </div>
+
+            <div className="bg-white rounded-squircle border border-black/[0.06] p-4 shadow-level-1">
+              <div className="flex items-center justify-between text-muted-slate mb-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider">สมาชิกทั้งหมด</span>
+                <span className="material-symbols-outlined text-[18px] text-blue-600">groups</span>
+              </div>
+              <div className="text-xl sm:text-2xl font-bold text-charcoal mt-1">
+                {users.length}
+              </div>
+              <div className="text-[10px] text-muted-slate mt-1">
+                ผู้ซื้อ & ผู้ขายในระบบ
+              </div>
+            </div>
+
+            <div className="bg-white rounded-squircle border border-black/[0.06] p-4 shadow-level-1">
+              <div className="flex items-center justify-between text-muted-slate mb-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider">ร้านค้าในระบบ</span>
+                <span className="material-symbols-outlined text-[18px] text-purple-600">storefront</span>
+              </div>
+              <div className="text-xl sm:text-2xl font-bold text-charcoal mt-1">
+                {storePerformanceList.length}
+              </div>
+              <div className="text-[10px] text-muted-slate mt-1">
+                ร้านค้าสมาชิก & ทางการ
+              </div>
+            </div>
+          </div>
+
+          {/* Store Performance Comparison Table */}
+          <div className="bg-white rounded-squircle border border-black/[0.06] p-5 sm:p-6 shadow-level-1 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-base text-charcoal flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-amber-500 text-[20px]">store</span>
+                  <span>ตารางวิเคราะห์ผลประกอบการแยกตามร้านค้า (Store Performance Matrix)</span>
+                </h3>
+                <p className="text-xs text-muted-slate mt-0.5">
+                  สรุปผลงาน ยอดจำหน่าย และรายได้ที่แต่ละร้านค้าสร้างได้
+                </p>
+              </div>
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-porcelain border border-black/[0.06] text-muted-slate">
+                {storePerformanceList.length} ร้านค้า
+              </span>
+            </div>
+
+            <div className="overflow-x-auto border border-black/[0.06] rounded-2xl overflow-hidden">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-porcelain text-muted-slate font-bold uppercase tracking-wider border-b border-black/[0.06]">
+                  <tr>
+                    <th className="p-3.5">ร้านค้า (Store Name)</th>
+                    <th className="p-3.5">เจ้าของร้าน / ผู้ดูแล</th>
+                    <th className="p-3.5">พร้อมเพย์</th>
+                    <th className="p-3.5 text-center">สินค้า</th>
+                    <th className="p-3.5 text-center">ออเดอร์</th>
+                    <th className="p-3.5 text-right">ยอดเงินรวม</th>
+                    <th className="p-3.5 text-center">สถานะ</th>
+                    <th className="p-3.5 text-center">การกระทำ</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-black/[0.04]">
+                  {storePerformanceList.map((store) => (
+                    <tr key={store.storeName} className="hover:bg-porcelain/40 transition-colors">
+                      <td className="p-3.5">
+                        <div className="font-bold text-charcoal">{store.storeName}</div>
+                      </td>
+                      <td className="p-3.5 font-medium text-charcoal">
+                        {store.merchantName}
+                      </td>
+                      <td className="p-3.5 font-mono text-muted-slate">
+                        {store.promptPay}
+                      </td>
+                      <td className="p-3.5 text-center font-mono font-bold text-charcoal">
+                        {store.productCount}
+                      </td>
+                      <td className="p-3.5 text-center font-mono font-bold text-charcoal">
+                        {store.orderCount}
+                      </td>
+                      <td className="p-3.5 text-right font-mono font-black text-charcoal">
+                        ฿{store.revenue.toLocaleString()}
+                      </td>
+                      <td className="p-3.5 text-center">
+                        {store.status === 'APPROVED' ? (
+                          <span className="px-2 py-0.5 rounded-full bg-accent-emerald/10 text-accent-emerald text-[10px] font-bold">
+                            อนุมัติแล้ว
+                          </span>
+                        ) : store.status === 'PENDING' ? (
+                          <span className="px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 text-[10px] font-bold">
+                            รออนุมัติ
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 rounded-full bg-black/5 text-muted-slate text-[10px] font-bold">
+                            {store.status}
+                          </span>
+                        )}
+                      </td>
+                      <td className="p-3.5 text-center">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedStore(store.storeName);
+                            setActiveTab('products');
+                          }}
+                          className="px-2.5 py-1 rounded-full bg-porcelain hover:bg-black/5 border border-black/10 text-[11px] font-semibold text-charcoal transition-all"
+                        >
+                          ดูสินค้า
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Platform Master Transaction Log */}
+          <div className="bg-white rounded-squircle border border-black/[0.06] p-5 sm:p-6 shadow-level-1 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-base text-charcoal flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[20px]">receipt_long</span>
+                  <span>บันทึกธุรกรรมคำสั่งซื้อทั้งระบบ ({filteredReportOrders.length} รายการ)</span>
+                </h3>
+                <p className="text-xs text-muted-slate mt-0.5">
+                  ตรวจสอบสลิป ยอดเงิน และสถานะการปล่อยไฟล์ดิจิทัลของทุกร้านค้า
+                </p>
+              </div>
+            </div>
+
+            {filteredReportOrders.length === 0 ? (
+              <div className="text-center py-10 bg-porcelain/50 rounded-2xl border border-dashed border-black/10">
+                <span className="material-symbols-outlined text-[32px] text-muted-slate mb-1">receipt</span>
+                <p className="text-xs font-semibold text-charcoal">ไม่มีประวัติคำสั่งซื้อในช่วงเวลานี้</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto border border-black/[0.06] rounded-2xl overflow-hidden">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-porcelain text-muted-slate font-bold uppercase tracking-wider border-b border-black/[0.06]">
+                    <tr>
+                      <th className="p-3.5">วันที่ & เวลา</th>
+                      <th className="p-3.5">รหัสคำสั่งซื้อ</th>
+                      <th className="p-3.5">ร้านค้า</th>
+                      <th className="p-3.5">ลูกค้า</th>
+                      <th className="p-3.5">สินค้า</th>
+                      <th className="p-3.5 text-right">ยอดเงิน</th>
+                      <th className="p-3.5 text-center">สถานะ</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-black/[0.04]">
+                    {filteredReportOrders.map((ord) => (
+                      <tr key={ord.id} className="hover:bg-porcelain/40 transition-colors">
+                        <td className="p-3.5 font-mono text-[11px] text-muted-slate">
+                          {ord.createdAt ? new Date(ord.createdAt).toLocaleString('th-TH') : '-'}
+                        </td>
+                        <td className="p-3.5 font-mono font-bold text-charcoal">
+                          {ord.id}
+                        </td>
+                        <td className="p-3.5 font-medium text-charcoal">
+                          {ord.merchantName || 'Book Sangdai Official'}
+                        </td>
+                        <td className="p-3.5">
+                          <div className="font-semibold text-charcoal">{ord.customerName}</div>
+                          <div className="text-[10px] text-muted-slate font-mono">{ord.customerEmail}</div>
+                        </td>
+                        <td className="p-3.5 font-medium text-charcoal">
+                          {ord.bookTitle || ord.title || 'ผลิตภัณฑ์ดิจิทัล'}
+                        </td>
+                        <td className="p-3.5 text-right font-mono font-bold text-charcoal">
+                          ฿{(ord.totalAmount || 0).toLocaleString()}
+                        </td>
+                        <td className="p-3.5 text-center">
+                          {ord.status === 'PAID' ? (
+                            <span className="px-2.5 py-0.5 rounded-full bg-accent-emerald/10 text-accent-emerald text-[10px] font-bold">
+                              ชำระแล้ว
+                            </span>
+                          ) : ord.status === 'PENDING' ? (
+                            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-700 text-[10px] font-bold">
+                              รอยืนยันสลิป
+                            </span>
+                          ) : (
+                            <span className="px-2.5 py-0.5 rounded-full bg-black/10 text-muted-slate text-[10px] font-bold">
+                              {ord.status}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* PRODUCT ADD / EDIT MODAL */}
       {isProductModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -1586,13 +2059,13 @@ export default function AdminPage() {
                   <select
                     value={formCategory}
                     onChange={(e) => setFormCategory(e.target.value as any)}
-                    className="w-full h-10 rounded-full bg-porcelain border border-black/[0.08] px-3 text-xs text-charcoal outline-none"
+                    className="w-full h-10 rounded-full bg-porcelain border border-black/[0.08] px-3 text-xs text-charcoal outline-none focus:border-secondary"
                   >
-                    <option value="ebook">E-Book & คู่มือ</option>
-                    <option value="figma">Figma UI Kit</option>
-                    <option value="notion">Notion Template</option>
-                    <option value="code">Source Code SaaS</option>
-                    <option value="assets">3D Assets</option>
+                    {CATEGORIES.filter((c) => c.id !== 'all').map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.labelTh}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -1816,6 +2289,15 @@ export default function AdminPage() {
         onConfirm={handleConfirmDeleteProduct}
         product={productToDelete}
         isDeleting={isDeletingProduct}
+      />
+
+      {/* DELETE TRANSACTION CONFIRMATION MODAL (ADMIN DANGER ZONE) */}
+      <DeleteOrderModal
+        isOpen={Boolean(orderToDelete)}
+        onClose={() => setOrderToDelete(null)}
+        onConfirm={handleConfirmDeleteOrder}
+        order={orderToDelete}
+        isDeleting={isDeletingOrder}
       />
     </div>
   );

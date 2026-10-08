@@ -108,6 +108,7 @@ export async function getOrderById(id: string): Promise<Order | null> {
               title: r.title,
               price: Number(r.price),
               fileName: r.file_name,
+              isHiddenByCustomer: r.is_hidden_by_customer === true,
             }));
           }
         } catch {
@@ -121,6 +122,7 @@ export async function getOrderById(id: string): Promise<Order | null> {
               title: data.book_title || 'Digital Product',
               price: Number(data.book_price || data.total_amount || 0),
               fileName: data.file_name || 'download.pdf',
+              isHiddenByCustomer: data.is_hidden_by_customer === true,
             },
           ];
         }
@@ -164,6 +166,8 @@ export async function getOrderById(id: string): Promise<Order | null> {
           bookTitle: data.book_title,
           bookPrice: Number(data.book_price || 0),
           fileName: data.file_name,
+          isHiddenByCustomer: data.is_hidden_by_customer === true,
+          isDeletedByMerchant: data.is_deleted_by_merchant === true,
         };
       }
     } catch (err) {
@@ -193,6 +197,7 @@ export async function getAllOrders(): Promise<Order[]> {
               title: it.title,
               price: Number(it.price || 0),
               fileName: it.file_name,
+              isHiddenByCustomer: it.is_hidden_by_customer === true,
             }));
           } else {
             items = [
@@ -201,6 +206,7 @@ export async function getAllOrders(): Promise<Order[]> {
                 title: d.book_title || 'Digital Product',
                 price: Number(d.book_price || d.total_amount || 0),
                 fileName: d.file_name || 'download.pdf',
+                isHiddenByCustomer: d.is_hidden_by_customer === true,
               },
             ];
           }
@@ -225,6 +231,8 @@ export async function getAllOrders(): Promise<Order[]> {
             bookTitle: d.book_title,
             bookPrice: Number(d.book_price || 0),
             fileName: d.file_name,
+            isHiddenByCustomer: d.is_hidden_by_customer === true,
+            isDeletedByMerchant: d.is_deleted_by_merchant === true,
           };
         });
       }
@@ -242,6 +250,9 @@ export async function getOrdersByMerchant(merchantId?: string, storeName?: strin
   const normalizedStore = storeName?.trim().toLowerCase();
 
   return allOrders.filter((o) => {
+    // Exclude if merchant explicitly chose to delete this transaction
+    if (o.isDeletedByMerchant) return false;
+
     if (merchantId && o.merchantId === merchantId) return true;
     if (normalizedStore && o.merchantName && o.merchantName.trim().toLowerCase() === normalizedStore) return true;
     return false;
@@ -253,11 +264,26 @@ export async function getOrdersByUser(email?: string, userId?: string): Promise<
   if (!email && !userId) return [];
 
   const normEmail = email?.toLowerCase().trim();
-  return allOrders.filter((o) => {
+  const matched = allOrders.filter((o) => {
+    // If entire order was hidden by customer, exclude from customer library
+    if (o.isHiddenByCustomer) return false;
+
     const matchEmail = normEmail && o.customerEmail.toLowerCase().trim() === normEmail;
     const matchUser = userId && o.userId === userId;
     return matchEmail || matchUser;
   });
+
+  // Filter individual items: exclude items hidden from vault by customer
+  return matched
+    .map((o) => {
+      const visibleItems = o.items.filter((it) => !it.isHiddenByCustomer);
+      if (visibleItems.length === 0) return null;
+      return {
+        ...o,
+        items: visibleItems,
+      };
+    })
+    .filter((o): o is Order => o !== null);
 }
 
 export async function updateOrderStatus(id: string, status: Order['status']): Promise<Order | null> {
@@ -321,3 +347,130 @@ export async function lookupOrders(orderId: string, email: string): Promise<Orde
   }
   return null;
 }
+
+export async function deleteOrder(id: string): Promise<boolean> {
+  const client = supabaseAdmin || supabase;
+  if (client) {
+    try {
+      await client.from('order_items').delete().eq('order_id', id);
+      await client.from('orders').delete().eq('id', id);
+    } catch (err) {
+      console.warn('Supabase delete order error:', err);
+    }
+  }
+  localOrders.delete(id);
+  return true;
+}
+
+export async function deleteOrderItem(orderId: string, productId: string): Promise<boolean> {
+  const existing = await getOrderById(orderId);
+  if (!existing) return false;
+
+  const client = supabaseAdmin || supabase;
+  if (client) {
+    try {
+      await client.from('order_items').delete().eq('order_id', orderId).eq('product_id', productId);
+    } catch (err) {
+      console.warn('Supabase delete order item error:', err);
+    }
+  }
+
+  const remainingItems = existing.items?.filter((it) => it.productId !== productId) || [];
+  if (remainingItems.length === 0) {
+    return deleteOrder(orderId);
+  } else {
+    existing.items = remainingItems;
+    localOrders.set(orderId, existing);
+    return true;
+  }
+}
+
+export async function hideLibraryItem(orderId: string, productId?: string): Promise<boolean> {
+  const existing = await getOrderById(orderId);
+  if (!existing) return false;
+
+  const client = supabaseAdmin || supabase;
+  if (client) {
+    try {
+      if (productId) {
+        await client
+          .from('order_items')
+          .update({ is_hidden_by_customer: true })
+          .eq('order_id', orderId)
+          .eq('product_id', productId);
+
+        const { data: itemRows } = await client
+          .from('order_items')
+          .select('id, is_hidden_by_customer')
+          .eq('order_id', orderId);
+
+        const allHidden = itemRows && itemRows.length > 0 && itemRows.every((it: any) => it.is_hidden_by_customer === true);
+        if (allHidden) {
+          await client
+            .from('orders')
+            .update({ is_hidden_by_customer: true })
+            .eq('id', orderId);
+        }
+      } else {
+        await client
+          .from('order_items')
+          .update({ is_hidden_by_customer: true })
+          .eq('order_id', orderId);
+
+        await client
+          .from('orders')
+          .update({ is_hidden_by_customer: true })
+          .eq('id', orderId);
+      }
+    } catch (err) {
+      console.warn('Supabase hideLibraryItem error:', err);
+    }
+  }
+
+  if (existing) {
+    if (productId) {
+      let allHidden = true;
+      existing.items = existing.items.map((it) => {
+        if (it.productId === productId) {
+          return { ...it, isHiddenByCustomer: true };
+        }
+        if (!it.isHiddenByCustomer) allHidden = false;
+        return it;
+      });
+      if (allHidden) {
+        existing.isHiddenByCustomer = true;
+      }
+    } else {
+      existing.isHiddenByCustomer = true;
+      existing.items = existing.items.map((it) => ({ ...it, isHiddenByCustomer: true }));
+    }
+    localOrders.set(orderId, existing);
+  }
+
+  return true;
+}
+
+export async function deleteOrderForMerchant(orderId: string): Promise<boolean> {
+  const existing = await getOrderById(orderId);
+  if (!existing) return false;
+
+  const client = supabaseAdmin || supabase;
+  if (client) {
+    try {
+      await client
+        .from('orders')
+        .update({ is_deleted_by_merchant: true })
+        .eq('id', orderId);
+    } catch (err) {
+      console.warn('Supabase deleteOrderForMerchant error:', err);
+    }
+  }
+
+  if (existing) {
+    existing.isDeletedByMerchant = true;
+    localOrders.set(orderId, existing);
+  }
+
+  return true;
+}
+

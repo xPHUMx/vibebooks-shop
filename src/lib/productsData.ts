@@ -4,6 +4,7 @@ export const STORE_INFO = {
   brand: "Book Sangdai",
   brandTh: "บุ๊คสั่งได้",
   tagline: "Ultra-Refined Digital Store & Creator Vault",
+  logoUrl: "/icon.jpg",
   curator: "นายเกียรติภูมิ หารศรีนาถ",
   curatorFull: "นายเกียรติภูมิ หารศรีนาถ (รหัสนักศึกษา: 64332110242-2)",
   curatorEn: "Kiatphum Hansrinath",
@@ -16,16 +17,26 @@ export interface CategoryInfo {
   label: string;
   labelTh: string;
   count: number;
+  icon: string;
 }
 
 export const CATEGORIES: CategoryInfo[] = [
-  { id: 'all', label: 'All Vaults', labelTh: 'ทั้งหมด', count: 8 },
-  { id: 'ebook', label: 'E-Books & Manuals', labelTh: 'อีบุ๊ค & คู่มือวิศวกรรม', count: 3 },
-  { id: 'figma', label: 'Figma UI Kits', labelTh: 'ดีไซน์ซิสเต็ม & Figma', count: 2 },
-  { id: 'notion', label: 'Notion Systems', labelTh: 'เทมเพลต Notion OS', count: 1 },
-  { id: 'code', label: 'Source Code & SaaS', labelTh: 'ซอร์สโค้ด & สตาร์ทอัพ', count: 1 },
-  { id: 'assets', label: '3D & Visual Assets', labelTh: 'กราฟิก 3D & แอสเสท', count: 1 },
+  { id: 'all', label: 'All Vaults', labelTh: 'ทั้งหมด', count: 8, icon: 'apps' },
+  { id: 'ebook', label: 'E-Books & Manuals', labelTh: 'E-Books & Manuals', count: 3, icon: 'menu_book' },
+  { id: 'figma', label: 'Figma UI Kits', labelTh: 'Figma UI Kits', count: 2, icon: 'polyline' },
+  { id: 'notion', label: 'Notion Systems', labelTh: 'Notion Systems', count: 1, icon: 'table_chart' },
+  { id: 'code', label: 'Source Code & SaaS', labelTh: 'Source Code & SaaS', count: 1, icon: 'terminal' },
+  { id: 'assets', label: '3D & Visual Assets', labelTh: '3D & Visual Assets', count: 1, icon: 'view_in_ar' },
+  { id: 'creative-ai', label: 'Creative AI & Prompts', labelTh: 'Creative AI & Prompts', count: 1, icon: 'psychology' },
+  { id: 'multimedia', label: 'Multimedia & Audio', labelTh: 'Multimedia & Audio', count: 1, icon: 'headphones' },
+  { id: 'productivity', label: 'Productivity Packs', labelTh: 'Productivity Packs', count: 1, icon: 'bolt' },
 ];
+
+export const getCategoryName = (catId?: string | null): string => {
+  if (!catId) return 'E-Books & Manuals';
+  const match = CATEGORIES.find((c) => c.id === catId);
+  return match?.labelTh || match?.label || catId;
+};
 
 export const DIGITAL_PRODUCTS: DigitalProduct[] = [
   {
@@ -33,7 +44,7 @@ export const DIGITAL_PRODUCTS: DigitalProduct[] = [
     title: "Liquid Glass Apple-Style UI Kit",
     subtitle: "240+ High-Precision Components, Liquid Optical Glass Tokens & Light/Dark System",
     category: "figma",
-    categoryNameTh: "ดีไซน์ซิสเต็ม & Figma",
+    categoryNameTh: "Figma UI Kits",
     price: 390,
     originalPrice: 790,
     rating: 5.0,
@@ -73,7 +84,7 @@ export const DIGITAL_PRODUCTS: DigitalProduct[] = [
     title: "FastPlayer PRO (Media Player Engineering)",
     subtitle: "PyQt6 & QtMultimedia Desktop Engineering (ใบงานที่ 1)",
     category: "ebook",
-    categoryNameTh: "อีบุ๊ค & คู่มือวิศวกรรม",
+    categoryNameTh: "E-Books & Manuals",
     price: 199,
     originalPrice: 390,
     rating: 4.9,
@@ -113,7 +124,7 @@ export const DIGITAL_PRODUCTS: DigitalProduct[] = [
     title: "Apex PRO Next.js 14 E-Commerce Engine",
     subtitle: "Production-grade App Router, Supabase Auth SSR & PromptPay QR Engine",
     category: "code",
-    categoryNameTh: "ซอร์สโค้ด & สตาร์ทอัพ",
+    categoryNameTh: "Source Code & SaaS",
     price: 490,
     originalPrice: 990,
     badge: "Trending",
@@ -153,7 +164,7 @@ export const DIGITAL_PRODUCTS: DigitalProduct[] = [
     title: "Mystic Tarot 3-Card Oracle System",
     subtitle: "Celestial Altar System & AI Divination Architecture (ใบงานที่ 2)",
     category: "ebook",
-    categoryNameTh: "อีบุ๊ค & คู่มือวิศวกรรม",
+    categoryNameTh: "E-Books & Manuals",
     price: 259,
     originalPrice: 450,
     rating: 5.0,
@@ -193,7 +204,7 @@ export const DIGITAL_PRODUCTS: DigitalProduct[] = [
     title: "Ultimate Creator OS & Studio Management",
     subtitle: "All-in-One Notion Architecture for High-Output Digital Creators & Agencies",
     category: "notion",
-    categoryNameTh: "เทมเพลต Notion OS",
+    categoryNameTh: "Notion Systems",
     price: 249,
     originalPrice: 490,
     rating: 4.9,
@@ -233,7 +244,7 @@ export const DIGITAL_PRODUCTS: DigitalProduct[] = [
     title: "TaskManagerPRO & Bento Kanban Architecture",
     subtitle: "Bento Dashboard & Secure SQLite Architecture (ใบงานที่ 3 & 4)",
     category: "ebook",
-    categoryNameTh: "อีบุ๊ค & คู่มือวิศวกรรม",
+    categoryNameTh: "E-Books & Manuals",
     price: 179,
     originalPrice: 320,
     rating: 4.8,
@@ -273,7 +284,7 @@ export const DIGITAL_PRODUCTS: DigitalProduct[] = [
     title: "3D Liquid Glass Isometric Asset Pack",
     subtitle: "60+ Ultra-Crisp 4K Isometric Renders & Transparent Glass Objects for Modern UI",
     category: "assets",
-    categoryNameTh: "กราฟิก 3D & แอสเสท",
+    categoryNameTh: "3D & Visual Assets",
     price: 290,
     originalPrice: 590,
     rating: 4.9,
@@ -313,7 +324,7 @@ export const DIGITAL_PRODUCTS: DigitalProduct[] = [
     title: "Seller Centre & Merchant Flow Kit",
     subtitle: "Enterprise B2B / Merchant Portal UI System with Data-Dense Tables & Analytics",
     category: "figma",
-    categoryNameTh: "ดีไซน์ซิสเต็ม & Figma",
+    categoryNameTh: "Figma UI Kits",
     price: 320,
     originalPrice: 650,
     rating: 4.8,

@@ -70,6 +70,8 @@ export async function GET(req: NextRequest) {
         storeDescription: profileRow.store_description,
         promptPayId: profileRow.promptpay_id,
         storeLogoUrl: storeLogo,
+        termsAcceptedAt: profileRow.terms_accepted_at,
+        privacyAcceptedAt: profileRow.privacy_accepted_at,
         createdAt: profileRow.created_at,
       };
       return NextResponse.json({ success: true, profile });
@@ -186,6 +188,9 @@ export async function PUT(req: NextRequest) {
     if (storeName !== undefined) updates.store_name = storeName;
     if (storeDescription !== undefined) updates.store_description = storeDescription;
     if (promptPayId !== undefined) updates.promptpay_id = promptPayId;
+    if (storeLogoUrl !== undefined) updates.store_logo_url = storeLogoUrl;
+    if (body.termsAcceptedAt !== undefined) updates.terms_accepted_at = body.termsAcceptedAt;
+    if (body.privacyAcceptedAt !== undefined) updates.privacy_accepted_at = body.privacyAcceptedAt;
     if (targetEmail) updates.email = targetEmail;
 
     const client = admin || serverClient;

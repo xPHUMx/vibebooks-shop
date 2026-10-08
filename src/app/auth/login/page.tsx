@@ -10,7 +10,12 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const errorParam = searchParams.get('error') || searchParams.get('error_description');
 
-  const { signInWithGoogle, signUpWithEmail, signInWithEmail, user, profile, signOut } = useAuth();
+  const { signInWithGoogle, signUpWithEmail, signInWithEmail, user, profile, signOut, openAuthModal } = useAuth();
+
+  React.useEffect(() => {
+    openAuthModal('signin');
+    router.replace('/');
+  }, [openAuthModal, router]);
 
   const [tab, setTab] = useState<'signin' | 'signup'>('signin');
   const [fullName, setFullName] = useState('');
@@ -96,8 +101,8 @@ function LoginForm() {
       <div className="w-full max-w-md bg-white rounded-squircle-lg p-8 shadow-level-2 border border-black/[0.06] relative">
         <div className="text-center mb-6">
           <Link href="/" className="inline-block mb-3">
-            <div className="w-14 h-14 rounded-2xl bg-black flex items-center justify-center text-white shadow-md mx-auto">
-              <span className="material-symbols-outlined text-[28px]">local_library</span>
+            <div className="w-14 h-14 rounded-2xl bg-black flex items-center justify-center text-white shadow-md mx-auto overflow-hidden border border-black/10">
+              <img src="/icon.jpg" alt="Book Sangdai" className="w-full h-full object-cover" />
             </div>
           </Link>
           <h1 className="text-2xl font-bold tracking-tight text-charcoal">

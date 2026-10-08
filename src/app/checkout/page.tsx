@@ -79,6 +79,19 @@ export default function CheckoutPage() {
     return () => clearInterval(interval);
   }, [step]);
 
+  // Protect against accidental navigation during QR scanning
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (step === 'payment') {
+        e.preventDefault();
+        e.returnValue = '⚠️ ห้ามปิดหน้านี้เด็ดขาด! คำสั่งซื้อของคุณยังอยู่ในขั้นตอนชำระเงินและแนบสลิป';
+        return e.returnValue;
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [step]);
+
   // Live polling for merchant approval when waiting for file release
   useEffect(() => {
     if (step !== 'success' || !createdOrder || createdOrder.status === 'PAID') return;
@@ -608,6 +621,28 @@ export default function CheckoutPage() {
             );
           })()}
 
+          {/* CRITICAL WARNING BANNER: DO NOT CLOSE OR REFRESH PAGE */}
+          <div className="w-full rounded-[20px] bg-gradient-to-r from-rose-950/90 via-red-900/80 to-rose-950/90 border-2 border-rose-500/80 p-4 shadow-[0_0_30px_rgba(244,63,94,0.35)] space-y-2 text-left">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center shrink-0 shadow-lg animate-pulse">
+                <span className="material-symbols-outlined text-[24px]">warning</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-black text-rose-100 tracking-wide">
+                    ⚠️ คำเตือนสำคัญ: ห้ามปิดหน้านี้เด็ดขาด!
+                  </span>
+                  <span className="px-2 py-0.5 rounded-full bg-rose-500 text-white text-[10px] font-black uppercase tracking-wider animate-bounce">
+                    DO NOT CLOSE
+                  </span>
+                </div>
+                <p className="text-xs text-rose-200/90 leading-relaxed mt-1">
+                  กรุณา <strong>สแกนจ่ายเงินและแนบสลิปในหน้านี้จนเสร็จสมบูรณ์</strong> ห้ามปิดเบราว์เซอร์หรือกดย้อนกลับ เพื่อป้องกันการสูญหายของคำสั่งซื้อ และให้ระบบปลดล็อกไฟล์ E-Book เข้าคลังของคุณโดยอัตโนมัติ
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Real Dynamic PromptPay QR Code Container */}
           {(() => {
             const primaryProd = displayItems[0]?.product;
@@ -618,8 +653,8 @@ export default function CheckoutPage() {
               '081-234-5678';
 
             return (
-              <div className="p-5 rounded-squircle bg-porcelain border border-black/[0.06] flex flex-col items-center justify-center">
-                <div className="w-56 h-56 bg-white rounded-2xl p-2.5 border border-black/[0.08] shadow-md flex items-center justify-center relative overflow-hidden">
+              <div className="p-5 rounded-squircle bg-porcelain border border-black/[0.06] flex flex-col items-center justify-center relative overflow-hidden">
+                <div className="w-56 h-56 bg-white rounded-2xl p-2.5 border border-black/[0.08] shadow-md flex items-center justify-center relative overflow-hidden ring-4 ring-rose-500/30">
                   <img
                     src={getPromptPayQRUrl(activePromptPay, createdOrder.totalAmount)}
                     alt="PromptPay EMVCo QR Code"
@@ -645,6 +680,13 @@ export default function CheckoutPage() {
                       </span>
                     </button>
                   </div>
+                </div>
+
+                <div className="mt-3 w-full py-1.5 px-3 rounded-lg bg-rose-500/15 border border-rose-500/30 text-center">
+                  <span className="text-[11px] font-bold text-rose-700 flex items-center justify-center gap-1">
+                    <span className="material-symbols-outlined text-[14px]">lock</span>
+                    <span>กำลังรอการสแกนและแนบสลิป — ห้ามปิดหน้านี้เด็ดขาด</span>
+                  </span>
                 </div>
 
                 {/* Countdown Timer */}

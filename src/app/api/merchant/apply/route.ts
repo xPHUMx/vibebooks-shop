@@ -55,6 +55,7 @@ export async function POST(req: NextRequest) {
         store_name: storeName.trim(),
         store_description: (storeDescription || '').trim(),
         promptpay_id: promptPayId.trim(),
+        store_logo_url: storeLogoUrl ? storeLogoUrl.trim() : null,
         merchant_status: 'PENDING',
         merchant_applied_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

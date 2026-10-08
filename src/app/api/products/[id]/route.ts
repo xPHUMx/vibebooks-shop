@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
-import { DIGITAL_PRODUCTS } from '@/lib/productsData';
+import { DIGITAL_PRODUCTS, getCategoryName } from '@/lib/productsData';
 import { DigitalProduct } from '@/types';
 
 export const dynamic = 'force-dynamic';
@@ -19,12 +19,14 @@ function mapDbProductToDigitalProduct(row: any): DigitalProduct {
     }
   }
 
+  const cat = row.category_id || row.category || 'ebook';
+
   return {
     id: row.id,
     title: row.title,
     subtitle: row.subtitle || '',
-    category: row.category_id || row.category || 'ebook',
-    categoryNameTh: row.category_name_th,
+    category: cat,
+    categoryNameTh: row.category_name_th || getCategoryName(cat),
     price: Number(row.price),
     originalPrice: Number(row.original_price || row.price * 1.5),
     rating: Number(row.rating || 5.0),

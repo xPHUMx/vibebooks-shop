@@ -10,10 +10,9 @@ import { useAuth } from '@/context/AuthContext';
 interface ProductModalProps {
   product: DigitalProduct | null;
   onClose: () => void;
-  onOpenPdfReader?: (product: DigitalProduct) => void;
 }
 
-export default function ProductModal({ product, onClose, onOpenPdfReader }: ProductModalProps) {
+export default function ProductModal({ product, onClose }: ProductModalProps) {
   const router = useRouter();
   const { addToCart } = useCart();
   const { user, openAuthModal } = useAuth();
@@ -176,18 +175,6 @@ export default function ProductModal({ product, onClose, onOpenPdfReader }: Prod
 
         {/* Modal Bottom Sticky Action Bar (Liquid Glass Purchase Split Bar) */}
         <div className="p-4 sm:p-5 border-t border-black/[0.06] bg-white/95 backdrop-blur-md flex items-center gap-3">
-          {product.category === 'ebook' && onOpenPdfReader && (
-            <button
-              onClick={() => {
-                onClose();
-                onOpenPdfReader(product);
-              }}
-              className="h-12 px-4 rounded-full border border-black/10 bg-white hover:bg-black/[0.04] text-charcoal text-xs font-semibold flex items-center gap-1.5 transition-all"
-            >
-              <span className="material-symbols-outlined text-[18px]">menu_book</span>
-              เปิดอ่านตัวอย่าง
-            </button>
-          )}
 
           <button
             onClick={() => {

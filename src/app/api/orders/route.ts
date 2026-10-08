@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { saveOrder, getOrderById, lookupOrders, getAllOrders, getOrdersByUser, getOrdersByMerchant } from "@/lib/supabase";
+import { saveOrder, getOrderById, lookupOrders, getAllOrders, getOrdersByUser, getOrdersByMerchant, deleteOrder, deleteOrderItem, hideLibraryItem, deleteOrderForMerchant } from "@/lib/supabase";
 import { getProductById } from "@/lib/productsData";
 import { Order, OrderItem } from "@/types";
 
@@ -304,3 +304,76 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({ success: true, order });
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { currentUser, currentProfile } = await getAuthenticatedUser(req);
+    const body = await req.json().catch(() => ({}));
+    const { orderId, productId, email, isMerchantDelete } = body;
+
+    if (!orderId) {
+      return NextResponse.json({ error: "Missing orderId" }, { status: 400 });
+    }
+
+    const order = await getOrderById(orderId);
+    if (!order) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+
+    const isAdmin = currentProfile?.role === "admin";
+    const userEmail = (currentUser?.email || currentProfile?.email || "").toLowerCase().trim();
+    const orderEmail = (order.customerEmail || "").toLowerCase().trim();
+    const guestEmail = (email || "").toLowerCase().trim();
+
+    // CASE 1: Merchant Transaction Deletion (ลบยอด/ธุรกรรมฝั่งร้านค้า)
+    if (isMerchantDelete) {
+      const isOrderMerchant =
+        (currentUser && order.merchantId && order.merchantId === currentUser.id) ||
+        (currentProfile?.store_name && order.merchantName && order.merchantName.trim().toLowerCase() === currentProfile.store_name.trim().toLowerCase());
+
+      if (!isAdmin && !isOrderMerchant) {
+        return NextResponse.json(
+          { error: "คุณไม่มีสิทธิ์ในการลบรายการธุรกรรมของร้านค้านี้" },
+          { status: 403 }
+        );
+      }
+
+      await deleteOrderForMerchant(orderId);
+      return NextResponse.json({
+        success: true,
+        message: "ลบรายการธุรกรรมออกจากระบบร้านค้าเรียบร้อยแล้ว",
+      });
+    }
+
+    // CASE 2: Customer Library Item Deletion (ลูกค้าลบสินค้าในคลังของตัวเอง)
+    // หมายเหตุ: ใช้ hideLibraryItem เพื่อซ่อนจากคลังของลูกค้าเท่านั้น ไม่ลบยอดขายออกจากระบบร้านค้า/Report Center
+    const isOwner =
+      currentUser &&
+      ((order.userId && order.userId === currentUser.id) ||
+        (orderEmail && userEmail && orderEmail === userEmail));
+
+    const isMatchingGuest =
+      !currentUser && guestEmail && orderEmail === guestEmail;
+
+    if (!isAdmin && !isOwner && !isMatchingGuest) {
+      return NextResponse.json(
+        { error: "คุณไม่มีสิทธิ์ในการลบรายการนี้" },
+        { status: 403 }
+      );
+    }
+
+    await hideLibraryItem(orderId, productId);
+
+    return NextResponse.json({
+      success: true,
+      message: "ลบรายการออกจากคลังเรียบร้อยแล้ว (ยอดขายของร้านค้ายังคงบันทึกไว้ในระบบ)",
+    });
+  } catch (error: any) {
+    console.error("Delete order error:", error);
+    return NextResponse.json(
+      { error: error?.message || "เกิดข้อผิดพลาดในการลบรายการ" },
+      { status: 500 }
+    );
+  }
+}
+

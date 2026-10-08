@@ -1,0 +1,164 @@
+'use client';
+
+import React, { useState } from 'react';
+
+export interface LibraryItemToDelete {
+  orderId: string;
+  productId: string;
+  title: string;
+  fileName?: string;
+  price?: number;
+}
+
+interface DeleteLibraryItemModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => Promise<void> | void;
+  item: LibraryItemToDelete | null;
+  isDeleting?: boolean;
+}
+
+export default function DeleteLibraryItemModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  item,
+  isDeleting = false,
+}: DeleteLibraryItemModalProps) {
+  const [typedCatalogCode, setTypedCatalogCode] = useState('');
+
+  if (!isOpen || !item) return null;
+
+  const isMatched = typedCatalogCode.trim() === item.productId.trim();
+
+  const handleClose = () => {
+    if (isDeleting) return;
+    setTypedCatalogCode('');
+    onClose();
+  };
+
+  const handleConfirm = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isMatched || isDeleting) return;
+    await onConfirm();
+    setTypedCatalogCode('');
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+      <div
+        className="w-full max-w-md bg-[#161617] text-[#f5f5f7] rounded-[24px] border border-rose-500/30 p-6 shadow-2xl relative space-y-5 animate-scale-up"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-start gap-3.5">
+          <div className="w-10 h-10 rounded-2xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center shrink-0 text-rose-400">
+            <span className="material-symbols-outlined text-[24px]">warning</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-bold text-white tracking-tight">
+              ยืนยันการลบ E-book ออกจากคลัง (Danger Zone)
+            </h3>
+            <p className="text-xs text-[#86868b] mt-0.5 leading-relaxed">
+              การดำเนินการนี้ไม่สามารถย้อนกลับได้ รายการนี้จะถูกนำออกจากคลังของคุณอย่างถาวร
+            </p>
+          </div>
+        </div>
+
+        {/* E-book Details Preview */}
+        <div className="p-3.5 rounded-2xl bg-black/60 border border-white/[0.08] flex items-center gap-3">
+          <div className="w-11 h-11 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0 text-rose-400">
+            <span className="material-symbols-outlined text-[22px]">
+              {item.fileName?.endsWith('.pdf') ? 'picture_as_pdf' : 'menu_book'}
+            </span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="text-xs font-semibold text-white truncate">
+              {item.title}
+            </h4>
+            <div className="flex items-center gap-2 mt-0.5 text-[11px] text-[#86868b] font-mono">
+              <span className="truncate">ไฟล์: {item.fileName || 'e-book'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Security Requirement: Red Catalog Code */}
+        <div className="space-y-2">
+          <label className="block text-[11px] font-medium text-[#86868b]">
+            กรุณากรอก <span className="text-rose-500 font-bold">รหัส Catalog (Catalog Code)</span> ด้านล่างนี้เพื่อยืนยันการลบ:
+          </label>
+          <div className="px-3.5 py-2.5 rounded-xl bg-rose-950/40 border border-rose-500/40 flex items-center justify-between gap-2 shadow-inner">
+            <span className="text-[10px] text-rose-300 uppercase tracking-wider font-mono font-semibold">
+              รหัส Catalog:
+            </span>
+            <span className="text-sm font-mono font-black text-rose-500 tracking-wider select-all">
+              {item.productId}
+            </span>
+          </div>
+        </div>
+
+        {/* Input Form */}
+        <form onSubmit={handleConfirm} className="space-y-4">
+          <div>
+            <input
+              type="text"
+              autoFocus
+              disabled={isDeleting}
+              value={typedCatalogCode}
+              onChange={(e) => setTypedCatalogCode(e.target.value)}
+              placeholder={`พิมพ์ "${item.productId}" ที่นี่`}
+              className="w-full h-11 px-3.5 rounded-xl bg-black border border-rose-500/50 focus:border-rose-500 text-rose-500 font-mono text-xs placeholder:text-[#86868b]/50 focus:outline-none focus:ring-2 focus:ring-rose-500/20 transition-all font-bold"
+            />
+            <div className="mt-1.5 flex items-center justify-between text-[11px]">
+              {isMatched ? (
+                <span className="text-emerald-400 flex items-center gap-1 font-medium">
+                  <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                  รหัส Catalog ถูกต้อง พร้อมลบ
+                </span>
+              ) : typedCatalogCode.length > 0 ? (
+                <span className="text-rose-400/90 font-medium">
+                  รหัสยังไม่ตรงกับ &quot;{item.productId}&quot;
+                </span>
+              ) : (
+                <span className="text-[#86868b]">
+                  ต้องกรอกรหัส catalog ให้ตรงกันเป๊ะเพื่อปลดล็อกปุ่มลบ
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2.5 pt-1">
+            <button
+              type="button"
+              disabled={isDeleting}
+              onClick={handleClose}
+              className="flex-1 h-11 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-xs font-semibold text-[#f5f5f7] transition-all cursor-pointer disabled:opacity-50"
+            >
+              ยกเลิก
+            </button>
+            <button
+              type="submit"
+              disabled={!isMatched || isDeleting}
+              className="flex-1 h-11 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:bg-rose-600/30 text-xs font-bold text-white transition-all shadow-lg shadow-rose-950/50 flex items-center justify-center gap-1.5 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {isDeleting ? (
+                <>
+                  <span className="material-symbols-outlined text-[16px] animate-spin">
+                    progress_activity
+                  </span>
+                  <span>กำลังลบ e-book...</span>
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined text-[16px]">delete_forever</span>
+                  <span>ลบออกจากคลังถาวร</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

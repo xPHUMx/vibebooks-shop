@@ -7,6 +7,7 @@ import { Order, OrderItem } from '@/types';
 import ApplePdfReader from '@/components/ApplePdfReader';
 import confetti from 'canvas-confetti';
 import { createClient } from '@/lib/supabase/client';
+import DeleteLibraryItemModal, { LibraryItemToDelete } from '@/components/DeleteLibraryItemModal';
 
 export default function MyLibraryPage() {
   const { user, profile, openAuthModal } = useAuth();
@@ -20,6 +21,8 @@ export default function MyLibraryPage() {
     bookTitle: string;
     fileName: string;
   } | null>(null);
+  const [deletingItem, setDeletingItem] = useState<LibraryItemToDelete | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetchUserOrders();
@@ -109,6 +112,70 @@ export default function MyLibraryPage() {
       alert('ไม่สามารถตรวจสอบสถานะได้ กรุณาลองใหม่อีกครั้ง');
     } finally {
       setCheckingOrderId(null);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingItem) return;
+    setIsDeleting(true);
+    try {
+      let authHeaders: Record<string, string> = {};
+      try {
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.access_token) {
+          authHeaders.Authorization = `Bearer ${session.access_token}`;
+        }
+      } catch {}
+
+      const storedGuestEmail = typeof window !== 'undefined' ? localStorage.getItem('vibebooks_customer_email') : null;
+      const email = user?.email || profile?.email || storedGuestEmail || undefined;
+
+      const res = await fetch('/api/orders', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+        },
+        body: JSON.stringify({
+          orderId: deletingItem.orderId,
+          productId: deletingItem.productId,
+          email,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'ไม่สามารถลบรายการได้');
+      }
+
+      // Update state
+      setOrders((prev) => {
+        return prev
+          .map((ord) => {
+            if (ord.id !== deletingItem.orderId) return ord;
+            const updatedItems = ord.items?.filter((it) => it.productId !== deletingItem.productId) || [];
+            if (updatedItems.length === 0) return null;
+            return {
+              ...ord,
+              items: updatedItems,
+            };
+          })
+          .filter((ord): ord is Order => ord !== null);
+      });
+
+      if (typeof window !== 'undefined') {
+        const lastPendingId = localStorage.getItem('vibebooks_last_pending_order_id');
+        if (lastPendingId === deletingItem.orderId) {
+          localStorage.removeItem('vibebooks_last_pending_order_id');
+        }
+      }
+
+      setDeletingItem(null);
+    } catch (err: any) {
+      alert(err?.message || 'เกิดข้อผิดพลาดในการลบรายการ');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -345,9 +412,26 @@ export default function MyLibraryPage() {
                             <p className="text-[10px] text-muted-slate font-mono">ไฟล์: {item.fileName}</p>
                           </div>
                         </div>
-                        <span className="px-3 py-1 rounded-full bg-amber-500/15 border border-amber-300 text-amber-800 text-[10px] font-bold shrink-0">
-                          🔒 รออนุมัติปล่อยไฟล์
-                        </span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span className="px-3 py-1 rounded-full bg-amber-500/15 border border-amber-300 text-amber-800 text-[10px] font-bold">
+                            🔒 รออนุมัติปล่อยไฟล์
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setDeletingItem({
+                                orderId: order.id,
+                                productId: item.productId,
+                                title: item.title,
+                                fileName: item.fileName,
+                              })
+                            }
+                            title="ลบ e-book นี้ออกจากรายการ"
+                            className="w-8 h-8 rounded-full border border-rose-200 bg-white hover:bg-rose-50 text-rose-500 hover:text-rose-700 flex items-center justify-center transition-all cursor-pointer shadow-sm"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">delete</span>
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -486,6 +570,23 @@ export default function MyLibraryPage() {
                             <span className="material-symbols-outlined text-[16px]">download</span>
                             <span>ดาวน์โหลดไฟล์ Master</span>
                           </a>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setDeletingItem({
+                                orderId: order.id,
+                                productId: item.productId,
+                                title: item.title,
+                                fileName: item.fileName,
+                                price: item.price,
+                              })
+                            }
+                            title="ลบ e-book ออกจากคลัง"
+                            className="w-10 h-10 rounded-full border border-rose-200/90 bg-white hover:bg-rose-50 text-rose-500 hover:text-rose-700 flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-sm hover:border-rose-300"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">delete</span>
+                          </button>
                         </div>
                       </div>
                     );
@@ -517,6 +618,15 @@ export default function MyLibraryPage() {
           onClose={() => setActiveReading(null)}
         />
       )}
+
+      {/* Delete Library Item Confirmation Modal */}
+      <DeleteLibraryItemModal
+        isOpen={Boolean(deletingItem)}
+        onClose={() => setDeletingItem(null)}
+        onConfirm={handleConfirmDelete}
+        item={deletingItem}
+        isDeleting={isDeleting}
+      />
     </div>
   );
 }

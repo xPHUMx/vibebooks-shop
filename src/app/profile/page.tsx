@@ -111,6 +111,11 @@ export default function ProfilePage() {
   const handleUploadStoreLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Show immediate preview right away
+    const objectUrl = URL.createObjectURL(file);
+    setStoreLogoUrl(objectUrl);
+
     setIsUploadingStoreLogo(true);
     try {
       const formData = new FormData();
@@ -120,6 +125,12 @@ export default function ProfilePage() {
       const data = await res.json();
       if (res.ok && data.success && data.url) {
         setStoreLogoUrl(data.url);
+        // Auto-save immediately to profile
+        try {
+          await updateProfile({ storeLogoUrl: data.url });
+        } catch (saveErr) {
+          console.warn('Auto-save store logo notice:', saveErr);
+        }
       } else {
         alert(data.error || 'ไม่สามารถอัปโหลดรูปร้านค้าได้');
       }
@@ -612,7 +623,15 @@ export default function ProfilePage() {
                   </div>
                   <div className="w-12 h-12 rounded-xl overflow-hidden border border-black/10 shrink-0 bg-porcelain shadow-sm flex items-center justify-center">
                     {storeLogoUrl ? (
-                      <img src={storeLogoUrl} alt="Store Logo Preview" className="w-full h-full object-cover" />
+                      <img
+                        src={storeLogoUrl}
+                        alt="Store Logo Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          target.style.display = 'none';
+                        }}
+                      />
                     ) : (
                       <span className="material-symbols-outlined text-[24px] text-amber-700">storefront</span>
                     )}

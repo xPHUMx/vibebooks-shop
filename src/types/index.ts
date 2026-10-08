@@ -67,6 +67,7 @@ export interface OrderItem {
   fileName: string;
   fileSize?: string;
   fileFormat?: string;
+  isHiddenByCustomer?: boolean;
 }
 
 export interface Order {
@@ -86,9 +87,12 @@ export interface Order {
   merchantId?: string;
   merchantName?: string;
   merchantPromptPay?: string;
+  isHiddenByCustomer?: boolean;
+  isDeletedByMerchant?: boolean;
   // Backwards compatibility fields for legacy book checkout:
   bookId?: string;
   bookTitle?: string;
+  title?: string;
   bookPrice?: number;
   fileName?: string;
 }
@@ -106,6 +110,8 @@ export interface UserProfile {
   promptPayId?: string;
   storeLogoUrl?: string;
   phone?: string;
+  termsAcceptedAt?: string;
+  privacyAcceptedAt?: string;
   createdAt?: string;
 }
 

@@ -1,12 +1,14 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { Order, DigitalProduct } from '@/types';
 import Link from 'next/link';
 import ProductPreviewModal from '@/components/ProductPreviewModal';
 import DeleteProductModal from '@/components/DeleteProductModal';
+import DeleteOrderModal from '@/components/DeleteOrderModal';
 import { createClient } from '@/lib/supabase/client';
+import { CATEGORIES, getCategoryName } from '@/lib/productsData';
 
 const COVER_PRESETS = [
   { name: 'Apple Glass', url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80' },
@@ -19,7 +21,8 @@ const COVER_PRESETS = [
 
 export default function MerchantDashboardPage() {
   const { user, profile, updateProfile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'settings'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'reports' | 'settings'>('orders');
+  const [reportTimeframe, setReportTimeframe] = useState<'all' | '30d' | '7d' | 'today'>('all');
   const [orders, setOrders] = useState<Order[]>([]);
   const [products, setProducts] = useState<DigitalProduct[]>([]);
   const [selectedSlip, setSelectedSlip] = useState<string | null>(null);
@@ -330,6 +333,11 @@ export default function MerchantDashboardPage() {
   const handleUploadStoreLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // 1. Show immediate preview right away!
+    const objectUrl = URL.createObjectURL(file);
+    setStoreLogoUrl(objectUrl);
+
     setIsUploadingStoreLogo(true);
     try {
       const fd = new FormData();
@@ -339,6 +347,12 @@ export default function MerchantDashboardPage() {
       const data = await res.json();
       if (res.ok && data.success && data.url) {
         setStoreLogoUrl(data.url);
+        // 2. Automatically persist to user profile in Supabase
+        try {
+          await updateProfile({ storeLogoUrl: data.url });
+        } catch (saveErr) {
+          console.warn('Auto-save store logo notice:', saveErr);
+        }
       } else {
         alert(data.error || 'ไม่สามารถอัปโหลดรูปร้านค้าได้');
       }
@@ -364,6 +378,7 @@ export default function MerchantDashboardPage() {
       title: newTitle.trim(),
       subtitle: newSubtitle.trim() || 'ผลิตภัณฑ์ดิจิทัลระดับพรีเมียม',
       category: newCategory,
+      categoryNameTh: getCategoryName(newCategory),
       price: Number(newPrice),
       originalPrice: Number(newOriginalPrice),
       fileName: newFileName,
@@ -442,6 +457,7 @@ export default function MerchantDashboardPage() {
         title: editTitle.trim(),
         subtitle: editSubtitle.trim(),
         category: editCategory,
+        categoryNameTh: getCategoryName(editCategory),
         price: Number(editPrice),
         originalPrice: Number(editOriginalPrice),
         description: editDescription.trim(),
@@ -524,6 +540,43 @@ export default function MerchantDashboardPage() {
     }
   };
 
+  // Merchant Transaction / Order Delete State
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
+  const [isDeletingOrder, setIsDeletingOrder] = useState(false);
+
+  const handleConfirmDeleteOrder = async () => {
+    if (!orderToDelete) return;
+    setIsDeletingOrder(true);
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch('/api/orders', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders,
+          ...(isDemoMerchant ? { 'x-demo-role': 'merchant' } : {}),
+        },
+        body: JSON.stringify({
+          orderId: orderToDelete.id,
+          isMerchantDelete: true,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'ไม่สามารถลบรายการธุรกรรมได้');
+      }
+
+      setOrders((prev) => prev.filter((o) => o.id !== orderToDelete.id));
+      setOrderToDelete(null);
+      alert('✅ ลบรายการธุรกรรมและปรับลดยอดขายออกจากระบบเรียบร้อยแล้ว');
+    } catch (err: any) {
+      alert(err?.message || 'เกิดข้อผิดพลาดในการลบรายการ');
+    } finally {
+      setIsDeletingOrder(false);
+    }
+  };
+
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSavingSettings(true);
@@ -588,6 +641,95 @@ export default function MerchantDashboardPage() {
       handleSaveEditProduct();
     });
     setIsPreviewModalOpen(true);
+  };
+
+  const targetMerchantId = user?.id || (isDemoMerchant ? '6d9320a0-53ce-4cbf-a9e3-c62b4102c959' : null);
+  const currentStore = storeName || profile?.storeName;
+
+  const storeOrders = orders.filter((o) => {
+    if (profile?.role === 'admin') return true;
+    if (targetMerchantId && o.merchantId === targetMerchantId) return true;
+    if (currentStore && o.merchantName === currentStore) return true;
+    if (products.some((p) => p.id === o.bookId || o.items?.some((it) => it.productId === p.id))) return true;
+    return false;
+  });
+
+  const filteredOrders = storeOrders.filter((o) => {
+    if (statusFilter === 'ALL') return true;
+    return o.status === statusFilter;
+  });
+
+  const totalRevenue = storeOrders
+    .filter((o) => o.status === 'PAID')
+    .reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+
+  const pendingCount = storeOrders.filter((o) => o.status === 'PENDING').length;
+
+  // Report Center calculations
+  const filteredReportOrders = useMemo(() => {
+    const now = new Date();
+    return storeOrders.filter((order) => {
+      if (reportTimeframe === 'all') return true;
+      const orderDate = order.createdAt ? new Date(order.createdAt) : new Date();
+      const diffMs = now.getTime() - orderDate.getTime();
+      const diffDays = diffMs / (1000 * 60 * 60 * 24);
+      if (reportTimeframe === 'today') return diffDays < 1;
+      if (reportTimeframe === '7d') return diffDays <= 7;
+      if (reportTimeframe === '30d') return diffDays <= 30;
+      return true;
+    });
+  }, [storeOrders, reportTimeframe]);
+
+  const reportPaidOrders = useMemo(() => filteredReportOrders.filter((o) => o.status === 'PAID'), [filteredReportOrders]);
+  const reportPendingOrders = useMemo(() => filteredReportOrders.filter((o) => o.status === 'PENDING'), [filteredReportOrders]);
+  const reportRevenue = useMemo(() => reportPaidOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0), [reportPaidOrders]);
+  const reportAov = useMemo(() => reportPaidOrders.length > 0 ? Math.round(reportRevenue / reportPaidOrders.length) : 0, [reportPaidOrders, reportRevenue]);
+  const reportConversionRate = useMemo(() => {
+    return filteredReportOrders.length > 0
+      ? ((reportPaidOrders.length / filteredReportOrders.length) * 100).toFixed(1)
+      : '100.0';
+  }, [filteredReportOrders, reportPaidOrders]);
+
+  // Product sales performance ranking
+  const productRanking = useMemo(() => {
+    const map: Record<string, { product: DigitalProduct; count: number; revenue: number }> = {};
+    products.forEach((p) => {
+      map[p.id] = { product: p, count: 0, revenue: 0 };
+    });
+    reportPaidOrders.forEach((o) => {
+      const itemTitle = (o.bookTitle || o.title || '').trim().toLowerCase();
+      const matched = products.find((p) => p.id === o.bookId || p.title.trim().toLowerCase() === itemTitle);
+      if (matched) {
+        if (!map[matched.id]) {
+          map[matched.id] = { product: matched, count: 0, revenue: 0 };
+        }
+        map[matched.id].count += 1;
+        map[matched.id].revenue += (o.totalAmount || matched.price);
+      }
+    });
+    return Object.values(map).sort((a, b) => b.revenue - a.revenue);
+  }, [products, reportPaidOrders]);
+
+  const handleExportMerchantCsv = () => {
+    const headers = ['Order ID', 'Date', 'Customer Name', 'Customer Email', 'Product', 'Amount (THB)', 'Status'];
+    const rows = filteredReportOrders.map((o) => [
+      `"${o.id}"`,
+      `"${o.createdAt ? new Date(o.createdAt).toLocaleString('th-TH') : '-'}"`,
+      `"${(o.customerName || '').replace(/"/g, '""')}"`,
+      `"${(o.customerEmail || '').replace(/"/g, '""')}"`,
+      `"${(o.bookTitle || o.title || '-').replace(/"/g, '""')}"`,
+      o.totalAmount || 0,
+      `"${o.status}"`
+    ]);
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `merchant-sales-report-${(storeName || 'store').replace(/\s+/g, '_')}-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const isMerchantOrAdmin = profile?.role === 'merchant' || profile?.role === 'admin' || isDemoMerchant;
@@ -686,28 +828,6 @@ export default function MerchantDashboardPage() {
     );
   }
 
-  const targetMerchantId = user?.id || (isDemoMerchant ? '6d9320a0-53ce-4cbf-a9e3-c62b4102c959' : null);
-  const currentStore = storeName || profile?.storeName;
-
-  const storeOrders = orders.filter((o) => {
-    if (profile?.role === 'admin') return true;
-    if (targetMerchantId && o.merchantId === targetMerchantId) return true;
-    if (currentStore && o.merchantName === currentStore) return true;
-    if (products.some((p) => p.id === o.bookId || o.items?.some((it) => it.productId === p.id))) return true;
-    return false;
-  });
-
-  const filteredOrders = storeOrders.filter((o) => {
-    if (statusFilter === 'ALL') return true;
-    return o.status === statusFilter;
-  });
-
-  const totalRevenue = storeOrders
-    .filter((o) => o.status === 'PAID')
-    .reduce((sum, o) => sum + o.totalAmount, 0);
-
-  const pendingCount = storeOrders.filter((o) => o.status === 'PENDING').length;
-
   return (
     <div className="max-w-6xl mx-auto space-y-6 pb-20 animate-fade-in">
       {/* Top Header Card */}
@@ -715,7 +835,15 @@ export default function MerchantDashboardPage() {
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-700 flex items-center justify-center text-2xl shrink-0 overflow-hidden">
             {storeLogoUrl ? (
-              <img src={storeLogoUrl} alt="Store Logo" className="w-full h-full object-cover" />
+              <img
+                src={storeLogoUrl}
+                alt="Store Logo"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  target.style.display = 'none';
+                }}
+              />
             ) : (
               <span>🏪</span>
             )}
@@ -788,10 +916,10 @@ export default function MerchantDashboardPage() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-black/[0.08] gap-2">
+      <div className="flex border-b border-black/[0.08] gap-2 overflow-x-auto scrollbar-none">
         <button
           onClick={() => setActiveTab('orders')}
-          className={`pb-3 px-4 text-xs sm:text-sm font-bold transition-all relative ${
+          className={`pb-3 px-4 text-xs sm:text-sm font-bold transition-all relative shrink-0 ${
             activeTab === 'orders' ? 'text-charcoal' : 'text-muted-slate hover:text-charcoal'
           }`}
         >
@@ -802,7 +930,7 @@ export default function MerchantDashboardPage() {
         </button>
         <button
           onClick={() => setActiveTab('products')}
-          className={`pb-3 px-4 text-xs sm:text-sm font-bold transition-all relative ${
+          className={`pb-3 px-4 text-xs sm:text-sm font-bold transition-all relative shrink-0 ${
             activeTab === 'products' ? 'text-charcoal' : 'text-muted-slate hover:text-charcoal'
           }`}
         >
@@ -812,8 +940,20 @@ export default function MerchantDashboardPage() {
           )}
         </button>
         <button
+          onClick={() => setActiveTab('reports')}
+          className={`pb-3 px-4 text-xs sm:text-sm font-bold transition-all relative shrink-0 flex items-center gap-1.5 ${
+            activeTab === 'reports' ? 'text-charcoal' : 'text-muted-slate hover:text-charcoal'
+          }`}
+        >
+          <span className="material-symbols-outlined text-[16px] text-amber-600">analytics</span>
+          <span>ศูนย์รายงาน & สถิติ (Report Center)</span>
+          {activeTab === 'reports' && (
+            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-black rounded-full" />
+          )}
+        </button>
+        <button
           onClick={() => setActiveTab('settings')}
-          className={`pb-3 px-4 text-xs sm:text-sm font-bold transition-all relative ${
+          className={`pb-3 px-4 text-xs sm:text-sm font-bold transition-all relative shrink-0 ${
             activeTab === 'settings' ? 'text-charcoal' : 'text-muted-slate hover:text-charcoal'
           }`}
         >
@@ -930,38 +1070,47 @@ export default function MerchantDashboardPage() {
                           )}
                         </td>
                         <td className="p-4 text-right">
-                          {order.status !== 'PAID' ? (
-                            <div className="flex items-center justify-end gap-1.5">
-                              {order.slipUrl && (
+                          <div className="flex items-center justify-end gap-1.5">
+                            {order.status !== 'PAID' ? (
+                              <>
+                                {order.slipUrl && (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedSlipOrder(order);
+                                      setSelectedSlip(order.slipUrl || null);
+                                    }}
+                                    className="h-8 px-2.5 rounded-full bg-black/[0.05] hover:bg-black/10 text-charcoal font-semibold text-xs inline-flex items-center gap-1 transition-all"
+                                    title="ดูสลิปและข้อมูลตรวจสอบ"
+                                  >
+                                    <span className="material-symbols-outlined text-[14px]">visibility</span>
+                                    <span>เช็ค</span>
+                                  </button>
+                                )}
                                 <button
-                                  onClick={() => {
-                                    setSelectedSlipOrder(order);
-                                    setSelectedSlip(order.slipUrl || null);
-                                  }}
-                                  className="h-8 px-2.5 rounded-full bg-black/[0.05] hover:bg-black/10 text-charcoal font-semibold text-xs inline-flex items-center gap-1 transition-all"
-                                  title="ดูสลิปและข้อมูลตรวจสอบ"
+                                  onClick={() => handleApproveOrder(order.id)}
+                                  disabled={isApprovingId === order.id}
+                                  className="h-8 px-3 rounded-full bg-accent-emerald hover:bg-green-600 text-white font-semibold text-xs inline-flex items-center gap-1 shadow-sm transition-all active:scale-95 disabled:opacity-50"
                                 >
-                                  <span className="material-symbols-outlined text-[14px]">visibility</span>
-                                  <span>เช็ค</span>
+                                  <span className={`material-symbols-outlined text-[14px] ${isApprovingId === order.id ? 'animate-spin' : ''}`}>
+                                    {isApprovingId === order.id ? 'progress_activity' : 'check_circle'}
+                                  </span>
+                                  <span>{isApprovingId === order.id ? 'กำลังปล่อยไฟล์...' : 'อนุมัติ & ปล่อยไฟล์'}</span>
                                 </button>
-                              )}
-                              <button
-                                onClick={() => handleApproveOrder(order.id)}
-                                disabled={isApprovingId === order.id}
-                                className="h-8 px-3 rounded-full bg-accent-emerald hover:bg-green-600 text-white font-semibold text-xs inline-flex items-center gap-1 shadow-sm transition-all active:scale-95 disabled:opacity-50"
-                              >
-                                <span className={`material-symbols-outlined text-[14px] ${isApprovingId === order.id ? 'animate-spin' : ''}`}>
-                                  {isApprovingId === order.id ? 'progress_activity' : 'check_circle'}
-                                </span>
-                                <span>{isApprovingId === order.id ? 'กำลังปล่อยไฟล์...' : 'อนุมัติ & ปล่อยไฟล์'}</span>
-                              </button>
-                            </div>
-                          ) : (
-                            <span className="text-[11px] text-accent-emerald font-semibold flex items-center justify-end gap-1">
-                              <span className="material-symbols-outlined text-[14px]">task_alt</span>
-                              <span>ส่งมอบเรียบร้อย</span>
-                            </span>
-                          )}
+                              </>
+                            ) : (
+                              <span className="text-[11px] text-accent-emerald font-semibold flex items-center justify-end gap-1">
+                                <span className="material-symbols-outlined text-[14px]">task_alt</span>
+                                <span>ส่งมอบเรียบร้อย</span>
+                              </span>
+                            )}
+                            <button
+                              onClick={() => setOrderToDelete(order)}
+                              className="w-8 h-8 rounded-full border border-rose-200 hover:bg-rose-50 text-rose-600 flex items-center justify-center transition-all shrink-0 ml-1 cursor-pointer"
+                              title="ลบรายการธุรกรรม / ยอดขายนี้ (Danger Zone)"
+                            >
+                              <span className="material-symbols-outlined text-[15px]">delete</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -1015,7 +1164,7 @@ export default function MerchantDashboardPage() {
                     />
                     <div className="min-w-0 flex-1 space-y-1">
                       <div className="inline-block px-2 py-0.5 rounded-full bg-black/[0.04] text-[10px] font-bold text-muted-slate uppercase">
-                        {prod.category} • {prod.fileFormat || 'PDF'}
+                        {getCategoryName(prod.category)} • {prod.fileFormat || 'PDF'}
                       </div>
                       <h3 className="text-sm font-bold text-charcoal truncate">{prod.title}</h3>
                       <div className="flex items-baseline gap-2">
@@ -1068,6 +1217,377 @@ export default function MerchantDashboardPage() {
         </div>
       )}
 
+      {/* TAB: REPORT CENTER (ศูนย์รายงาน & สถิติร้านค้า) */}
+      {activeTab === 'reports' && (
+        <div className="space-y-6 animate-fade-in">
+          {/* Report Center Header & Controls */}
+          <div className="bg-white rounded-squircle border border-black/[0.06] p-5 sm:p-6 shadow-level-1 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 rounded-lg bg-amber-500/10 text-amber-700 material-symbols-outlined text-[20px]">
+                  monitoring
+                </span>
+                <h2 className="text-lg sm:text-xl font-bold text-charcoal">
+                  ศูนย์รายงาน & สถิติร้านค้า (Merchant Report Center)
+                </h2>
+              </div>
+              <p className="text-xs text-muted-slate mt-1">
+                รายงานสถิติยอดจำหน่าย สินค้าขายดี และประวัติการสั่งซื้อร้าน <strong className="text-charcoal font-semibold">{storeName || profile?.storeName || 'ของคุณ'}</strong>
+              </p>
+            </div>
+
+            {/* Timeframe Selector & Export Buttons */}
+            <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+              {/* Timeframe Pills */}
+              <div className="flex items-center bg-porcelain p-1 rounded-full border border-black/[0.06] text-xs">
+                {(
+                  [
+                    { key: 'all', label: 'ทั้งหมด' },
+                    { key: '30d', label: '30 วัน' },
+                    { key: '7d', label: '7 วัน' },
+                    { key: 'today', label: 'วันนี้' },
+                  ] as const
+                ).map((tf) => (
+                  <button
+                    key={tf.key}
+                    onClick={() => setReportTimeframe(tf.key)}
+                    className={`px-3 py-1 rounded-full font-semibold transition-all ${
+                      reportTimeframe === tf.key
+                        ? 'bg-black text-white shadow-sm'
+                        : 'text-muted-slate hover:text-charcoal'
+                    }`}
+                  >
+                    {tf.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* CSV Export Button */}
+              <button
+                type="button"
+                onClick={handleExportMerchantCsv}
+                className="h-8 px-3 rounded-full bg-white hover:bg-black/[0.04] text-charcoal border border-black/10 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+                title="ส่งออกรายงานเป็นไฟล์ CSV"
+              >
+                <span className="material-symbols-outlined text-[15px] text-emerald-600">download</span>
+                <span>ส่งออก CSV</span>
+              </button>
+
+              {/* Print Button */}
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="h-8 px-3 rounded-full bg-white hover:bg-black/[0.04] text-charcoal border border-black/10 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+                title="พิมพ์หน้ารายงานสรุป"
+              >
+                <span className="material-symbols-outlined text-[15px]">print</span>
+                <span>พิมพ์รายงาน</span>
+              </button>
+            </div>
+          </div>
+
+          {/* KPI Stat Cards (6 Grid Tiles) */}
+          <div className="grid grid-cols-2 lg:grid-cols-6 gap-3.5">
+            <div className="bg-white rounded-squircle border border-black/[0.06] p-4 shadow-level-1 col-span-2 sm:col-span-1 lg:col-span-2">
+              <div className="flex items-center justify-between text-muted-slate mb-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider">ยอดขายสุทธิ (Gross Revenue)</span>
+                <span className="material-symbols-outlined text-[18px] text-emerald-600">payments</span>
+              </div>
+              <div className="text-2xl sm:text-3xl font-black text-charcoal mt-1">
+                ฿{reportRevenue.toLocaleString()}
+              </div>
+              <div className="text-[11px] text-accent-emerald font-semibold mt-1 flex items-center gap-1">
+                <span className="material-symbols-outlined text-[13px]">verified</span>
+                <span>ชำระผ่าน PromptPay สำเร็จ</span>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-squircle border border-black/[0.06] p-4 shadow-level-1">
+              <div className="flex items-center justify-between text-muted-slate mb-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider">ออเดอร์สำเร็จ</span>
+                <span className="material-symbols-outlined text-[18px] text-emerald-600">check_circle</span>
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-charcoal mt-1">
+                {reportPaidOrders.length}
+              </div>
+              <div className="text-[10px] text-muted-slate mt-1">
+                ปล่อยไฟล์เข้าคลังแล้ว
+              </div>
+            </div>
+
+            <div className="bg-white rounded-squircle border border-black/[0.06] p-4 shadow-level-1">
+              <div className="flex items-center justify-between text-muted-slate mb-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider">รอยืนยันสลิป</span>
+                <span className="material-symbols-outlined text-[18px] text-amber-600">hourglass_top</span>
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-amber-600 mt-1">
+                {reportPendingOrders.length}
+              </div>
+              <div className="text-[10px] text-muted-slate mt-1">
+                รอร้านตรวจยอดเงิน
+              </div>
+            </div>
+
+            <div className="bg-white rounded-squircle border border-black/[0.06] p-4 shadow-level-1">
+              <div className="flex items-center justify-between text-muted-slate mb-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider">Conversion</span>
+                <span className="material-symbols-outlined text-[18px] text-blue-600">trending_up</span>
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-charcoal mt-1">
+                {reportConversionRate}%
+              </div>
+              <div className="text-[10px] text-muted-slate mt-1">
+                อัตราสั่งซื้อสำเร็จ
+              </div>
+            </div>
+
+            <div className="bg-white rounded-squircle border border-black/[0.06] p-4 shadow-level-1">
+              <div className="flex items-center justify-between text-muted-slate mb-1">
+                <span className="text-[11px] font-bold uppercase tracking-wider">ยอดเฉลี่ย (AOV)</span>
+                <span className="material-symbols-outlined text-[18px] text-purple-600">shopping_bag</span>
+              </div>
+              <div className="text-xl sm:text-2xl font-black text-charcoal mt-1">
+                ฿{reportAov}
+              </div>
+              <div className="text-[10px] text-muted-slate mt-1">
+                เฉลี่ยต่อคำสั่งซื้อ
+              </div>
+            </div>
+          </div>
+
+          {/* Funnel Progress Bar */}
+          <div className="bg-white rounded-squircle border border-black/[0.06] p-5 shadow-level-1 space-y-3">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold text-charcoal flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[16px] text-charcoal">filter_alt</span>
+                <span>สถานะคำสั่งซื้อโดยรวม (Order Status Distribution)</span>
+              </span>
+              <span className="text-muted-slate">
+                ทั้งหมด {filteredReportOrders.length} คำสั่งซื้อ
+              </span>
+            </div>
+
+            <div className="w-full h-3 rounded-full bg-porcelain border border-black/[0.06] flex overflow-hidden">
+              <div
+                style={{ width: `${filteredReportOrders.length > 0 ? (reportPaidOrders.length / filteredReportOrders.length) * 100 : 100}%` }}
+                className="bg-accent-emerald h-full transition-all"
+                title={`ชำระแล้ว: ${reportPaidOrders.length}`}
+              />
+              <div
+                style={{ width: `${filteredReportOrders.length > 0 ? (reportPendingOrders.length / filteredReportOrders.length) * 100 : 0}%` }}
+                className="bg-amber-400 h-full transition-all"
+                title={`รอยืนยันสลิป: ${reportPendingOrders.length}`}
+              />
+            </div>
+
+            <div className="flex items-center gap-6 text-[11px] text-muted-slate pt-1">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-accent-emerald" />
+                <span>ชำระแล้ว ({reportPaidOrders.length})</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                <span>รอยืนยันสลิป ({reportPendingOrders.length})</span>
+              </div>
+              <div className="ml-auto text-[11px] text-muted-slate font-mono">
+                ช่วงเวลา: {reportTimeframe === 'all' ? 'ทั้งหมด' : reportTimeframe === '30d' ? '30 วันล่าสุด' : reportTimeframe === '7d' ? '7 วันล่าสุด' : 'วันนี้'}
+              </div>
+            </div>
+          </div>
+
+          {/* TOP PERFORMING PRODUCTS RANKING */}
+          <div className="bg-white rounded-squircle border border-black/[0.06] p-5 sm:p-6 shadow-level-1 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-base text-charcoal flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-amber-500 text-[20px]">emoji_events</span>
+                  <span>อันดับสินค้าดิจิทัลและหนังสือสร้างยอดขาย (Product Performance)</span>
+                </h3>
+                <p className="text-xs text-muted-slate mt-0.5">
+                  วิเคราะห์ยอดจำหน่ายและสัดส่วนรายได้แยกตามรายสินค้าในร้านค้าของคุณ
+                </p>
+              </div>
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-porcelain border border-black/[0.06] text-muted-slate">
+                {products.length} รายการในร้าน
+              </span>
+            </div>
+
+            {products.length === 0 ? (
+              <div className="text-center py-10 bg-porcelain/50 rounded-2xl border border-dashed border-black/10">
+                <span className="material-symbols-outlined text-[32px] text-muted-slate mb-1">menu_book</span>
+                <p className="text-xs font-semibold text-charcoal">ยังไม่มีสินค้าในร้านค้าของคุณ</p>
+                <p className="text-[11px] text-muted-slate mt-0.5">กดปุ่ม "เพิ่มสินค้าใหม่" เพื่อเริ่มจำหน่ายผลงานดิจิทัล</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto border border-black/[0.06] rounded-2xl overflow-hidden">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-porcelain text-muted-slate font-bold uppercase tracking-wider border-b border-black/[0.06]">
+                    <tr>
+                      <th className="p-3.5 w-14 text-center">อันดับ</th>
+                      <th className="p-3.5">สินค้าดิจิทัล</th>
+                      <th className="p-3.5">หมวดหมู่</th>
+                      <th className="p-3.5">ราคาขาย</th>
+                      <th className="p-3.5 text-center">ยอดขาย (เล่ม)</th>
+                      <th className="p-3.5 text-right">รายได้รวม</th>
+                      <th className="p-3.5 text-right">สัดส่วน</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-black/[0.04]">
+                    {productRanking.map((item, index) => {
+                      const share = reportRevenue > 0 ? ((item.revenue / reportRevenue) * 100).toFixed(1) : '0.0';
+                      return (
+                        <tr key={item.product.id} className="hover:bg-porcelain/40 transition-colors">
+                          <td className="p-3.5 text-center font-bold">
+                            {index === 0 && item.revenue > 0 ? (
+                              <span className="w-6 h-6 rounded-full bg-amber-400 text-amber-950 text-xs inline-flex items-center justify-center font-black shadow-xs">1</span>
+                            ) : index === 1 && item.revenue > 0 ? (
+                              <span className="w-6 h-6 rounded-full bg-slate-300 text-slate-800 text-xs inline-flex items-center justify-center font-black shadow-xs">2</span>
+                            ) : index === 2 && item.revenue > 0 ? (
+                              <span className="w-6 h-6 rounded-full bg-amber-700/30 text-amber-900 text-xs inline-flex items-center justify-center font-black shadow-xs">3</span>
+                            ) : (
+                              <span className="text-muted-slate font-mono text-xs">#{index + 1}</span>
+                            )}
+                          </td>
+                          <td className="p-3.5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl overflow-hidden bg-porcelain border border-black/10 shrink-0">
+                                <img
+                                  src={item.product.coverImage || COVER_PRESETS[0].url}
+                                  alt={item.product.title}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    const t = e.currentTarget;
+                                    t.style.display = 'none';
+                                  }}
+                                />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="font-bold text-charcoal truncate max-w-[240px]">
+                                  {item.product.title}
+                                </div>
+                                <div className="text-[10px] text-muted-slate font-mono">
+                                  ID: {item.product.id.slice(0, 12)}...
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="p-3.5">
+                            <span className="px-2 py-0.5 rounded-full bg-black/5 text-[10px] font-bold text-charcoal">
+                              {item.product.categoryNameTh || getCategoryName(item.product.category)}
+                            </span>
+                          </td>
+                          <td className="p-3.5 font-bold text-charcoal font-mono">
+                            ฿{item.product.price}
+                          </td>
+                          <td className="p-3.5 text-center font-mono font-bold text-charcoal">
+                            {item.count}
+                          </td>
+                          <td className="p-3.5 text-right font-black text-charcoal font-mono">
+                            ฿{item.revenue.toLocaleString()}
+                          </td>
+                          <td className="p-3.5 text-right">
+                            <span className="font-mono text-xs font-semibold text-muted-slate">
+                              {share}%
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {/* DETAILED TRANSACTION LOGS TABLE */}
+          <div className="bg-white rounded-squircle border border-black/[0.06] p-5 sm:p-6 shadow-level-1 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-base text-charcoal flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-[20px]">receipt_long</span>
+                  <span>บันทึกธุรกรรมคำสั่งซื้อทั้งหมด ({filteredReportOrders.length} รายการ)</span>
+                </h3>
+                <p className="text-xs text-muted-slate mt-0.5">
+                  รายการสลิปและคำสั่งซื้อที่ผูกกับร้านค้าของคุณในช่วงเวลาที่เลือก
+                </p>
+              </div>
+            </div>
+
+            {filteredReportOrders.length === 0 ? (
+              <div className="text-center py-10 bg-porcelain/50 rounded-2xl border border-dashed border-black/10">
+                <span className="material-symbols-outlined text-[32px] text-muted-slate mb-1">receipt</span>
+                <p className="text-xs font-semibold text-charcoal">ไม่พบประวัติคำสั่งซื้อในช่วงเวลานี้</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto border border-black/[0.06] rounded-2xl overflow-hidden">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-porcelain text-muted-slate font-bold uppercase tracking-wider border-b border-black/[0.06]">
+                    <tr>
+                      <th className="p-3.5">วันที่ & เวลา</th>
+                      <th className="p-3.5">รหัสคำสั่งซื้อ</th>
+                      <th className="p-3.5">ลูกค้า</th>
+                      <th className="p-3.5">สินค้า</th>
+                      <th className="p-3.5 text-right">ยอดชำระ</th>
+                      <th className="p-3.5 text-center">สถานะ</th>
+                      <th className="p-3.5 text-right">จัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-black/[0.04]">
+                    {filteredReportOrders.map((ord) => (
+                      <tr key={ord.id} className="hover:bg-porcelain/40 transition-colors">
+                        <td className="p-3.5 font-mono text-[11px] text-muted-slate">
+                          {ord.createdAt ? new Date(ord.createdAt).toLocaleString('th-TH') : '-'}
+                        </td>
+                        <td className="p-3.5 font-mono font-bold text-charcoal">
+                          {ord.id}
+                        </td>
+                        <td className="p-3.5">
+                          <div className="font-semibold text-charcoal">{ord.customerName}</div>
+                          <div className="text-[10px] text-muted-slate font-mono">{ord.customerEmail}</div>
+                        </td>
+                        <td className="p-3.5 font-medium text-charcoal">
+                          {ord.bookTitle || ord.title || 'ผลิตภัณฑ์ดิจิทัล'}
+                        </td>
+                        <td className="p-3.5 text-right font-bold font-mono text-charcoal">
+                          ฿{(ord.totalAmount || 0).toLocaleString()}
+                        </td>
+                        <td className="p-3.5 text-center">
+                          {ord.status === 'PAID' ? (
+                            <span className="px-2.5 py-0.5 rounded-full bg-accent-emerald/10 text-accent-emerald text-[10px] font-bold inline-flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-accent-emerald" />
+                              <span>ชำระแล้ว</span>
+                            </span>
+                          ) : ord.status === 'PENDING' ? (
+                            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-700 text-[10px] font-bold inline-flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
+                              <span>รอยืนยันสลิป</span>
+                            </span>
+                          ) : (
+                            <span className="px-2.5 py-0.5 rounded-full bg-black/10 text-muted-slate text-[10px] font-bold">
+                              {ord.status}
+                            </span>
+                          )}
+                        </td>
+                        <td className="p-3.5 text-right">
+                          <button
+                            onClick={() => setOrderToDelete(ord)}
+                            className="h-7 px-2.5 rounded-full border border-rose-200 bg-rose-50/50 hover:bg-rose-100 text-rose-600 font-semibold text-[11px] inline-flex items-center gap-1 transition-all cursor-pointer"
+                            title="ลบรายการธุรกรรม / ยอดขายนี้ (Danger Zone)"
+                          >
+                            <span className="material-symbols-outlined text-[13px]">delete</span>
+                            <span>ลบยอด</span>
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* TAB 3: STORE SETTINGS */}
       {activeTab === 'settings' && (
         <div className="max-w-2xl bg-white rounded-squircle border border-black/[0.06] p-6 sm:p-8 shadow-level-1 space-y-6">
@@ -1113,7 +1633,15 @@ export default function MerchantDashboardPage() {
                 </div>
                 <div className="w-12 h-12 rounded-xl overflow-hidden border border-black/10 shrink-0 bg-white shadow-sm flex items-center justify-center">
                   {storeLogoUrl ? (
-                    <img src={storeLogoUrl} alt="Store Logo Preview" className="w-full h-full object-cover" />
+                    <img
+                      src={storeLogoUrl}
+                      alt="Store Logo Preview"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.style.display = 'none';
+                      }}
+                    />
                   ) : (
                     <span className="material-symbols-outlined text-[24px] text-amber-700">storefront</span>
                   )}
@@ -1368,13 +1896,13 @@ export default function MerchantDashboardPage() {
                   <select
                     value={newCategory}
                     onChange={(e) => setNewCategory(e.target.value)}
-                    className="w-full h-10 rounded-full bg-porcelain border border-black/[0.08] px-3 text-xs text-charcoal outline-none"
+                    className="w-full h-10 rounded-full bg-porcelain border border-black/[0.08] px-3 text-xs text-charcoal outline-none focus:border-secondary"
                   >
-                    <option value="ebook">E-Books & Manuals</option>
-                    <option value="figma">Figma UI Kits</option>
-                    <option value="notion">Notion Systems</option>
-                    <option value="code">Source Code & SaaS</option>
-                    <option value="assets">3D & Visual Assets</option>
+                    {CATEGORIES.filter((c) => c.id !== 'all').map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.labelTh}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -1671,13 +2199,13 @@ export default function MerchantDashboardPage() {
                   <select
                     value={editCategory}
                     onChange={(e) => setEditCategory(e.target.value)}
-                    className="w-full h-10 rounded-full bg-porcelain border border-black/[0.08] px-3 text-xs text-charcoal outline-none"
+                    className="w-full h-10 rounded-full bg-porcelain border border-black/[0.08] px-3 text-xs text-charcoal outline-none focus:border-secondary"
                   >
-                    <option value="ebook">E-Books & Manuals</option>
-                    <option value="figma">Figma UI Kits</option>
-                    <option value="notion">Notion Systems</option>
-                    <option value="code">Source Code & SaaS</option>
-                    <option value="assets">3D & Visual Assets</option>
+                    {CATEGORIES.filter((c) => c.id !== 'all').map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.labelTh}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -1910,6 +2438,15 @@ export default function MerchantDashboardPage() {
         onConfirm={handleConfirmDeleteProduct}
         product={productToDelete}
         isDeleting={isDeletingProduct}
+      />
+
+      {/* DELETE TRANSACTION CONFIRMATION MODAL (MERCHANT DANGER ZONE) */}
+      <DeleteOrderModal
+        isOpen={Boolean(orderToDelete)}
+        onClose={() => setOrderToDelete(null)}
+        onConfirm={handleConfirmDeleteOrder}
+        order={orderToDelete}
+        isDeleting={isDeletingOrder}
       />
     </div>
   );
