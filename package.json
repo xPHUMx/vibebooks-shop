@@ -9,6 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "node tests/automated_suite.test.js",
     "desktop": "electron desktop/main.js",
     "desktop:dist": "electron-builder --win",
     "desktop:dist:portable": "electron-builder --win portable",
