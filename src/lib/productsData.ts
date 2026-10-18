@@ -6,9 +6,9 @@ export const STORE_INFO = {
   tagline: "Ultra-Refined Digital Store & Creator Vault",
   logoUrl: "/icon.jpg",
   curator: "นายเกียรติภูมิ หารศรีนาถ",
-  curatorFull: "นายเกียรติภูมิ หารศรีนาถ (รหัสนักศึกษา: 64332110242-2)",
+  curatorFull: "นายเกียรติภูมิ หารศรีนาถ",
   curatorEn: "Kiatphum Hansrinath",
-  studentId: "64332110242-2",
+  studentId: "",
   supportEmail: "support@booksangdai.store",
 };
 

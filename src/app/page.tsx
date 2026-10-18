@@ -92,7 +92,7 @@ export default function StorefrontPage() {
             {STORE_INFO.curator}
           </span>
           <span className="text-[11px] text-muted-slate">
-            ({STORE_INFO.studentId})
+            ({STORE_INFO.curatorEn})
           </span>
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-accent-emerald/15 text-[#248a3d]">
             Verified Creator
@@ -482,7 +482,7 @@ export default function StorefrontPage() {
           {STORE_INFO.brand} ({STORE_INFO.brandTh}) • สถาปัตยกรรมระบบดิจิทัลโปรดักส์และคู่มือวิศวกรรม
         </p>
         <p>
-          พัฒนาและจัดทำโดย {STORE_INFO.curator} ({STORE_INFO.curatorEn}) — รหัสนักศึกษา {STORE_INFO.studentId}
+          พัฒนาและจัดทำโดย {STORE_INFO.curator} ({STORE_INFO.curatorEn})
         </p>
         <p className="text-[11px] text-muted-slate/70">
           ระบบความปลอดภัยมาตรฐาน • จัดส่งไฟล์ดิจิทัลอัตโนมัติทันทีหลังชำระเงิน

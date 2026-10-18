@@ -40,6 +40,7 @@
 | **FEAT-ARCH-01** | **System Architecture & UML Diagrams** | จัดทำแผนภาพสถาปัตยกรรมระบบ 6 รูปแบบ (Use Case, Activity, ER, Sequence, Class, Site Map / UI Flow) ในไฟล์ `docs/SYSTEM_DIAGRAMS.md` ด้วย Mermaid Markdown | ✅ Released |
 | **FEAT-HYBRID-01** | **Capacitor Mobile & Electron Desktop Apps Setup** | พัฒนาและติดตั้งระบบแปลงเว็บเป็น Mobile App (Capacitor สำหรับ iOS/Android) และ Desktop App (Electron สำหรับ Windows/macOS) เชื่อมต่อโดเมน `https://booksangdai.vercel.app` พร้อมคำสั่งรันและคู่มือใน `docs/MOBILE_AND_DESKTOP_GUIDE.md` | ✅ Released |
 | **FEAT-REPORT-05** | **5-Chapter Academic Project Report (.docx)** | จัดทำเอกสารรายงานโครงงานคอมพิวเตอร์ฉบับสมบูรณ์ 5 บท ตามรูปแบบมาตรฐานวิชาการ ในไฟล์ `รายงานมินิโปรเจ็ค_BOOK_SANGDAI_บุ๊คสั่งได้.docx` โดย นายเกียรติภูมิ หารศรีนาถ 64332110242-2 วิชา ECP4N พร้อมรูปภาพ Diagrams และ UI Screenshots | ✅ Released |
+| **FEAT-PORTFOLIO-01** | **Web Portfolio Sanitization (Remove Student ID)** | ปรับแต่งส่วนหน้าเว็บและเอกสารสาธารณะให้พร้อมสำหรับใช้เป็น Portfolio ระดับมืออาชีพ โดยนำรหัสนักศึกษา 64332110242-2 ออกทั้งหมด คงไว้เฉพาะชื่อผู้พัฒนา นายเกียรติภูมิ หารศรีนาถ (Kiatphum Hansrinath) | ✅ Released |
 
 
 ---
@@ -143,6 +144,12 @@
 - **As a:** นักศึกษาผู้พัฒนา (นายเกียรติภูมิ หารศรีนาถ 64332110242-2) และอาจารย์ผู้สอน
 - **I want to:** มีไฟล์รายงานโครงงานวิชาการ 5 บทฉบับสมบูรณ์ในรูปแบบ `.docx` ที่มีเนื้อหาครบถ้วนตามหลักสูตร ECP4N พร้อมรูปภาพประกอบ Diagrams และ UI หน้าจอระบบจริง
 - **So that:** นำไปใช้ส่งรายงานวิชา หัวข้อเลือกสรรทางคอมพิวเตอร์ซอฟต์แวร์ และเป็นคู่มืออ้างอิงของระบบ Book Sangdai
+
+### US-PORTFOLIO-01: การจัดเก็บโครงงานเป็น Portfolio ส่วนตัว (เอาแค่ชื่อ ไม่เอารหัสนักศึกษา)
+- **As a:** ผู้พัฒนาเจ้าของผลงาน (นายเกียรติภูมิ หารศรีนาถ)
+- **I want to:** แสดงเฉพาะชื่อและนามสกุลบนหน้าเว็บแอปพลิเคชัน (Hero Curator Badge, Footer, PDF Reader, PWA Manifest) โดยไม่แสดงรหัสนักศึกษา
+- **So that:** สามารถนำระบบ Book Sangdai ไปใช้เป็นผลงาน Portfolio ระดับมืออาชีพ นำเสนอผลงานหรือสมัครงานได้อย่างมั่นใจและเหมาะสม
+
 
 
 

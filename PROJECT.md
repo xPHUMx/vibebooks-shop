@@ -9,8 +9,7 @@
 ## 👨‍💻 ข้อมูลโครงงานและผู้จัดทำ (Project Information)
 
 * **ชื่อโครงงาน:** Book Sangdai (บุ๊ค สั่งได้) — Next-Generation Digital Products & E-Book Commerce Platform
-* **ผู้พัฒนาโครงงาน:** **นายเกียรติภูมิ หารศรีนาถ**
-* **รหัสนักศึกษา:** **64332110242-2**
+* **ผู้พัฒนาโครงงาน:** **นายเกียรติภูมิ หารศรีนาถ (Kiatphum Hansrinath)**
 * **คลังซอร์สโค้ด (GitHub Repository):** [https://github.com/xPHUMx/vibebooks-shop](https://github.com/xPHUMx/vibebooks-shop)
 * **เว็บไซต์ระบบที่ Deploy ใช้งานจริง (Live Production URL):** [https://vibebooks-shop.vercel.app](https://vibebooks-shop.vercel.app)
 * **หน้าแสดงผลการทำงาน CI/CD (GitHub Actions):** [https://github.com/xPHUMx/vibebooks-shop/actions](https://github.com/xPHUMx/vibebooks-shop/actions)
@@ -81,4 +80,4 @@ npm run dev
 
 ---
 
-*เอกสารฉบับนี้จัดทำขึ้นโดย นายเกียรติภูมิ หารศรีนาถ (รหัสนักศึกษา: 64332110242-2) เพื่อใช้เป็นสารบัญหลักในการประเมินและตรวจผลงานโครงงาน Book Sangdai อย่างสมบูรณ์*
+*เอกสารฉบับนี้จัดทำขึ้นโดย นายเกียรติภูมิ หารศรีนาถ (Kiatphum Hansrinath) เพื่อใช้เป็นสารบัญหลักในการประเมินและตรวจผลงานโครงงาน Book Sangdai อย่างสมบูรณ์*

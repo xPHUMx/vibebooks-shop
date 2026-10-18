@@ -1,8 +1,7 @@
 # 🤖 บันทึกการใช้งานปัญญาประดิษฐ์ในการพัฒนาโครงงาน (AI Usage Log)
 ## โครงงาน: Book Sangdai (บุ๊ค สั่งได้) — Digital Commerce Platform
 
-* **ผู้พัฒนา:** นายเกียรติภูมิ หารศรีนาถ
-* **รหัสนักศึกษา:** 64332110242-2
+* **ผู้พัฒนา:** นายเกียรติภูมิ หารศรีนาถ (Kiatphum Hansrinath)
 * **โมเดลปัญญาประดิษฐ์หลัก:** Gemini 3.8 Flash & Pro (ผ่านแพลตฟอร์ม Google DeepMind Antigravity)
 * **สถาปัตยกรรมเอเจนต์:** Multi-Agent Pipeline (Product Manager, UI/UX Designer, Frontend Developer, Backend Developer, QA Engineer)
 

@@ -141,7 +141,7 @@ export default function ApplePdfReader({
       try {
         await navigator.share({
           title: bookTitle,
-          text: `E-book: ${bookTitle} โดย นายเกียรติภูมิ หารศรีนาถ (รหัสนักศึกษา: 64332110242-2)`,
+          text: `E-book: ${bookTitle} โดย นายเกียรติภูมิ หารศรีนาถ`,
           url: shareUrl,
         });
       } catch {
@@ -177,7 +177,7 @@ export default function ApplePdfReader({
               {bookTitle}
             </h2>
             <span className="text-[10px] text-[#86868b] truncate hidden sm:inline">
-              ผู้จัดทำ: นายเกียรติภูมิ หารศรีนาถ (รหัสนักศึกษา: 64332110242-2)
+              ผู้จัดทำ: นายเกียรติภูมิ หารศรีนาถ
             </span>
           </div>
         </div>

@@ -1,8 +1,7 @@
 # 🎨 งานออกแบบประสบการณ์ผู้ใช้และการเข้าถึง (User Experience & Accessibility)
 ## โครงงาน: Book Sangdai (บุ๊ค สั่งได้) — Digital Commerce Platform
 
-* **ผู้พัฒนา:** นายเกียรติภูมิ หารศรีนาถ
-* **รหัสนักศึกษา:** 64332110242-2
+* **ผู้พัฒนา:** นายเกียรติภูมิ หารศรีนาถ (Kiatphum Hansrinath)
 * **มาตรฐานการออกแบบ:** Apple Human Interface Guidelines (HIG) & Liquid Glass Design System
 * **มาตรฐานการเข้าถึง:** W3C Web Content Accessibility Guidelines (WCAG 2.1) Level AA
 

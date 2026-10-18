@@ -1,8 +1,7 @@
 # 🧪 รายงานผลการทดสอบอัตโนมัติและสถานะการทำงาน CI/CD (Test & CI Results)
 ## โครงงาน: Book Sangdai (บุ๊ค สั่งได้) — Digital Commerce Platform
 
-* **ผู้พัฒนา:** นายเกียรติภูมิ หารศรีนาถ
-* **รหัสนักศึกษา:** 64332110242-2
+* **ผู้พัฒนา:** นายเกียรติภูมิ หารศรีนาถ (Kiatphum Hansrinath)
 * **ไฟล์ไปป์ไลน์ GitHub Actions:** [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)
 * **หน้าผลการรัน CI บน GitHub:** [https://github.com/xPHUMx/vibebooks-shop/actions](https://github.com/xPHUMx/vibebooks-shop/actions)
 

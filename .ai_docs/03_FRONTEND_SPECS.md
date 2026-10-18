@@ -207,6 +207,14 @@ src/
     - Native Menu bar with Thai labels, offline graceful fallback screen
     - รันด้วยสคริปต์ `npm run desktop`
 
+- **Portfolio Professional Sanitization (Name Only, No Student ID):**
+  - **Homepage Hero Badge (`src/app/page.tsx`):** แสดง `STORE_INFO.curator` (`นายเกียรติภูมิ หารศรีนาถ`) และ `STORE_INFO.curatorEn` (`Kiatphum Hansrinath`) โดยไม่มีรหัสนักศึกษา
+  - **Homepage Footer (`src/app/page.tsx`):** แสดง `พัฒนาและจัดทำโดย {STORE_INFO.curator} ({STORE_INFO.curatorEn})` สะอาด เรียบหรู
+  - **Data Constants (`src/lib/productsData.ts` & `src/lib/booksData.ts`):** ปรับ `curatorFull` และ `authorFull` เป็นชื่อจริงเพียวๆ และกำหนด `studentId: ""`
+  - **PDF Reader Modal (`src/components/ApplePdfReader.tsx`):** ส่วนหัวของ Reader และฟังก์ชัน Share ระบุเฉพาะ `ผู้จัดทำ: นายเกียรติภูมิ หารศรีนาถ`
+  - **PWA Manifest (`public/manifest.json`):** ข้อความ description แสดงเฉพาะชื่อผู้พัฒนา
+
+
 
 
 

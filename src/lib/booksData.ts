@@ -2,9 +2,9 @@ import { Book } from "@/types";
 
 export const STUDENT_INFO = {
   name: "นายเกียรติภูมิ หารศรีนาถ",
-  authorFull: "นายเกียรติภูมิ หารศรีนาถ (รหัสนักศึกษา: 64332110242-2)",
+  authorFull: "นายเกียรติภูมิ หารศรีนาถ",
   nameEn: "Kiatphum Hansrinath",
-  studentId: "64332110242-2",
+  studentId: "",
   brand: "Book Sangdai",
   brandTh: "บุ๊คสั่งได้",
 };

@@ -167,6 +167,17 @@
 | **TC-DOCX-05** | ตรวจสอบภาพหน้าจอระบบจริง (UI Demonstration) | ฝังภาพหน้าจอ UI จริงครบทั้ง 13 ภาพ พร้อมคำบรรยายใต้ภาพ | ✅ PASS |
 | **TC-DOCX-06** | ตรวจสอบตารางและพจนานุกรมข้อมูล (Data Dictionary & QA Matrix) | แสดงตาราง 6 ตารางฐานข้อมูล และตารางผลการทดสอบ 12 Test Suites ครบถ้วน | ✅ PASS |
 
+### Test Suite 14: Web Portfolio Sanitization (No Student ID) Audit
+| ID | คำอธิบายการทดสอบ | ผลลัพธ์ที่คาดหวัง | ผลการทดสอบจริง |
+|:---|:---|:---|:---:|
+| **TC-PORT-01** | ค้นหารหัสนักศึกษาใน `src/` ทั้งหมด | ไม่พบรหัสนักศึกษา `64332110242-2` หรือคำว่า `รหัสนักศึกษา` ใน `src/` แม้แต่จุดเดียว (0 results) | ✅ PASS |
+| **TC-PORT-02** | ตรวจสอบหน้าแรก (`src/app/page.tsx`) | Badge ผู้พัฒนาแสดง `นายเกียรติภูมิ หารศรีนาถ (Kiatphum Hansrinath)` และ Footer แสดงชื่อโดยไม่มีรหัส | ✅ PASS |
+| **TC-PORT-03** | ตรวจสอบ PDF Reader (`src/components/ApplePdfReader.tsx`) | Header และ Share Text ระบุเฉพาะชื่อผู้พัฒนา ไม่แสดงรหัสนักศึกษา | ✅ PASS |
+| **TC-PORT-04** | ตรวจสอบ PWA Manifest (`public/manifest.json`) | Description ระบุชื่อผู้พัฒนา ไม่แสดงรหัสนักศึกษา | ✅ PASS |
+| **TC-PORT-05** | ตรวจสอบเอกสารสาธารณะ `README.md` และ `PROJECT.md` | ข้อมูลผู้จัดทำแสดงชื่อ-นามสกุล สะอาด เป็นมืออาชีพ พร้อมใช้เป็น Portfolio | ✅ PASS |
+| **TC-PORT-06** | ทดสอบ TypeScript Compilation (`npx tsc --noEmit`) | ผ่านสมบูรณ์ 0 errors | ✅ PASS |
+
+
 
 
 
